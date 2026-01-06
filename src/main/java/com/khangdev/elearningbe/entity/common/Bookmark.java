@@ -10,7 +10,7 @@ import lombok.*;
 @Entity
 @Table(name = "bookmarks",
         indexes = {
-                @Index(name = "idx_enrollment_id", columnList = "enrollment_id"),
+                @Index(name = "idx_user_id", columnList = "user_id"),
                 @Index(name = "idx_lecture_id", columnList = "lecture_id")
         }
 )

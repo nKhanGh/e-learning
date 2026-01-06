@@ -10,8 +10,9 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "certificates", indexes = {
-        @Index(name = "idx_enrollment_id", columnList = "enrollment_id"),
-        @Index(name = "idx_certificate_number", columnList = "certificate_number")
+        @Index(name = "idx_certificate_number", columnList = "certificate_number"),
+        @Index(name = "idx_user_id", columnList = "user_id"),
+        @Index(name = "idx_course_id", columnList = "course_id")
 })
 @Getter
 @Setter

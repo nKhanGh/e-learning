@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "course_categories", indexes = {
-        @Index(name = "idx_slug", columnList = "slug"),
         @Index(name = "idx_parent_id", columnList = "parent_id"),
         @Index(name = "idx_is_active", columnList = "is_active")
 })

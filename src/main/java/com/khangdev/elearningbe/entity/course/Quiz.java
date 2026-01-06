@@ -9,7 +9,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "quizzes", indexes = {
-        @Index(name = "idx_course_id", columnList = "course_id"),
         @Index(name = "idx_lecture_id", columnList = "lecture_id")
 })
 @Getter
