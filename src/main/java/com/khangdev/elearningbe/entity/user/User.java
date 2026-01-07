@@ -1,5 +1,6 @@
 package com.khangdev.elearningbe.entity.user;
 
+import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.enums.UserStatus;
 import jakarta.persistence.*;
@@ -7,7 +8,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.springframework.data.domain.Auditable;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -26,7 +29,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @SQLDelete(sql = "UPDATE users SET deleted_at = NOW() WHERE id = ?")
 @Where(clause = "deleted_at IS NULL")
-public class User {
+public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -40,7 +43,7 @@ public class User {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(length = 100)
+    @Column(length = 100, unique = true)
     private String phoneNumber;
 
     @Column(length = 100)
@@ -48,6 +51,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
+    @Builder.Default
     private UserRole role = UserRole.STUDENT;
 
     @Enumerated(EnumType.STRING)

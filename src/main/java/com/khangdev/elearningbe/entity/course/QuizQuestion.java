@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -43,11 +44,11 @@ public class QuizQuestion extends BaseEntity {
 
     @Convert(converter = StringListJsonConverter.class)
     @Column(columnDefinition = "JSON")
-    private String options;
+    private List<String> options;
 
     @Convert(converter = StringListJsonConverter.class)
     @Column(columnDefinition = "JSON", name = "correct_answers")
-    private String correctAnswers;
+    private List<String> correctAnswers;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
