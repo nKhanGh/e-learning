@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -19,9 +21,10 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
 
+    CustomJwtDecoder jwtDecoder;
+
     private static final String[] whiteList = {
             "/auth/login", "/auth/logout", "/auth/verify-email", "auth/register",
-            "/users",
             "/auth/introspect", "auth/refreshToken",
             "/job-seekers",
             "/recruiters",
@@ -42,9 +45,29 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->auth.
                         requestMatchers(whiteList).permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwtCustomize -> jwtCustomize
+                                .decoder(jwtDecoder)
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()
+                                )
+                        )
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                )
+
+        ;
 
         return http.build();
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+
+        return jwtAuthenticationConverter;
     }
 
 }

@@ -8,4 +8,5 @@ public interface UserService {
     UserResponse register(RegisterRequest request);
     void setStatus(String email, UserStatus status);
     void resetPassword(String email, String password);
+    UserResponse getMyInfo();
 }
