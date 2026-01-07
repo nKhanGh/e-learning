@@ -8,9 +8,7 @@ import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.UserMapper;
 import com.khangdev.elearningbe.repository.UserRepository;
-import com.khangdev.elearningbe.service.AuthenticationService;
-import com.khangdev.elearningbe.service.JwtService;
-import com.khangdev.elearningbe.service.RedisService;
+import com.khangdev.elearningbe.service.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.AccessLevel;
@@ -29,6 +27,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    EmailService emailService;
+    UserService userService;
     JwtService jwtService;
     RedisService redisService;
 
@@ -81,21 +81,44 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public UserResponse register(RegisterRequest request) {
-        return null;
+        UserResponse userResponse = userService.register(request);
+        emailService.sendOtpEmail(request.getEmail());
+        return userResponse;
     }
 
     @Override
     public EmailVerifyResponse verifyEmail(EmailVerifyRequest request) throws JOSEException {
-        return null;
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        EmailVerifyResponse response = emailService.verifyEmail(request);
+        if(response.isValid()){
+            userService.setStatus(request.getEmail(), UserStatus.ACTIVE);
+            response.setAccessToken(jwtService.generateToken(user, true));
+            response.setRefreshToken(jwtService.generateToken(user, false));
+        }
+        return response;
     }
 
     @Override
     public void forgotPassword(PasswordForgotRequest request) {
-
+        userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        String oldToken = redisService.getValue("RESET_PASSWORD:" + request.getEmail());
+        if (oldToken != null) {
+            redisService.deleteKey("RESET_PASSWORD:" + oldToken);
+        }
+        emailService.sendChangePasswordEmail(request.getEmail());
     }
 
     @Override
     public void resetPassword(PasswordResetRequest request) {
-
+        String token = request.getToken();
+        String email = redisService.getValue("RESET_PASSWORD:" + token);
+        if(email == null){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        redisService.deleteKey("RESET_PASSWORD:" + email);
+        redisService.deleteKey("RESET_PASSWORD:" + token);
+        userService.resetPassword(email, request.getPassword());
     }
 }

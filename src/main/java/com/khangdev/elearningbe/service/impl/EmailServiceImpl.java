@@ -10,13 +10,20 @@ import com.khangdev.elearningbe.service.EmailService;
 import com.khangdev.elearningbe.service.RedisService;
 import com.khangdev.elearningbe.utils.TokenGenerator;
 import feign.FeignException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailServiceImpl implements EmailService {
     EmailClient emailClient;
 

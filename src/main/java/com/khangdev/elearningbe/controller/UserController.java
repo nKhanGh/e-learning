@@ -19,10 +19,4 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     UserService userService;
 
-    @PostMapping
-    ApiResponse<UserResponse> register(@RequestBody RegisterRequest request){
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.register(request))
-                .build();
-    }
 }

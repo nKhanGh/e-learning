@@ -20,7 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     private static final String[] whiteList = {
-            "/auth/login", "/auth/logout", "/auth/verify-email",
+            "/auth/login", "/auth/logout", "/auth/verify-email", "auth/register",
             "/users",
             "/auth/introspect", "auth/refreshToken",
             "/job-seekers",
