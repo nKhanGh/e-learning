@@ -26,6 +26,7 @@ public class SecurityConfig {
     CustomJwtDecoder jwtDecoder;
     Oauth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     CustomOauth2UserService customOauth2UserService;
+    CustomAccessDeniedHandler customAccessDeniedHandler;
 
     private static final String[] whiteList = {
             "/auth/login", "/auth/logout", "/auth/verify-email", "auth/register",
@@ -66,6 +67,8 @@ public class SecurityConfig {
                             response.sendRedirect("http://localhost:5173/auth/error?error=" + exception.getMessage());
                         })
                 )
+
+                .exceptionHandling(exceptionHandlingCustomize -> exceptionHandlingCustomize.accessDeniedHandler(customAccessDeniedHandler))
         ;
 
         return http.build();
