@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.service;
 
 import com.khangdev.elearningbe.dto.PageResponse;
+import com.khangdev.elearningbe.dto.request.InstructorCreationRequest;
 import com.khangdev.elearningbe.dto.request.RegisterRequest;
 import com.khangdev.elearningbe.dto.request.UserUpdateRequest;
 import com.khangdev.elearningbe.dto.response.UserResponse;
@@ -20,5 +21,5 @@ public interface UserService {
     UserResponse update(UUID userId, UserUpdateRequest request, MultipartFile avatarFile);
     UserResponse getUserById(UUID id);
     PageResponse<UserResponse> getUserInCourse(UUID courseId, int page, int size);
-
+    UserResponse createInstructor(InstructorCreationRequest request);
 }

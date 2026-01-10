@@ -10,6 +10,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "instructors", indexes =  {
@@ -24,9 +25,13 @@ import java.util.List;
 public class Instructor extends BaseEntity {
 
     @Id
-    @OneToOne
+    @Column(name = "user_id")
+    private UUID id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    User user;
+    private User user;
 
     String tagline;
 

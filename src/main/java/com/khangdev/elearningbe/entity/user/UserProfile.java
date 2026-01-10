@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "user_profiles")
@@ -17,7 +18,11 @@ import java.time.Instant;
 public class UserProfile extends BaseEntity {
 
     @Id
-    @OneToOne
+    @Column(name = "user_id")
+    private UUID id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 

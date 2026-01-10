@@ -1,5 +1,6 @@
 package com.khangdev.elearningbe.mapper;
 
+import com.khangdev.elearningbe.dto.request.InstructorCreationRequest;
 import com.khangdev.elearningbe.dto.request.InstructorUpdateRequest;
 import com.khangdev.elearningbe.dto.response.InstructorResponse;
 import com.khangdev.elearningbe.entity.user.Instructor;
@@ -10,6 +11,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface InstructorMapper {
+    Instructor toInstructor(InstructorCreationRequest request);
     InstructorResponse toResponse(Instructor instructor);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

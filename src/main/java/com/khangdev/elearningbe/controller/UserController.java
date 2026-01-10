@@ -2,6 +2,7 @@ package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.PageResponse;
+import com.khangdev.elearningbe.dto.request.InstructorCreationRequest;
 import com.khangdev.elearningbe.dto.request.RegisterRequest;
 import com.khangdev.elearningbe.dto.request.UserUpdateRequest;
 import com.khangdev.elearningbe.dto.response.UserResponse;
@@ -54,7 +55,7 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("course/{courseId}")
+    @GetMapping("/course/{courseId}")
     ApiResponse<PageResponse<UserResponse>> getUserCourse(
             @PathVariable UUID courseId,
             @RequestParam(value = "0", required = true) int page,
@@ -62,6 +63,13 @@ public class UserController {
     ){
         return ApiResponse.<PageResponse<UserResponse>>builder()
                 .result(userService.getUserInCourse(courseId, page, size))
+                .build();
+    }
+
+    @PostMapping("/instructor")
+    ApiResponse<UserResponse> createInstructor(@RequestBody InstructorCreationRequest request){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.createInstructor(request))
                 .build();
     }
 
