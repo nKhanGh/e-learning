@@ -60,7 +60,7 @@ public class Course extends BaseEntity {
 
     @Convert(converter = StringListJsonConverter.class)
     @Column(name = "what_you_will_learn", columnDefinition = "JSON")
-    private String whatYouWillLearn;
+    private List<String> whatYouWillLearn;
 
     @Convert(converter = StringListJsonConverter.class)
     @Column(columnDefinition = "JSON")
@@ -69,7 +69,7 @@ public class Course extends BaseEntity {
 
     @Convert(converter = StringListJsonConverter.class)
     @Column(columnDefinition = "JSON", name = "target_audience")
-    private String targetAudience; // JSON array
+    private List<String> targetAudience; // JSON array
 
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;

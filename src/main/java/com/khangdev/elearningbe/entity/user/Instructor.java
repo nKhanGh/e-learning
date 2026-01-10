@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.entity.user;
 
 
+import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.enums.VerificationStatus;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "instructors", indexes =  {
@@ -37,8 +39,9 @@ public class Instructor extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String credentials;
 
+    @Convert(converter = StringListJsonConverter.class)
     @Column(name = "specializations", columnDefinition = "JSON")
-    private String specializations; // JSON array
+    private List<String> specializations; // JSON array
 
     @Column(name = "video_intro_url", length = 500)
     private String videoIntroUrl;
@@ -48,8 +51,10 @@ public class Instructor extends BaseEntity {
     @Builder.Default
     private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
+
+    @Convert(converter = StringListJsonConverter.class)
     @Column(name = "verification_documents", columnDefinition = "JSON")
-    private String verificationDocuments;
+    private List<String> verificationDocuments;
 
     @Column(name = "verified_at")
     private Instant verifiedAt;
@@ -80,8 +85,9 @@ public class Instructor extends BaseEntity {
     @Column(name = "payout_method", length = 50)
     private String payoutMethod;
 
+    @Convert(converter = StringListJsonConverter.class)
     @Column(name = "payout_details", columnDefinition = "JSON")
-    private String payoutDetails;
+    private List<String> payoutDetails;
 
     @Column(name = "commission_rate", precision = 5, scale = 2)
     @Builder.Default
