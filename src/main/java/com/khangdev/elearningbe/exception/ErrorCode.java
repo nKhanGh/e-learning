@@ -32,6 +32,10 @@ public enum ErrorCode {
     INVALID_TIME_REPORT(400, "You can only report this target after 7 days from the first time!", HttpStatus.BAD_REQUEST),
     CONVERSATION_NOT_FOUND(400, "Conversation not found", HttpStatus.BAD_REQUEST),
     NOTIFICATION_NOT_FOUND(400, "Notification not found", HttpStatus.BAD_REQUEST),
+
+    COURSE_CATEGORY_NOT_FOUND(400, "Category not found", HttpStatus.BAD_REQUEST),
+    COURSE_NOT_FOUND(400, "Course not found", HttpStatus.BAD_REQUEST),
+    COURSE_TAG_NOT_FOUND(400, "Course tag not found", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

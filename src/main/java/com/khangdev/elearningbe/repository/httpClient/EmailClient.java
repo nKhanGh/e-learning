@@ -1,7 +1,7 @@
 package com.khangdev.elearningbe.repository.httpClient;
 
-import com.khangdev.elearningbe.dto.request.EmailRequest;
-import com.khangdev.elearningbe.dto.response.EmailResponse;
+import com.khangdev.elearningbe.dto.request.email.EmailRequest;
+import com.khangdev.elearningbe.dto.response.email.EmailResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;

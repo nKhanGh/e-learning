@@ -2,10 +2,9 @@ package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.PageResponse;
-import com.khangdev.elearningbe.dto.request.InstructorCreationRequest;
-import com.khangdev.elearningbe.dto.request.RegisterRequest;
-import com.khangdev.elearningbe.dto.request.UserUpdateRequest;
-import com.khangdev.elearningbe.dto.response.UserResponse;
+import com.khangdev.elearningbe.dto.request.user.InstructorCreationRequest;
+import com.khangdev.elearningbe.dto.request.user.UserUpdateRequest;
+import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,11 +31,21 @@ public class UserController {
     @PutMapping("/{userId}")
     ApiResponse<UserResponse> updateUser(
             @PathVariable UUID userId,
-            @RequestPart("data") UserUpdateRequest request,
-            @RequestPart("avatar") MultipartFile avatar
+            @RequestPart(value = "data", required = true) UserUpdateRequest request,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
     ){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.update(userId, request, avatar))
+                .build();
+    }
+
+    @PutMapping("/my-profile")
+    ApiResponse<UserResponse> updateMyProfile(
+            @RequestPart(value = "data", required = true) UserUpdateRequest request,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+    ){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.update(userService.getMyInfo().getId(), request, avatar))
                 .build();
     }
 

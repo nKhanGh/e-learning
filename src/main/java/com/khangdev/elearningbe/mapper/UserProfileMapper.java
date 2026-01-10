@@ -1,7 +1,7 @@
 package com.khangdev.elearningbe.mapper;
 
-import com.khangdev.elearningbe.dto.request.ProfileUpdateRequest;
-import com.khangdev.elearningbe.dto.response.UserProfileResponse;
+import com.khangdev.elearningbe.dto.request.user.ProfileUpdateRequest;
+import com.khangdev.elearningbe.dto.response.user.UserProfileResponse;
 import com.khangdev.elearningbe.entity.user.UserProfile;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

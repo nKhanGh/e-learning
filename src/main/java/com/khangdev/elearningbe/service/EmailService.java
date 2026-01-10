@@ -1,9 +1,9 @@
 package com.khangdev.elearningbe.service;
 
-import com.khangdev.elearningbe.dto.request.EmailSendRequest;
-import com.khangdev.elearningbe.dto.request.EmailVerifyRequest;
-import com.khangdev.elearningbe.dto.response.EmailResponse;
-import com.khangdev.elearningbe.dto.response.EmailVerifyResponse;
+import com.khangdev.elearningbe.dto.request.email.EmailSendRequest;
+import com.khangdev.elearningbe.dto.request.authentication.EmailVerifyRequest;
+import com.khangdev.elearningbe.dto.response.email.EmailResponse;
+import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
 
 public interface EmailService {
     EmailResponse sendEmail(EmailSendRequest emailSendRequest);

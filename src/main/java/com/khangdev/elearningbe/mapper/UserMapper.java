@@ -1,7 +1,7 @@
 package com.khangdev.elearningbe.mapper;
 
-import com.khangdev.elearningbe.dto.request.UserUpdateRequest;
-import com.khangdev.elearningbe.dto.response.UserResponse;
+import com.khangdev.elearningbe.dto.request.user.UserUpdateRequest;
+import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.user.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

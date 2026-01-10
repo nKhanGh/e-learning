@@ -1,7 +1,12 @@
 package com.khangdev.elearningbe.service.impl;
 
-import com.khangdev.elearningbe.dto.request.*;
-import com.khangdev.elearningbe.dto.response.*;
+import com.khangdev.elearningbe.dto.request.authentication.*;
+import com.khangdev.elearningbe.dto.request.authentication.EmailVerifyRequest;
+import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
+import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
+import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
+import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
+import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.UserStatus;
 import com.khangdev.elearningbe.exception.AppException;

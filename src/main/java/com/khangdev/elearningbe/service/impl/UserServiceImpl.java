@@ -1,20 +1,20 @@
 package com.khangdev.elearningbe.service.impl;
 
 import com.khangdev.elearningbe.dto.PageResponse;
-import com.khangdev.elearningbe.dto.request.InstructorCreationRequest;
-import com.khangdev.elearningbe.dto.request.RegisterRequest;
-import com.khangdev.elearningbe.dto.request.UserUpdateRequest;
-import com.khangdev.elearningbe.dto.response.UserResponse;
+import com.khangdev.elearningbe.dto.request.user.InstructorCreationRequest;
+import com.khangdev.elearningbe.dto.request.authentication.RegisterRequest;
+import com.khangdev.elearningbe.dto.request.user.UserUpdateRequest;
+import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.user.Instructor;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.entity.user.UserProfile;
+import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.enums.UserStatus;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.InstructorMapper;
 import com.khangdev.elearningbe.mapper.UserMapper;
 import com.khangdev.elearningbe.mapper.UserProfileMapper;
-import com.khangdev.elearningbe.repository.CourseRepository;
 import com.khangdev.elearningbe.repository.EnrollmentRepository;
 import com.khangdev.elearningbe.repository.InstructorRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
@@ -30,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -146,10 +145,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createInstructor(InstructorCreationRequest request) {
-        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Instructor instructor = instructorMapper.toInstructor(request);
         instructor.setUser(user);
         user.setInstructor(instructor);
+        user.setRole(UserRole.INSTRUCTOR);
         instructorRepository.save(instructor);
         userRepository.save(user);
         return userMapper.toResponse(user);

@@ -1,10 +1,14 @@
 package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
-import com.khangdev.elearningbe.dto.request.*;
-import com.khangdev.elearningbe.dto.response.*;
+import com.khangdev.elearningbe.dto.request.authentication.*;
+import com.khangdev.elearningbe.dto.request.authentication.EmailVerifyRequest;
+import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
+import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
+import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
+import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
+import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.service.AuthenticationService;
-import com.khangdev.elearningbe.service.impl.AuthenticationServiceImpl;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
