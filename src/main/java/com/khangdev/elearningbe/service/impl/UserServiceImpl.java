@@ -1,22 +1,34 @@
 package com.khangdev.elearningbe.service.impl;
 
+import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.RegisterRequest;
+import com.khangdev.elearningbe.dto.request.UserUpdateRequest;
 import com.khangdev.elearningbe.dto.response.UserResponse;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.UserStatus;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
+import com.khangdev.elearningbe.mapper.InstructorMapper;
 import com.khangdev.elearningbe.mapper.UserMapper;
+import com.khangdev.elearningbe.mapper.UserProfileMapper;
+import com.khangdev.elearningbe.repository.CourseRepository;
+import com.khangdev.elearningbe.repository.EnrollmentRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
 import com.khangdev.elearningbe.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +36,10 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     UserMapper userMapper;
+    UserProfileMapper  userProfileMapper;
+    InstructorMapper instructorMapper;
     PasswordEncoder passwordEncoder;
+    EnrollmentRepository enrollmentRepository;
 
 
     @Override
@@ -74,5 +89,37 @@ public class UserServiceImpl implements UserService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toResponse(user);
+    }
+
+    @Override
+    public void deleteUser(UUID id) {
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    public UserResponse update(UUID userId, UserUpdateRequest request, MultipartFile avatarFile) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        userMapper.updateUser(user, request);
+        userProfileMapper.updateUserProfile(user.getProfile(), request.getProfileUpdateRequest());
+        instructorMapper.updateInstructor(user.getInstructor(), request.getInstructorUpdateRequest());
+        userRepository.save(user);
+        return userMapper.toResponse(user);
+    }
+
+    @Override
+    public UserResponse getUserById(UUID id) {
+        return userMapper.toResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
+    }
+
+    @Override
+    public PageResponse<UserResponse> getUserInCourse(UUID courseId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> result = enrollmentRepository.findUsersByCourseId(courseId, pageable);
+        return PageResponse.<UserResponse>builder()
+                .page(page)
+                .size(result.getSize())
+                .items(result.getContent().stream().map(userMapper::toResponse).toList())
+                .totalElements(result.getTotalElements())
+                .build();
     }
 }
