@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
                     .email(request.getEmail())
                     .phoneNumber(request.getPhone())
                     .password(passwordEncoder.encode(request.getPassword()))
-                    .status(UserStatus.PENDING)
+                    .status(request.getStatus() != null ? request.getStatus() : UserStatus.PENDING)
                     .build();
         userRepository.save(user);
         return userMapper.toResponse(user);

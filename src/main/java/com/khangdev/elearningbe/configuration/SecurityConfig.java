@@ -1,5 +1,7 @@
 package com.khangdev.elearningbe.configuration;
 
+import com.khangdev.elearningbe.security.oauth2.CustomOauth2UserService;
+import com.khangdev.elearningbe.security.oauth2.Oauth2LoginSuccessHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,6 +24,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 public class SecurityConfig {
 
     CustomJwtDecoder jwtDecoder;
+    Oauth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    CustomOauth2UserService customOauth2UserService;
 
     private static final String[] whiteList = {
             "/auth/login", "/auth/logout", "/auth/verify-email", "auth/register",
@@ -32,6 +36,7 @@ public class SecurityConfig {
             "/auth/reset-password",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
             "/addresses/**",
+            "/oauth2/**",
             "/jobs/**",
             "/industries/**",
             "/dashboard/**",
@@ -54,7 +59,13 @@ public class SecurityConfig {
                         )
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
-
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOauth2UserService))
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            response.sendRedirect("http://localhost:5173/auth/error?error=" + exception.getMessage());
+                        })
+                )
         ;
 
         return http.build();
