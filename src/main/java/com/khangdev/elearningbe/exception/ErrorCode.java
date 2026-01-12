@@ -37,6 +37,11 @@ public enum ErrorCode {
     COURSE_NOT_FOUND(400, "Course not found", HttpStatus.BAD_REQUEST),
     COURSE_TAG_NOT_FOUND(400, "Course tag not found", HttpStatus.BAD_REQUEST),
     COURSE_SECTION_NOT_FOUND(400, "Course section not found", HttpStatus.BAD_REQUEST),
+
+    LECTURE_NOT_FOUND(400, "Lecture not found", HttpStatus.BAD_REQUEST),
+    QUIZ_NOT_FOUND(400, "Quiz not found", HttpStatus.BAD_REQUEST),
+    QUIZ_EXISTED(400, "Quiz already existed", HttpStatus.BAD_REQUEST),
+    QUIZ_QUESTION_NOT_FOUND(400, "Quiz question not found", HttpStatus.BAD_REQUEST),
     ;
 
     int code;
