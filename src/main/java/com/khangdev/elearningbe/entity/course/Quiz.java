@@ -70,7 +70,12 @@ public class Quiz extends BaseEntity {
     @Builder.Default
     private Boolean isPublished = true;
 
-    @OneToMany(mappedBy = "quiz", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(
+            mappedBy = "quiz",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
     private List<QuizQuestion> questions = new ArrayList<>();
 
     public void addQuestion(QuizQuestion question) {

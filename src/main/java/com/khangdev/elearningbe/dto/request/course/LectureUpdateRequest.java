@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -23,7 +24,7 @@ public class LectureUpdateRequest {
     private String videoQuality;
     private Boolean hasCaptions = false;
     private String captionUrl;
-    private String attachments;
+    private List<String> attachments;
     private String externalUrl;
     private Boolean isPreview = false;
     private Boolean isDownloadable = false;

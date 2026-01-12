@@ -64,7 +64,7 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
 
 
         quiz.addQuestion(quizQuestion);
-        quizRepository.save(quiz);
+//        quizRepository.save(quiz);
 
         return quizQuestionMapper.toQuizQuestionResponse(quizQuestion);
     }
@@ -78,7 +78,7 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
         authorize(question.getQuiz().getLecture().getSection().getCourse().getInstructor().getId());
         Quiz quiz = question.getQuiz();
         quiz.removeQuestion(question);
-        quizRepository.save(quiz);
+//        quizRepository.save(quiz);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_QUESTION_NOT_FOUND));
         authorize(question.getQuiz().getLecture().getSection().getCourse().getInstructor().getId());
         quizQuestionMapper.updateQuizQuestion(question, request);
-        quizRepository.save(question.getQuiz());
+//        quizRepository.save(question.getQuiz());
         return quizQuestionMapper.toQuizQuestionResponse(question);
     }
 }

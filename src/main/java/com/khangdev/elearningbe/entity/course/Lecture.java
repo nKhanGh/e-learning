@@ -1,10 +1,12 @@
 package com.khangdev.elearningbe.entity.course;
 
+import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.enums.ContentType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -63,8 +65,9 @@ public class Lecture extends BaseEntity {
     private String captionUrl;
 
     // File attachments
+    @Convert(converter = StringListJsonConverter.class)
     @Column(columnDefinition = "JSON")
-    private String attachments; // JSON array
+    private List<String> attachments; // JSON array
 
     // External resources
     @Column(name = "external_url", length = 500)

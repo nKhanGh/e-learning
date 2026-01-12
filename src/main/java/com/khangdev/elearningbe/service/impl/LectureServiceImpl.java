@@ -79,7 +79,7 @@ public class LectureServiceImpl implements LectureService {
         Lecture lecture = lectureMapper.toLecture(lectureRequest);
         lecture.setSection(section);
         Integer maxOrder = lectureRepository.findMaxDisplayOrderBySectionId(section.getId());
-        lecture.setDisplayOrder(maxOrder + 1);
+        lecture.setDisplayOrder(maxOrder != null ? maxOrder + 1 : 1);
 
         lectureRepository.save(lecture);
         return lectureMapper.toLectureResponse(lecture);

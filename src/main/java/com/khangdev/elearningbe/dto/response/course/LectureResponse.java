@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -28,7 +29,7 @@ public class LectureResponse {
     private String videoQuality;
     private Boolean hasCaptions;
     private String captionUrl;
-    private String attachments;
+    private List<String> attachments;
     private String externalUrl;
     private Boolean isPreview ;
     private Boolean isDownloadable;

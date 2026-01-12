@@ -64,7 +64,7 @@ public class QuizServiceImpl implements QuizService {
         authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
 
         quizMapper.updateQuiz(quiz, request);
-        quizRepository.save(quiz);
+//        quizRepository.save(quiz);
         return quizMapper.toQuizResponse(quiz);
     }
 
