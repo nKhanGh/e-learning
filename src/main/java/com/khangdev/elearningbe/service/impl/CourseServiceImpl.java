@@ -220,4 +220,32 @@ public class CourseServiceImpl implements CourseService {
         redisService.setValue(cacheKey, objectMapper.writeValueAsString(response), 10, TimeUnit.MINUTES);
         return response;
     }
+
+    @Override
+    public CourseResponse getCourseById(UUID courseId) {
+        return courseMapper.toResponse(courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND))
+        );
+    }
+
+    @Override
+    public void deleteCourse(UUID courseId) {
+        courseRepository.deleteById(courseId);
+    }
+
+    @Override
+    public PageResponse<CourseResponse> getCourses(UUID instructorId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size,  Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Course> coursePage =  courseRepository.findByInstructorId(instructorId, pageable);
+
+        return PageResponse.<CourseResponse>builder()
+                .items(coursePage.getContent().stream().map(courseMapper::toResponse).toList())
+                .page(page)
+                .size(size)
+                .totalPages(coursePage.getTotalPages())
+                .totalElements(coursePage.getTotalElements())
+                .build();
+
+    }
 }

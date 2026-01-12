@@ -15,4 +15,7 @@ public interface CourseService {
     CourseResponse createCourse(CourseCreationRequest request);
     CourseResponse updateCourse(UUID courseId, CourseUpdateRequest request);
     PageResponse<CourseResponse> searchCourse(CourseSearchRequest request, int page, int size) throws JsonProcessingException;
+    CourseResponse getCourseById(UUID courseId);
+    void deleteCourse(UUID courseId);
+    PageResponse<CourseResponse> getCourses(UUID instructorId, int page, int size);
 }

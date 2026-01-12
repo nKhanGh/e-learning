@@ -36,6 +36,7 @@ public enum ErrorCode {
     COURSE_CATEGORY_NOT_FOUND(400, "Category not found", HttpStatus.BAD_REQUEST),
     COURSE_NOT_FOUND(400, "Course not found", HttpStatus.BAD_REQUEST),
     COURSE_TAG_NOT_FOUND(400, "Course tag not found", HttpStatus.BAD_REQUEST),
+    COURSE_SECTION_NOT_FOUND(400, "Course section not found", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

@@ -42,6 +42,7 @@ public class SecurityConfig {
             "/industries/**",
             "/dashboard/**",
             "/ws/**",
+            "/courses/search/**"
     };
 
     @Bean
