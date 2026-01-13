@@ -1,7 +1,9 @@
 package com.khangdev.elearningbe.service;
 
 import com.khangdev.elearningbe.dto.request.course.QuizRequest;
+import com.khangdev.elearningbe.dto.request.course.QuizSubmitRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.QuizAttemptResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizResponse;
 
 import java.util.UUID;

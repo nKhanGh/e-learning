@@ -1,5 +1,6 @@
 package com.khangdev.elearningbe.service.impl;
 
+import com.khangdev.elearningbe.dto.request.course.QuizAnswerRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
@@ -17,6 +18,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -92,4 +96,22 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
 //        quizRepository.save(question.getQuiz());
         return quizQuestionMapper.toQuizQuestionResponse(question);
     }
+
+    @Override
+    public BigDecimal calculateScore(QuizAnswerRequest request) {
+        QuizQuestion quizQuestion = quizQuestionRepository.findById(request.getQuestionId())
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_QUESTION_NOT_FOUND));
+
+        int correctCount = quizQuestion.getCorrectAnswers().size();
+
+        BigDecimal scorePerAnswer = BigDecimal.ONE
+                .divide(BigDecimal.valueOf(correctCount), 2, RoundingMode.HALF_UP);
+
+        long correctSelected = request.getAnswers().stream()
+                .filter(quizQuestion.getCorrectAnswers()::contains)
+                .count();
+
+        return scorePerAnswer.multiply(BigDecimal.valueOf(correctSelected));
+    }
+
 }

@@ -14,13 +14,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class QuizAttemptId implements Serializable {
+public class QuizAnswerId implements Serializable {
     @Column(name = "user_id")
     private UUID userId;
 
-    @Column(name = "quiz_id")
-    private UUID quizId;
-
     @Column(name = "attempt_number")
     private Integer attemptNumber;
+
+    @Column(name = "quiz_question_id")
+    private UUID quizQuestionId;
 }

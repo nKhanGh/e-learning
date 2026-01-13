@@ -42,6 +42,11 @@ public enum ErrorCode {
     QUIZ_NOT_FOUND(400, "Quiz not found", HttpStatus.BAD_REQUEST),
     QUIZ_EXISTED(400, "Quiz already existed", HttpStatus.BAD_REQUEST),
     QUIZ_QUESTION_NOT_FOUND(400, "Quiz question not found", HttpStatus.BAD_REQUEST),
+
+    ENROLLMENT_NOT_FOUND(400, "Enrollment not found", HttpStatus.BAD_REQUEST),
+    QUIZ_ATTEMPT_NOT_FOUND(400, "Quiz attempt not found", HttpStatus.BAD_REQUEST),
+
+    QUIZ_ATTEMPT_INVALID(401, "You must complete the quiz you previously participated in.", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

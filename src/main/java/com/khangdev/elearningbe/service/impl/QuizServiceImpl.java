@@ -1,15 +1,19 @@
 package com.khangdev.elearningbe.service.impl;
 
 import com.khangdev.elearningbe.dto.request.course.QuizRequest;
+import com.khangdev.elearningbe.dto.request.course.QuizSubmitRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.QuizAttemptResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizResponse;
 import com.khangdev.elearningbe.entity.course.Lecture;
 import com.khangdev.elearningbe.entity.course.Quiz;
+import com.khangdev.elearningbe.entity.course.QuizAttempt;
+import com.khangdev.elearningbe.entity.id.QuizAttemptId;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
+import com.khangdev.elearningbe.mapper.QuizAttemptMapper;
 import com.khangdev.elearningbe.mapper.QuizMapper;
-import com.khangdev.elearningbe.repository.LectureRepository;
-import com.khangdev.elearningbe.repository.QuizRepository;
+import com.khangdev.elearningbe.repository.*;
 import com.khangdev.elearningbe.service.QuizService;
 import com.khangdev.elearningbe.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -26,6 +32,10 @@ public class QuizServiceImpl implements QuizService {
     private final QuizMapper quizMapper;
     private final UserService userService;
     private final LectureRepository lectureRepository;
+    private final EnrollmentRepository enrollmentRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final UserRepository userRepository;
+    private final QuizAttemptMapper quizAttemptMapper;
 
     private void authorize(UUID courseUserId) {
         UUID userId = userService.getMyInfo().getId();

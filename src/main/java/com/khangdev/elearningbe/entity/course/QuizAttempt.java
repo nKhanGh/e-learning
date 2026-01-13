@@ -11,6 +11,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name = "quiz_attempts", indexes = {
@@ -23,7 +24,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuizAttemp extends BaseEntity {
+public class QuizAttempt extends BaseEntity {
 
     @EmbeddedId
     QuizAttemptId id;
@@ -37,12 +38,6 @@ public class QuizAttemp extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     @MapsId("userId")
     private User user;
-
-    @Column(name = "attempt_number", nullable = false)
-    private Integer attemptNumber;
-
-    @Column(name = "started_at")
-    private Instant startedAt = Instant.now();
 
     @Column(name = "submitted_at")
     private Instant submittedAt;
@@ -62,8 +57,4 @@ public class QuizAttemp extends BaseEntity {
     @Column(nullable = false, length = 20)
     @Builder.Default
     private AttemptStatus status = AttemptStatus.IN_PROGRESS;
-
-    @Convert(converter = StringListJsonConverter.class)
-    @Column(columnDefinition = "JSON")
-    private String answers;
 }
