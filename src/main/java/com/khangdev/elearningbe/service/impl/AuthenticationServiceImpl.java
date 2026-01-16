@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationServiceImpl implements AuthenticationService {
     UserRepository userRepository;
-    UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     EmailService emailService;
     UserService userService;

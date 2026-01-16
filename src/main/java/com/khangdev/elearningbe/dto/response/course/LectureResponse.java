@@ -1,9 +1,6 @@
 package com.khangdev.elearningbe.dto.response.course;
 
-import com.khangdev.elearningbe.entity.course.CourseSection;
-import com.khangdev.elearningbe.entity.course.Quiz;
 import com.khangdev.elearningbe.enums.ContentType;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

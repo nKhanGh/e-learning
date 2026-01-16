@@ -1,6 +1,5 @@
 package com.khangdev.elearningbe.repository;
 
-import com.khangdev.elearningbe.dto.response.course.CourseSectionResponse;
 import com.khangdev.elearningbe.entity.course.CourseSection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

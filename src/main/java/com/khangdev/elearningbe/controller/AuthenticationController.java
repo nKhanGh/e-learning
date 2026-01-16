@@ -56,14 +56,14 @@ public class AuthenticationController {
     }
 
     @PostMapping("/verify-email")
-    public ApiResponse<EmailVerifyResponse> verifyEmail(@RequestBody EmailVerifyRequest request) throws ParseException, JOSEException {
+    public ApiResponse<EmailVerifyResponse> verifyEmail(@RequestBody EmailVerifyRequest request) throws JOSEException {
         return ApiResponse.<EmailVerifyResponse>builder()
                 .result(authenticationService.verifyEmail(request))
                 .build();
     }
 
     @PostMapping("/forgot-password")
-    public ApiResponse<Void> forgotPassword(@RequestBody PasswordForgotRequest request) throws ParseException, JOSEException {
+    public ApiResponse<Void> forgotPassword(@RequestBody PasswordForgotRequest request) {
         authenticationService.forgotPassword(request);
         return ApiResponse.<Void>builder()
                 .message("Email for reset password has been sent")
@@ -71,7 +71,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/reset-password")
-    public ApiResponse<Void> resetPassword(@RequestBody PasswordResetRequest request) throws ParseException, JOSEException {
+    public ApiResponse<Void> resetPassword(@RequestBody PasswordResetRequest request) {
         authenticationService.resetPassword(request);
         return ApiResponse.<Void>builder()
                 .message("Password has been reset")

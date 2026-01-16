@@ -1,7 +1,6 @@
 package com.khangdev.elearningbe.mapper;
 
 import com.khangdev.elearningbe.dto.request.course.CourseSectionRequest;
-import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSectionResponse;
 import com.khangdev.elearningbe.entity.course.CourseSection;
 import org.mapstruct.Mapper;

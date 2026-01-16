@@ -9,7 +9,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "messages")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

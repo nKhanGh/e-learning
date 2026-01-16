@@ -11,11 +11,11 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseSectionResponse {
+public class PublicLectureResponse {
     private UUID id;
+    private CourseSectionResponse section;
     private String title;
     private String description;
-    private Integer displayOrder;
-    private Integer durationMinutes = 0;
-    private Boolean isPublished = true;
+    private Boolean isPublished;
+    private QuizResponse quiz;
 }

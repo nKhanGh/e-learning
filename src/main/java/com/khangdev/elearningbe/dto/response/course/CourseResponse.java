@@ -1,13 +1,8 @@
 package com.khangdev.elearningbe.dto.response.course;
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
-import com.khangdev.elearningbe.entity.course.CourseCategory;
-import com.khangdev.elearningbe.entity.course.CourseTag;
-import com.khangdev.elearningbe.entity.user.Instructor;
 import com.khangdev.elearningbe.enums.CourseLevel;
 import com.khangdev.elearningbe.enums.CourseStatus;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +10,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 

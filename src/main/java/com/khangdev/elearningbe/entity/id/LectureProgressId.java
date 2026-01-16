@@ -12,11 +12,13 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode
-public class BookmarkId implements Serializable {
-    @Column(name = "lecture_id")
-    private UUID lectureId;
+public class LectureProgressId implements Serializable {
 
     @Column(name = "user_id")
     private UUID userId;
+
+    @Column(name = "lecture_id")
+    private UUID lectureId;
 }

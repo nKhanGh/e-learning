@@ -2,7 +2,6 @@ package com.khangdev.elearningbe.mapper;
 
 import com.khangdev.elearningbe.dto.response.course.QuizAnswerResponse;
 import com.khangdev.elearningbe.entity.course.QuizAnswer;
-import com.khangdev.elearningbe.entity.course.QuizAttempt;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

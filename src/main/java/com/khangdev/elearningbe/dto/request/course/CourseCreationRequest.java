@@ -2,7 +2,6 @@ package com.khangdev.elearningbe.dto.request.course;
 
 import com.khangdev.elearningbe.enums.CourseLevel;
 import com.khangdev.elearningbe.enums.CourseStatus;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;

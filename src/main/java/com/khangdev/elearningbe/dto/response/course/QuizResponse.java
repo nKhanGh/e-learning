@@ -1,7 +1,5 @@
 package com.khangdev.elearningbe.dto.response.course;
 
-import com.khangdev.elearningbe.entity.course.Lecture;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

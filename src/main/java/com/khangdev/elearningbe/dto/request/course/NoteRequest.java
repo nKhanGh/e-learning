@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-    public class CourseCategoryRequest {
-        private String name;
-        private String description;
-        private String iconUrl;
-    }
+public class NoteRequest {
+    String note;
+}

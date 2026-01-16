@@ -3,6 +3,7 @@ package com.khangdev.elearningbe.service.impl;
 import com.khangdev.elearningbe.dto.request.course.LectureRequest;
 import com.khangdev.elearningbe.dto.request.course.LectureUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.LectureResponse;
+import com.khangdev.elearningbe.dto.response.course.PublicLectureResponse;
 import com.khangdev.elearningbe.entity.course.CourseSection;
 import com.khangdev.elearningbe.entity.course.Lecture;
 import com.khangdev.elearningbe.exception.AppException;
@@ -39,6 +40,12 @@ public class LectureServiceImpl implements LectureService {
         }
         return lectureRepository.findBySectionId(sectionId).stream()
                 .map(lectureMapper::toLectureResponse).toList();
+    }
+
+    @Override
+    public List<PublicLectureResponse> getGeneralLecturesBySectionId(UUID sectionId) {
+        return lectureRepository.findBySectionIdAndIsPublishedTrue(sectionId)
+                .stream().map(lectureMapper::toPublicLectureResponse).toList();
     }
 
     @Override

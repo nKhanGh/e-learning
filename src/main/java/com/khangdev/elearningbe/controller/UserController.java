@@ -31,7 +31,7 @@ public class UserController {
     @PutMapping("/{userId}")
     ApiResponse<UserResponse> updateUser(
             @PathVariable UUID userId,
-            @RequestPart(value = "data", required = true) UserUpdateRequest request,
+            @RequestPart(value = "data") UserUpdateRequest request,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar
     ){
         return ApiResponse.<UserResponse>builder()
@@ -41,7 +41,7 @@ public class UserController {
 
     @PutMapping("/my-profile")
     ApiResponse<UserResponse> updateMyProfile(
-            @RequestPart(value = "data", required = true) UserUpdateRequest request,
+            @RequestPart(value = "data") UserUpdateRequest request,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar
     ){
         return ApiResponse.<UserResponse>builder()
@@ -67,8 +67,8 @@ public class UserController {
     @GetMapping("/course/{courseId}")
     ApiResponse<PageResponse<UserResponse>> getUserCourse(
             @PathVariable UUID courseId,
-            @RequestParam(value = "0", required = true) int page,
-            @RequestParam(value = "10", required = true) int size
+            @RequestParam(value = "0") int page,
+            @RequestParam(value = "10") int size
     ){
         return ApiResponse.<PageResponse<UserResponse>>builder()
                 .result(userService.getUserInCourse(courseId, page, size))

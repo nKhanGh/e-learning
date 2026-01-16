@@ -1,21 +1,19 @@
 package com.khangdev.elearningbe.mapper;
 
-import ch.qos.logback.core.model.ComponentModel;
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.entity.user.Instructor;
-import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = UserMapper.class)
 public abstract class CourseMapper {
+
 
     @Autowired
     protected UserMapper userMapper;

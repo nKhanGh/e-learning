@@ -37,13 +37,17 @@ public enum ErrorCode {
     COURSE_NOT_FOUND(400, "Course not found", HttpStatus.BAD_REQUEST),
     COURSE_TAG_NOT_FOUND(400, "Course tag not found", HttpStatus.BAD_REQUEST),
     COURSE_SECTION_NOT_FOUND(400, "Course section not found", HttpStatus.BAD_REQUEST),
+    COURSE_NOT_FULLY_COMPLETED(401, "Course not fully completed", HttpStatus.BAD_REQUEST),
 
     LECTURE_NOT_FOUND(400, "Lecture not found", HttpStatus.BAD_REQUEST),
+    LECTURE_PROGRESS_NOT_FOUND(400, "Lecture progress not found", HttpStatus.BAD_REQUEST),
     QUIZ_NOT_FOUND(400, "Quiz not found", HttpStatus.BAD_REQUEST),
     QUIZ_EXISTED(400, "Quiz already existed", HttpStatus.BAD_REQUEST),
     QUIZ_QUESTION_NOT_FOUND(400, "Quiz question not found", HttpStatus.BAD_REQUEST),
 
     ENROLLMENT_NOT_FOUND(400, "Enrollment not found", HttpStatus.BAD_REQUEST),
+    ENROLLMENT_INACTIVE(401, "Enrollment inactive", HttpStatus.BAD_REQUEST),
+    ENROLLMENT_EXISTED(401,  "Enrollment already existed", HttpStatus.BAD_REQUEST),
     QUIZ_ATTEMPT_NOT_FOUND(400, "Quiz attempt not found", HttpStatus.BAD_REQUEST),
 
     QUIZ_ATTEMPT_INVALID(401, "You must complete the quiz you previously participated in.", HttpStatus.BAD_REQUEST),

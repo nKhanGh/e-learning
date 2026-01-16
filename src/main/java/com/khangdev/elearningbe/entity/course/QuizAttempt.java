@@ -1,7 +1,6 @@
 package com.khangdev.elearningbe.entity.course;
 
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.entity.id.QuizAttemptId;
 import com.khangdev.elearningbe.entity.user.User;
@@ -11,7 +10,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Table(name = "quiz_attempts", indexes = {

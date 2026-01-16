@@ -6,7 +6,6 @@ import com.khangdev.elearningbe.dto.request.course.QuizSubmitRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.QuizAttemptResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizResponse;
-import com.khangdev.elearningbe.service.LectureService;
 import com.khangdev.elearningbe.service.QuizAttemptService;
 import com.khangdev.elearningbe.service.QuizService;
 import com.khangdev.elearningbe.service.UserService;

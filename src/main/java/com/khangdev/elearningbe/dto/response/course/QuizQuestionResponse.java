@@ -1,8 +1,5 @@
 package com.khangdev.elearningbe.dto.response.course;
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
-import com.khangdev.elearningbe.entity.course.Quiz;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

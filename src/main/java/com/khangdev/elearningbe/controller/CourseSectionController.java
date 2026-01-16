@@ -2,9 +2,7 @@ package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseSectionRequest;
-import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSectionResponse;
-import com.khangdev.elearningbe.repository.CourseSectionRepository;
 import com.khangdev.elearningbe.service.CourseSectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

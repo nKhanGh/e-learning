@@ -8,9 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.data.domain.Auditable;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;

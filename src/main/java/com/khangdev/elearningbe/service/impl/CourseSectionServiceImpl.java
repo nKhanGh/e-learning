@@ -1,13 +1,11 @@
 package com.khangdev.elearningbe.service.impl;
 
 import com.khangdev.elearningbe.dto.request.course.CourseSectionRequest;
-import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSectionResponse;
 import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.entity.course.CourseSection;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
-import com.khangdev.elearningbe.mapper.CourseMapper;
 import com.khangdev.elearningbe.mapper.CourseSectionMapper;
 import com.khangdev.elearningbe.repository.CourseRepository;
 import com.khangdev.elearningbe.repository.CourseSectionRepository;

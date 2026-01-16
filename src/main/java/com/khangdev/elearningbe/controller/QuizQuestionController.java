@@ -6,7 +6,6 @@ import com.khangdev.elearningbe.dto.request.course.QuizQuestionUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
 import com.khangdev.elearningbe.service.QuizQuestionService;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
