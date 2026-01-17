@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class BookmarkId {
+public class BookmarkId implements Serializable {
     @Column(name = "lecture_id")
     private UUID lectureId;
 

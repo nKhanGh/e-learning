@@ -90,7 +90,4 @@ public class Enrollment extends BaseEntity {
 
     @Column(name = "refunded_at")
     private Instant refundedAt;
-
-
-
 }

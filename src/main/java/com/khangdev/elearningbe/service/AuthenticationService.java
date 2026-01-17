@@ -1,7 +1,12 @@
 package com.khangdev.elearningbe.service;
 
-import com.khangdev.elearningbe.dto.request.*;
-import com.khangdev.elearningbe.dto.response.*;
+import com.khangdev.elearningbe.dto.request.authentication.*;
+import com.khangdev.elearningbe.dto.request.authentication.EmailVerifyRequest;
+import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
+import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
+import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
+import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
+import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.nimbusds.jose.JOSEException;
 
 import java.text.ParseException;

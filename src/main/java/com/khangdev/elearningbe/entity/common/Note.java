@@ -1,14 +1,11 @@
 package com.khangdev.elearningbe.entity.common;
 
-import com.khangdev.elearningbe.entity.enrollment.Enrollment;
 import com.khangdev.elearningbe.entity.course.Lecture;
-import com.khangdev.elearningbe.entity.id.BookmarkId;
 import com.khangdev.elearningbe.entity.id.NoteId;
 import com.khangdev.elearningbe.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.UUID;
 
 @Entity
 @Table(

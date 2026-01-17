@@ -1,8 +1,9 @@
 package com.khangdev.elearningbe.service.impl;
 
-import com.khangdev.elearningbe.dto.request.*;
-import com.khangdev.elearningbe.dto.response.EmailResponse;
-import com.khangdev.elearningbe.dto.response.EmailVerifyResponse;
+import com.khangdev.elearningbe.dto.request.authentication.EmailVerifyRequest;
+import com.khangdev.elearningbe.dto.request.email.*;
+import com.khangdev.elearningbe.dto.response.email.EmailResponse;
+import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.httpClient.EmailClient;

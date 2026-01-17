@@ -1,6 +1,6 @@
 package com.khangdev.elearningbe.security.oauth2;
 
-import com.khangdev.elearningbe.dto.request.RegisterRequest;
+import com.khangdev.elearningbe.dto.request.authentication.RegisterRequest;
 import com.khangdev.elearningbe.enums.UserStatus;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;

@@ -123,25 +123,9 @@ public class Course extends BaseEntity {
     @Builder.Default
     private Boolean hasCertificate = true;
 
-    @Column(name = "has_lifetime_access")
-    @Builder.Default
-    private Boolean hasLifetimeAccess = true;
-
-    @Column(name = "has_mobile_access")
-    @Builder.Default
-    private Boolean hasMobileAccess = true;
-
-    @Column(name = "has_assignments")
-    @Builder.Default
-    private Boolean hasAssignments = false;
-
     @Column(name = "has_quizzes")
     @Builder.Default
     private Boolean hasQuizzes = false;
-
-    @Column(name = "allow_reviews")
-    @Builder.Default
-    private Boolean allowReviews = true;
 
     // SEO
     @Column(name = "meta_title")
@@ -150,8 +134,9 @@ public class Course extends BaseEntity {
     @Column(name = "meta_description", columnDefinition = "TEXT")
     private String metaDescription;
 
+    @Convert(converter = StringListJsonConverter.class)
     @Column(name = "meta_keywords", columnDefinition = "JSON")
-    private String metaKeywords;
+    private List<String> metaKeywords;
 
     // Statistics (denormalized)
     @Column(name = "total_enrollments")

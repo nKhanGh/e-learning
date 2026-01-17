@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -67,4 +69,25 @@ public class Quiz extends BaseEntity {
     @Column(name = "is_published")
     @Builder.Default
     private Boolean isPublished = true;
+
+    @OneToMany(
+            mappedBy = "quiz",
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = CascadeType.ALL
+    )
+    private List<QuizQuestion> questions = new ArrayList<>();
+
+    public void addQuestion(QuizQuestion question) {
+        questions.add(question);
+        question.setQuiz(this);
+        totalQuestions = questions.size();
+    }
+
+    public void removeQuestion(QuizQuestion question) {
+        questions.remove(question);
+        question.setQuiz(null);
+        totalQuestions = questions.size();
+    }
+
 }

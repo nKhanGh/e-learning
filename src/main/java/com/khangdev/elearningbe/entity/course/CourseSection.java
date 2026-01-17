@@ -20,11 +20,13 @@ public class CourseSection extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    UUID id;
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    private String title;
 
     @Column(columnDefinition = "TEXT")
     private String description;
