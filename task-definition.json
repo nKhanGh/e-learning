@@ -17,6 +17,33 @@
           "protocol": "tcp"
         }
       ],
+      "secrets": [
+        { "name": "JWT_SIGNER_KEY", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:JWT_SIGNER_KEY::" },
+        { "name": "API_KEY_EMAIL", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:API_KEY_EMAIL::" },
+        { "name": "EMAIL_SENDER", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:EMAIL_SENDER::" },
+
+        { "name": "GOOGLE_CLIENT_ID", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:GOOGLE_CLIENT_ID::" },
+        { "name": "GOOGLE_CLIENT_SECRET", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:GOOGLE_CLIENT_SECRET::" },
+
+        { "name": "GITHUB_CLIENT_ID", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:GITHUB_CLIENT_ID::" },
+        { "name": "GITHUB_CLIENT_SECRET", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:GITHUB_CLIENT_SECRET::" },
+
+        { "name": "APP_FRONTEND_URL", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:APP_FRONTEND_URL::" },
+
+        { "name": "AWS_REGION", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:AWS_REGION::" },
+        { "name": "AWS_BUCKET_NAME", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:AWS_BUCKET_NAME::" },
+        { "name": "AWS_BASE_URL", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:AWS_BASE_URL::" },
+
+        { "name": "SPRING_DATASOURCE_URL", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:SPRING_DATASOURCE_URL::" },
+        { "name": "SPRING_DATASOURCE_USERNAME", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:SPRING_DATASOURCE_USERNAME::" },
+        { "name": "SPRING_DATASOURCE_PASSWORD", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:SPRING_DATASOURCE_PASSWORD::" },
+
+        { "name": "SPRING_REDIS_HOST", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:SPRING_REDIS_HOST::" },
+        { "name": "SPRING_REDIS_PORT", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:SPRING_REDIS_PORT::" },
+        { "name": "SPRING_DATA_REDIS_SSL_ENABLED", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:SPRING_DATA_REDIS_SSL_ENABLED::" },
+
+        { "name": "SPRING_KAFKA_BOOTSTRAP_SERVERS", "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:074315246327:secret:learnio/prod/app-secrets-AmJGum:SPRING_KAFKA_BOOTSTRAP_SERVERS::" }
+      ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
