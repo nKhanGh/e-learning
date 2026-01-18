@@ -9,10 +9,10 @@ spring:
       max-file-size: 1000MB
       max-request-size: 1000MB
   datasource:
-    url: ${DB_URL}
+    url: ${SPRING_DATASOURCE_URL}
     driverClassName: "com.mysql.cj.jdbc.Driver"
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -22,11 +22,15 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
   data:
     redis:
-      host: localhost
-      port: 6379
-      password: ${REDIS_PASSWORD}
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: AWS_MSK_IAM
+      sasl.jaas.config: software.amazon.msk.auth.iam.IAMLoginModule required;
+      sasl.client.callback.handler.class: software.amazon.msk.auth.iam.IAMClientCallbackHandler
 
   security:
     oauth2:
@@ -42,8 +46,8 @@ spring:
             client-name: Google
 
           github:
-            client-id: ${GITHUB_CLIENT_ID}
-            client-secret: ${GITHUB_CLIENT_SECRET}
+            client-id: ${KGITHUB_CLIENT_ID}
+            client-secret: ${KGITHUB_CLIENT_SECRET}
             scope:
               - read:user
               - user:email
