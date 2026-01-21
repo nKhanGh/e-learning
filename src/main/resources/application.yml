@@ -60,6 +60,16 @@ email:
 
 app:
   frontendUrl: ${APP_FRONTEND_URL}
+  baseUrl: ${APP_BASE_URL}
+
+file:
+  uploadDir: ./uploads
+  avatarDir: ./uploads/avatars
+  videoDir: ./uploads/videos
+  documentDir: ./uploads/documents
+  videoTokenSecret: ${VIDEO_TOKEN_SECRET}
+  videoTokenExpiration: 3600
+
 
 cloud:
   aws:

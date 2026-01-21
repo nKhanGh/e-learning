@@ -10,11 +10,12 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum ErrorCode {
+public enum     ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error!", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_NOT_FOUND(400, "User not found", HttpStatus.BAD_REQUEST),
     USER_EXISTED(400, "User already existed", HttpStatus.CONFLICT),
     PASSWORD_INCORRECT(400, "Password incorrect", HttpStatus.BAD_REQUEST),
+
 
     INVALID_KEY(9998, "Invalid message key!", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(401, "Unauthenticated", HttpStatus.UNAUTHORIZED),
@@ -37,7 +38,7 @@ public enum ErrorCode {
     COURSE_NOT_FOUND(400, "Course not found", HttpStatus.BAD_REQUEST),
     COURSE_TAG_NOT_FOUND(400, "Course tag not found", HttpStatus.BAD_REQUEST),
     COURSE_SECTION_NOT_FOUND(400, "Course section not found", HttpStatus.BAD_REQUEST),
-    COURSE_NOT_FULLY_COMPLETED(401, "Course not fully completed", HttpStatus.BAD_REQUEST),
+    COURSE_NOT_FULLY_COMPLETED(400, "Course not fully completed", HttpStatus.BAD_REQUEST),
 
     LECTURE_NOT_FOUND(400, "Lecture not found", HttpStatus.BAD_REQUEST),
     LECTURE_PROGRESS_NOT_FOUND(400, "Lecture progress not found", HttpStatus.BAD_REQUEST),
@@ -46,11 +47,20 @@ public enum ErrorCode {
     QUIZ_QUESTION_NOT_FOUND(400, "Quiz question not found", HttpStatus.BAD_REQUEST),
 
     ENROLLMENT_NOT_FOUND(400, "Enrollment not found", HttpStatus.BAD_REQUEST),
-    ENROLLMENT_INACTIVE(401, "Enrollment inactive", HttpStatus.BAD_REQUEST),
-    ENROLLMENT_EXISTED(401,  "Enrollment already existed", HttpStatus.BAD_REQUEST),
+    ENROLLMENT_INACTIVE(400, "Enrollment inactive", HttpStatus.BAD_REQUEST),
+    ENROLLMENT_EXISTED(400,  "Enrollment already existed", HttpStatus.BAD_REQUEST),
     QUIZ_ATTEMPT_NOT_FOUND(400, "Quiz attempt not found", HttpStatus.BAD_REQUEST),
 
-    QUIZ_ATTEMPT_INVALID(401, "You must complete the quiz you previously participated in.", HttpStatus.BAD_REQUEST),
+    QUIZ_ATTEMPT_INVALID(400, "You must complete the quiz you previously participated in.", HttpStatus.BAD_REQUEST),
+
+    FILE_EMPTY(400, "File is empty", HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(400, "File size exceeds limit", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(400, "Invalid file type", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILED(400, "File upload failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_NOT_FOUND(400, "File not found", HttpStatus.NOT_FOUND),
+    FILE_DELETE_FAILED(400, "File deletion failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_OR_EXPIRED_URL(400, "Invalid or expired URL", HttpStatus.FORBIDDEN),
+    NOT_ENROLLED(400, "You are not enrolled in this course", HttpStatus.FORBIDDEN),
     ;
 
     int code;

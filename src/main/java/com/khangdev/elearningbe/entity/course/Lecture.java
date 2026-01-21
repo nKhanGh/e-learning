@@ -45,8 +45,8 @@ public class Lecture extends BaseEntity {
     private String textContent;
 
     // Video specific
-    @Column(name = "video_url", length = 500)
-    private String videoUrl;
+    @Column(name = "video_file_name", length = 500)
+    private String videoFileName;
 
     @Column(name = "video_duration_seconds")
     private Integer videoDurationSeconds;
@@ -92,5 +92,4 @@ public class Lecture extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", unique = true)
     private Quiz quiz;
-
 }
