@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3309/learnify
+    driverClassName: "com.mysql.cj.jdbc.Driver"
+    username: learnify
+    password: pass
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  kafka:
+    bootstrap-servers: localhost:9092
