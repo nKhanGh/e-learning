@@ -26,8 +26,8 @@ public class UserProfile extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "avatar_url", length = 500)
-    private String avatarUrl;
+    @Column(name = "avatar_file_name", length = 500)
+    private String avatarFileName;
 
     @Column(columnDefinition = "TEXT")
     private String bio;

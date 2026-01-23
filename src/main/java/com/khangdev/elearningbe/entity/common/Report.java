@@ -3,6 +3,7 @@ package com.khangdev.elearningbe.entity.common;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.ReportReason;
 import com.khangdev.elearningbe.enums.ReportStatus;
+import com.khangdev.elearningbe.enums.ReportTargetType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,10 +31,10 @@ public class Report extends BaseEntity {
     private User reporter;
 
     @Column(name = "entity_type", nullable = false, length = 50)
-    private String entityType; // COURSE, REVIEW, COMMENT
+    private ReportTargetType targetType; // COURSE, COMMENT
 
-    @Column(name = "entity_id", nullable = false)
-    private Long entityId;
+    @Column(name = "target_id", nullable = false)
+    private UUID targetId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)

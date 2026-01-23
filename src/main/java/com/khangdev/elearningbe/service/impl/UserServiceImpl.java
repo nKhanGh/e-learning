@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
     private UserProfile createProfile(User user) {
         return UserProfile.builder()
                 .user(user)
-                .avatarUrl("https://learnio-file.s3.ap-southeast-2.amazonaws.com/avatar/default-avatar.jpg")
+                .avatarFileName("default_avatar.jpg")
                 .build();
     }
 
