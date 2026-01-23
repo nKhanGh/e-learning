@@ -61,6 +61,10 @@ public enum     ErrorCode {
     FILE_DELETE_FAILED(400, "File deletion failed", HttpStatus.INTERNAL_SERVER_ERROR),
     INVALID_OR_EXPIRED_URL(400, "Invalid or expired URL", HttpStatus.FORBIDDEN),
     NOT_ENROLLED(400, "You are not enrolled in this course", HttpStatus.FORBIDDEN),
+
+    COMMENT_NOT_FOUND(400, "Comment not found", HttpStatus.BAD_REQUEST),
+    REPORT_TARGET_INVALID(400, "Report target invalid", HttpStatus.BAD_REQUEST),
+    REPORT_NOT_FOUND(400, "Report not found", HttpStatus.BAD_REQUEST),
     ;
 
     int code;
