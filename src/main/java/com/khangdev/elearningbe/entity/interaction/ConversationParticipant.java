@@ -35,9 +35,12 @@ public class ConversationParticipant extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "joined_at")
-    private Instant joinedAt;
-
     @Column(name = "last_read_at")
     private Instant lastReadAt;
+
+    @Column(name = "unread_count")
+    private Long unreadCount;
+
+    @Column(name = "nickname")
+    private String nickname;
 }

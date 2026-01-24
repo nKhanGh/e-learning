@@ -23,13 +23,14 @@ public class Message extends BaseEntity {
     @JoinColumn(name = "conversation_id", nullable = false)
     Conversation conversation;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    Message parent;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
     User sender;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     String content;
-
-    @Column(name = "sent_at")
-    Instant sendAt;
 }

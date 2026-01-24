@@ -34,6 +34,15 @@ public class Conversation extends BaseEntity {
     @Column(name = "last_message_at")
     private Instant lastMessageAt;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "avatar_file_name")
+    private String avatarFileName;
+
     @OneToMany(
             mappedBy = "conversation",
             cascade = CascadeType.ALL,

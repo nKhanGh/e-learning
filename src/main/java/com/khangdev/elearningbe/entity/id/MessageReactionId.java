@@ -14,10 +14,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class NoteId implements Serializable {
+public class MessageReactionId implements Serializable {
+    @Column(name = "message_id")
+    private UUID messageId;
+
     @Column(name = "user_id")
     private UUID userId;
-
-    @Column(name = "lecture_id")
-    private UUID lectureId;
 }

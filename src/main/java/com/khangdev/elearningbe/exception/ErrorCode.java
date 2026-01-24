@@ -31,7 +31,13 @@ public enum     ErrorCode {
     USER_NOT_VERIFIED(400, "User is not verified!", HttpStatus.BAD_REQUEST),
     REPORT_TYPE_NOT_FOUND(400, "Report type not found", HttpStatus.BAD_REQUEST),
     INVALID_TIME_REPORT(400, "You can only report this target after 7 days from the first time!", HttpStatus.BAD_REQUEST),
+
+    CONVERSATION_PARTICIPANT_NOT_FOUND(400, "ConversationParticipant not found", HttpStatus.BAD_REQUEST),
+    MESSAGE_REACTION_NOT_FOUND(400, "Message reaction not found", HttpStatus.BAD_REQUEST),
     CONVERSATION_NOT_FOUND(400, "Conversation not found", HttpStatus.BAD_REQUEST),
+    MESSAGE_NOT_FOUND(400, "Message not found", HttpStatus.BAD_REQUEST),
+    DIRECT_CONVERSATION_ALREADY_EXISTS(400, "Direct-conversation already exists!", HttpStatus.CONFLICT),
+    INVALID_DIRECT_CONVERSATION(400, "Invalid direct conversation", HttpStatus.BAD_REQUEST),
     NOTIFICATION_NOT_FOUND(400, "Notification not found", HttpStatus.BAD_REQUEST),
 
     COURSE_CATEGORY_NOT_FOUND(400, "Category not found", HttpStatus.BAD_REQUEST),
