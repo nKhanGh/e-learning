@@ -3,6 +3,7 @@ package com.khangdev.elearningbe.service.impl;
 import com.khangdev.elearningbe.dto.request.interaction.ConversationCreationRequest;
 import com.khangdev.elearningbe.dto.response.interaction.ConversationResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
+import com.khangdev.elearningbe.entity.id.ConversationParticipantId;
 import com.khangdev.elearningbe.entity.interaction.Conversation;
 import com.khangdev.elearningbe.entity.interaction.ConversationParticipant;
 import com.khangdev.elearningbe.entity.user.User;
@@ -15,6 +16,7 @@ import com.khangdev.elearningbe.service.ConversationService;
 import com.khangdev.elearningbe.service.FileService;
 import com.khangdev.elearningbe.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ConversationServiceImpl implements ConversationService {
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
@@ -63,23 +66,18 @@ public class ConversationServiceImpl implements ConversationService {
     @Override
     @Transactional
     public ConversationResponse createConversation(ConversationCreationRequest request, MultipartFile avatarFile) throws IOException {
-        String fileName = null;
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-            fileName = fileService.uploadAvatar(avatarFile);
-        }
 
 
         Conversation conversation = Conversation.builder()
                 .isGroup(request.getIsGroup())
                 .name(request.getName())
                 .description(request.getDescription())
-                .avatarFileName(fileName)
                 .build();
 
         UUID myId = userService.getMyInfo().getId();
 
 
-        List<UUID> participantIds = request.getParticipantIds().stream().distinct().toList();;
+        List<UUID> participantIds = new java.util.ArrayList<>(request.getParticipantIds().stream().distinct().toList());;
         if(!participantIds.contains(myId)) {
             participantIds.add(myId);
         }
@@ -104,6 +102,10 @@ public class ConversationServiceImpl implements ConversationService {
 
         List<ConversationParticipant> participants = users.stream().map(
                 u -> ConversationParticipant.builder()
+                        .id(ConversationParticipantId.builder()
+                                .conversationId(conversation.getId())
+                                .userId(u.getId())
+                                .build())
                         .user(u)
                         .nickname(null)
                         .lastReadAt(Instant.now())
@@ -111,7 +113,14 @@ public class ConversationServiceImpl implements ConversationService {
                         .build()
         ).toList();
         conversation.setParticipants(participants);
-        return conversationMapper.toResponse(conversationRepository.save(conversation));
+        String fileName = null;
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            fileName = fileService.uploadAvatar(avatarFile);
+        }
+
+        conversation.setAvatarFileName(fileName);
+        conversationRepository.save(conversation);
+        return conversationMapper.toResponse(conversation);
     }
 
     @Override
@@ -140,7 +149,7 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
-    public void deleteConversation(Conversation conversation) {
-        conversationRepository.delete(conversation);
+    public void deleteConversation(UUID conversationId) {
+        conversationRepository.deleteById(conversationId);
     }
 }

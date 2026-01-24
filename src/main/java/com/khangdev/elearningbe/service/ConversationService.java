@@ -15,5 +15,5 @@ public interface ConversationService {
     ConversationResponse createConversation(ConversationCreationRequest request, MultipartFile avatarFile) throws IOException;
     ConversationResponse changeAvatar(UUID conversationId, MultipartFile avatarFile) throws IOException;
     ConversationResponse rename(UUID conversationId, String newName);
-    void deleteConversation(Conversation conversation);
+    void deleteConversation(UUID conversationId);
 }

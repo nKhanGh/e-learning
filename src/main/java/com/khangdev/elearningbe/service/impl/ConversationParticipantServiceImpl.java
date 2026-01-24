@@ -90,4 +90,18 @@ public class ConversationParticipantServiceImpl implements ConversationParticipa
         conversation.getParticipants().remove(conversationParticipant);
         return conversationParticipantMapper.toResponse(conversationParticipant);
     }
+
+    @Override
+    @Transactional
+    public void markAsRead(UUID conversationId, UUID participantId) {
+        ConversationParticipant conversationParticipant = conversationParticipantRepository.findById(
+                ConversationParticipantId.builder()
+                        .userId(participantId)
+                        .conversationId(conversationId)
+                        .build()
+        ).orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_PARTICIPANT_NOT_FOUND));
+        conversationParticipant.setUnreadCount(0L);
+        conversationParticipant.setLastReadAt(Instant.now());
+        conversationParticipantRepository.save(conversationParticipant);
+    }
 }

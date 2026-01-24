@@ -10,5 +10,5 @@ public interface ConversationParticipantService {
     ConversationParticipantResponse addParticipant(UUID conversationId, UUID participantId);
     ConversationParticipantResponse leaveConversation(UUID conversationId);
     ConversationParticipantResponse removeParticipant(UUID conversationId, UUID participantId);
-
+    void markAsRead(UUID conversationId, UUID participantId);
 }

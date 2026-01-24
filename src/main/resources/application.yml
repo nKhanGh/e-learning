@@ -2,6 +2,9 @@ server:
   port: 8080
   servlet:
     context-path: /api
+  error:
+    include-message: always
+    include-binding-errors: always
 
 spring:
   profiles:
@@ -66,6 +69,7 @@ file:
   uploadDir: ./uploads
   avatarDir: ./uploads/avatars
   videoDir: ./uploads/videos
+  chatDir: ./uploads/chats
   documentDir: ./uploads/documents
   videoTokenSecret: ${VIDEO_TOKEN_SECRET}
   videoTokenExpiration: 3600

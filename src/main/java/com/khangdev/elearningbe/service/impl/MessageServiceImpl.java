@@ -72,7 +72,7 @@ public class MessageServiceImpl implements MessageService {
                 conversationParticipantRepository.findByConversationIdAndUserIdNot(conversationId, userId);
         others.forEach(p -> {
             simpMessagingTemplate.convertAndSendToUser(
-                    p.getUser().getId().toString(),
+                    p.getUser().getEmail(),
                     "topic/unread-count",
                     UnreadCountEvent.builder()
                             .count(p.getUnreadCount())
