@@ -46,6 +46,9 @@ public class FileServiceImpl implements FileService {
     @Value("${file.documentDir}")
     private String documentDir;
 
+    @Value("${file.chatDir}")
+    private String chatDir;
+
     @Value("${file.videoTokenSecret}")
     private String urlSigningKey;
 
@@ -71,6 +74,11 @@ public class FileServiceImpl implements FileService {
     public String uploadDocument(MultipartFile file) throws IOException {
         validateDocumentFile(file);
         return saveFile(file, documentDir, "doc");
+    }
+
+    @Override
+    public String uploadChatFile(MultipartFile file) throws IOException {
+        return saveFile(file, chatDir, "chat");
     }
 
     @Override
