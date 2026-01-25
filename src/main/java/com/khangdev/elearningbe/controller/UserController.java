@@ -67,8 +67,8 @@ public class UserController {
     @GetMapping("/course/{courseId}")
     ApiResponse<PageResponse<UserResponse>> getUserCourse(
             @PathVariable UUID courseId,
-            @RequestParam(value = "0") int page,
-            @RequestParam(value = "10") int size
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ){
         return ApiResponse.<PageResponse<UserResponse>>builder()
                 .result(userService.getUserInCourse(courseId, page, size))
