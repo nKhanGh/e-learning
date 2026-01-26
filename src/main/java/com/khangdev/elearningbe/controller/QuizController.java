@@ -89,7 +89,7 @@ public class QuizController {
     }
 
     @GetMapping("/{quizId}/users/{userId}/attempts/{attemptNumber}")
-    @PreAuthorize("hasRole('INSTRUCTOR')")
+    @PreAuthorize("hasAuthority('INSTRUCTOR')")
     ApiResponse<QuizAttemptResponse> getUserAttempt(
             @PathVariable UUID userId,
             @PathVariable UUID quizId,
