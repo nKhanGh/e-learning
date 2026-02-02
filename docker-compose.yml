@@ -1,18 +1,33 @@
 #version: "3.9"
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: learnify-mysql
+#  mysql:
+#    image: mysql:8.0
+#    container_name: learnify-mysql
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#      MYSQL_DATABASE: ${MYSQL_DATABASE}
+#      MYSQL_USER: ${DB_USERNAME}
+#      MYSQL_PASSWORD: ${DB_PASSWORD}
+#    ports:
+#      - "3309:3306"
+#    volumes:
+#      - learnify-mysql-data:/var/lib/mysql
+#      - ./sql:/docker-entrypoint-initdb.d
+#    networks:
+#      - learnify-network
+
+  postgres:
+    image: postgres:16
+    container_name: learnify-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: learnio
+      POSTGRES_USER: learnioUser
+      POSTGRES_PASSWORD: learnioPass
     ports:
-      - "3309:3306"
+      - "5433:5432"
     volumes:
-      - learnify-mysql-data:/var/lib/mysql
+      - learnify-postgres-data:/var/lib/postgresql/data
       - ./sql:/docker-entrypoint-initdb.d
     networks:
       - learnify-network
@@ -59,7 +74,7 @@ services:
       retries: 5
 
 volumes:
-  learnify-mysql-data:
+  learnify-postgres-data:
     driver: local
   learnify-redis-data:
     driver: local
