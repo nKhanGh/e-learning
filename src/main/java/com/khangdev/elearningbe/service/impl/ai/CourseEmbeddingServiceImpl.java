@@ -34,7 +34,9 @@ public class CourseEmbeddingServiceImpl implements CourseEmbeddingService {
                     .put("title", courseEmbeddingDTO.getTitle())
                     .put("categoryName", courseEmbeddingDTO.getCategoryName())
                     .put("level", courseEmbeddingDTO.getLevel().name())
-            ;
+                    .put("averageRating", courseEmbeddingDTO.getAverageRating().toString())
+                    .put("totalStudents", courseEmbeddingDTO.getTotalStudents().toString());
+
             TextSegment segment = TextSegment.from(text, metadata);
 
             Embedding embedding = embeddingModel.embed(segment).content();
@@ -110,8 +112,10 @@ public class CourseEmbeddingServiceImpl implements CourseEmbeddingService {
             context.append(String.format("%d. %s\n", i + 1, metadata.getString("title")));
             context.append(String.format("   Cấp độ: %s\n", metadata.getString("level")));
             context.append(String.format("   Danh mục: %s\n", metadata.getString("categoryName")));
-            context.append("   Nội dung khóa học:\n");
-            context.append(segment.text()).append("\n\n");
+            context.append(String.format("   Đánh giá: %s/5\n", metadata.getString("averageRating")));
+            context.append(String.format("   Học viên: %s\n", metadata.getString("totalStudents")));
+            context.append(String.format("   Similarity: %.2f\n", match.score()));
+            context.append("\n");
         }
 
         return context.toString();

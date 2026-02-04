@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,37 +21,26 @@ public class CourseEmbeddingDTO {
     private String description;
     private String categoryName;
     private List<String> whatYouWillLearn;
-    private List<String> requirements;
-    private List<String> targetAudience;
+    private List<String> tags;
+    private BigDecimal averageRating;
+    private Integer totalStudents;
     private CourseLevel level;
 
     public String toEmbeddingText() {
         StringBuilder sb = new StringBuilder();
+        sb.append("Tiêu đề: ").append(title).append(". ");
+        sb.append("Mô tả: ").append(description).append(". ");
+        sb.append("Danh mục: ").append(categoryName).append(". ");
+        sb.append("Cấp độ: ").append(level).append(". ");
 
-        append(sb, "title", title);
-        append(sb, "description", description);
-        append(sb, "categoryName", categoryName);
-        appendList(sb, "whatYouWillLearn", whatYouWillLearn);
-        appendList(sb, "requirements", requirements);
-        appendList(sb, "targetAudience", targetAudience);
-        append(sb, "level", level != null ? level.name() : null);
+        if (whatYouWillLearn != null && !whatYouWillLearn.isEmpty()) {
+            sb.append("Bạn sẽ học: ").append(String.join(", ", whatYouWillLearn)).append(". ");
+        }
+
+        if (tags != null && !tags.isEmpty()) {
+            sb.append("Tags: ").append(String.join(", ", tags)).append(".");
+        }
 
         return sb.toString();
-
-    }
-
-    private void append(StringBuilder sb, String label, String value){
-        if(value != null && !value.isBlank()){
-            sb.append(label).append(":\n")
-                    .append(value).append("\n\n");
-        }
-    }
-
-    private void appendList(StringBuilder sb, String label, List<String> value){
-        if(value != null && !value.isEmpty()){
-            sb.append(label).append(":\n");
-            value.forEach(v -> sb.append("- ").append(v).append("\n"));
-            sb.append("\n");
-        }
     }
 }
