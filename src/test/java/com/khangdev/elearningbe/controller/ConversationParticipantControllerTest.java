@@ -1,7 +1,7 @@
 package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.response.interaction.ConversationParticipantResponse;
-import com.khangdev.elearningbe.service.ConversationParticipantService;
+import com.khangdev.elearningbe.service.interaction.ConversationParticipantService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

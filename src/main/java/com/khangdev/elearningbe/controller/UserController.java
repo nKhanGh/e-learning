@@ -5,7 +5,7 @@ import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.user.InstructorCreationRequest;
 import com.khangdev.elearningbe.dto.request.user.UserUpdateRequest;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
-import com.khangdev.elearningbe.service.UserService;
+import com.khangdev.elearningbe.service.user.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

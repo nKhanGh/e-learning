@@ -65,6 +65,13 @@ email:
 app:
   frontendUrl: ${APP_FRONTEND_URL}
   baseUrl: ${APP_BASE_URL}
+  ai:
+    chatbot:
+      memory-size: 10
+      max-results: 5
+    recommendation:
+      top-k: 5
+      min-score: 0.7
 
 file:
   uploadDir: ./uploads
@@ -76,13 +83,26 @@ file:
   videoTokenExpiration: 3600
 
 
-cloud:
-  aws:
-    credential:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
-    region:
-      static: ${AWS_REGION}
-    bucket:
-      name: ${AWS_BUCKET_NAME}
-    baseUrl: ${AWS_BASE_URL}
+#cloud:
+#  aws:
+#    credential:
+#      access-key: ${AWS_ACCESS_KEY}
+#      secret-key: ${AWS_SECRET_KEY}
+#    region:
+#      static: ${AWS_REGION}
+#    bucket:
+#      name: ${AWS_BUCKET_NAME}
+#    baseUrl: ${AWS_BASE_URL}
+
+langChain4j:
+  open-ai:
+    chat-model:
+      api-key: ${OPEN_AI_KEY}
+      model-name: gpt-4-turbo-preview
+      temperature: 0.7
+      max-tokens: 1000
+      timeout: 60s
+  embedding-model:
+    api-key: ${OPEN_AI_KEY}
+    model-name: text-embedding-3-small
+    dimensions: 1536

@@ -6,7 +6,7 @@ import com.khangdev.elearningbe.dto.request.common.ReportHandleRequest;
 import com.khangdev.elearningbe.dto.request.common.ReportRequest;
 import com.khangdev.elearningbe.dto.response.common.ReportResponse;
 import com.khangdev.elearningbe.enums.ReportStatus;
-import com.khangdev.elearningbe.service.ReportService;
+import com.khangdev.elearningbe.service.interaction.ReportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

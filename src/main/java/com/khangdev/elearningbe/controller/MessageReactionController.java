@@ -3,8 +3,7 @@ package com.khangdev.elearningbe.controller;
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.response.interaction.MessageReactionResponse;
 import com.khangdev.elearningbe.enums.ReactionType;
-import com.khangdev.elearningbe.service.MessageReactionService;
-import lombok.Data;
+import com.khangdev.elearningbe.service.interaction.MessageReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

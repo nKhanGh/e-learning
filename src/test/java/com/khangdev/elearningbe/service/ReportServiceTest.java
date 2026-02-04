@@ -16,6 +16,8 @@ import com.khangdev.elearningbe.repository.CommentRepository;
 import com.khangdev.elearningbe.repository.CourseRepository;
 import com.khangdev.elearningbe.repository.ReportRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
+import com.khangdev.elearningbe.service.interaction.ReportService;
+import com.khangdev.elearningbe.service.user.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

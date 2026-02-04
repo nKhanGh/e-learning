@@ -1,13 +1,10 @@
 package com.khangdev.elearningbe.configuration;
 
-import com.khangdev.elearningbe.service.AuthenticationService;
-import com.khangdev.elearningbe.service.JwtService;
+import com.khangdev.elearningbe.service.user.AuthenticationService;
+import com.khangdev.elearningbe.service.common.JwtService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.annotation.PostConstruct;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.text.ParseException;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor

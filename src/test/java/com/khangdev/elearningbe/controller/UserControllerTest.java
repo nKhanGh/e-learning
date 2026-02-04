@@ -14,7 +14,7 @@ import com.khangdev.elearningbe.enums.Gender;
 import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.enums.UserStatus;
 import com.khangdev.elearningbe.enums.VerificationStatus;
-import com.khangdev.elearningbe.service.UserService;
+import com.khangdev.elearningbe.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

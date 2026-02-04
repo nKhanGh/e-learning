@@ -8,6 +8,7 @@ import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.EnrollmentRepository;
 import com.khangdev.elearningbe.repository.LectureRepository;
+import com.khangdev.elearningbe.service.common.FileService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

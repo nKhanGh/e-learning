@@ -5,6 +5,7 @@ import com.khangdev.elearningbe.dto.response.course.CourseTagResponse;
 import com.khangdev.elearningbe.entity.course.CourseTag;
 import com.khangdev.elearningbe.mapper.CourseTagMapper;
 import com.khangdev.elearningbe.repository.CourseTagRepository;
+import com.khangdev.elearningbe.service.course.CourseTagService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

@@ -8,6 +8,8 @@ import com.khangdev.elearningbe.dto.response.email.EmailResponse;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.httpClient.EmailClient;
+import com.khangdev.elearningbe.service.common.EmailService;
+import com.khangdev.elearningbe.service.common.RedisService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

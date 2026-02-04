@@ -3,7 +3,7 @@ package com.khangdev.elearningbe.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khangdev.elearningbe.dto.request.interaction.ConversationCreationRequest;
 import com.khangdev.elearningbe.dto.response.interaction.ConversationResponse;
-import com.khangdev.elearningbe.service.ConversationService;
+import com.khangdev.elearningbe.service.interaction.ConversationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

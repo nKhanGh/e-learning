@@ -11,7 +11,11 @@ import com.khangdev.elearningbe.enums.ConversationEventType;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.UserRepository;
-import com.khangdev.elearningbe.service.*;
+import com.khangdev.elearningbe.service.common.FileService;
+import com.khangdev.elearningbe.service.common.RedisService;
+import com.khangdev.elearningbe.service.interaction.ConversationParticipantService;
+import com.khangdev.elearningbe.service.interaction.MessageService;
+import com.khangdev.elearningbe.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -37,7 +41,7 @@ public class MessageController {
     private final UserService userService;
     private final RedisService redisService;
     private final FileService fileService;
-    private final ConversationParticipantService  conversationParticipantService;
+    private final ConversationParticipantService conversationParticipantService;
 
     private final SimpMessagingTemplate messagingTemplate;
 

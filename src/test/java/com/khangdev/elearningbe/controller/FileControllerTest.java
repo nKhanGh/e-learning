@@ -1,8 +1,8 @@
 package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
-import com.khangdev.elearningbe.service.FileService;
-import com.khangdev.elearningbe.service.UserService;
+import com.khangdev.elearningbe.service.common.FileService;
+import com.khangdev.elearningbe.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

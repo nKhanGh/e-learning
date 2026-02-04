@@ -24,6 +24,7 @@ import com.khangdev.elearningbe.mapper.UserProfileMapper;
 import com.khangdev.elearningbe.repository.EnrollmentRepository;
 import com.khangdev.elearningbe.repository.InstructorRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
+import com.khangdev.elearningbe.service.user.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,7 +2,7 @@ package com.khangdev.elearningbe.security.oauth2;
 
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.repository.UserRepository;
-import com.khangdev.elearningbe.service.JwtService;
+import com.khangdev.elearningbe.service.common.JwtService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

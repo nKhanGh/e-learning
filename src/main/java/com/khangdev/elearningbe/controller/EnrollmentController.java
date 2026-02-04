@@ -3,7 +3,7 @@ package com.khangdev.elearningbe.controller;
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.response.EnrollmentResponse;
 import com.khangdev.elearningbe.entity.id.EnrollmentId;
-import com.khangdev.elearningbe.service.EnrollmentService;
+import com.khangdev.elearningbe.service.course.EnrollmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

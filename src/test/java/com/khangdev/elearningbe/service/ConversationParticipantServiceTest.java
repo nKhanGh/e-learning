@@ -12,6 +12,8 @@ import com.khangdev.elearningbe.mapper.ConversationParticipantMapper;
 import com.khangdev.elearningbe.repository.ConversationParticipantRepository;
 import com.khangdev.elearningbe.repository.ConversationRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
+import com.khangdev.elearningbe.service.interaction.ConversationParticipantService;
+import com.khangdev.elearningbe.service.user.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
