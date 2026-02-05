@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.mapper;
 
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
+import com.khangdev.elearningbe.dto.request.course.CourseRecommendationDTO;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
