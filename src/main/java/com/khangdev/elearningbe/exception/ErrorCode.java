@@ -71,6 +71,8 @@ public enum     ErrorCode {
     COMMENT_NOT_FOUND(400, "Comment not found", HttpStatus.BAD_REQUEST),
     REPORT_TARGET_INVALID(400, "Report target invalid", HttpStatus.BAD_REQUEST),
     REPORT_NOT_FOUND(400, "Report not found", HttpStatus.BAD_REQUEST),
+
+    ERROR_WHEN_CHAT_AI(500, "Some error happen when chatting with AI",  HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     int code;

@@ -29,7 +29,7 @@ public interface CourseChatAssistant {
            - Giải thích tại sao khóa học đó phù hợp
            - Cung cấp thông tin chi tiết về nội dung
     """)
-    String chat(@MemoryId UUID conversationId, @UserMessage String message);
+    String chat(@MemoryId String conversationId, @UserMessage String message);
 
     @SystemMessage("""
        Bạn là chuyên gia tư vấn khóa học.
@@ -39,7 +39,7 @@ public interface CourseChatAssistant {
        {{courseContext}}
     """)
     String chatWithContext(
-            @MemoryId UUID conversationId,
+            @MemoryId String conversationId,
             @UserMessage String message,
             @V("courseContext") String courseContext
     );
