@@ -39,6 +39,43 @@ public class ConversationServiceImpl implements ConversationService {
     private final ConversationMapper conversationMapper;
 
     @Override
+    @Transactional
+    public ConversationResponse createAIConversation() {
+        UUID userId = userService.getMyInfo().getId();
+        var oldConversation = conversationRepository.findAiConversationByUserId(userId);
+        if(oldConversation.isPresent()){
+            return conversationMapper.toResponse(oldConversation.get());
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        Conversation conversation = Conversation.builder()
+                .description("Your chat with AI")
+                .isGroup(false)
+                .name("Sofia")
+                .isAi(true)
+                .build();
+
+        conversationRepository.save(conversation);
+
+        ConversationParticipant conversationParticipant = ConversationParticipant.builder()
+                .id(ConversationParticipantId.builder()
+                        .userId(userId)
+                        .conversationId(conversation.getId())
+                        .build())
+                .conversation(conversation)
+                .user(user)
+                .nickname(null)
+                .lastReadAt(Instant.now())
+                .unreadCount(0L)
+                .build();
+
+        conversation.setParticipants(List.of(conversationParticipant));
+        return conversationMapper.toResponse(conversation);
+
+    }
+
+    @Override
     public List<ConversationResponse> getMyConversations() {
         UUID userId = userService.getMyInfo().getId();
         return conversationRepository.findByUserId(userId)
@@ -67,15 +104,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Transactional
     public ConversationResponse createConversation(ConversationCreationRequest request, MultipartFile avatarFile) throws IOException {
 
-
-        Conversation conversation = Conversation.builder()
-                .isGroup(request.getIsGroup())
-                .name(request.getName())
-                .description(request.getDescription())
-                .build();
-
         UUID myId = userService.getMyInfo().getId();
-
 
         List<UUID> participantIds = new java.util.ArrayList<>(request.getParticipantIds().stream().distinct().toList());;
         if(!participantIds.contains(myId)) {
@@ -93,18 +122,25 @@ public class ConversationServiceImpl implements ConversationService {
         }
 
 
-
         List<User> users = userRepository.findAllById(participantIds);
 
         if (users.size() != participantIds.size()) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
+
+        Conversation conversation = Conversation.builder()
+                .isGroup(request.getIsGroup())
+                .name(request.getName())
+                .description(request.getDescription())
+                .build();
+
+        conversationRepository.save(conversation);
         List<ConversationParticipant> participants = users.stream().map(
                 u -> ConversationParticipant.builder()
                         .id(ConversationParticipantId.builder()
-                                .conversationId(conversation.getId())
                                 .userId(u.getId())
+                                .conversationId(conversation.getId())
                                 .build())
                         .user(u)
                         .nickname(null)
@@ -119,7 +155,7 @@ public class ConversationServiceImpl implements ConversationService {
         }
 
         conversation.setAvatarFileName(fileName);
-        conversationRepository.save(conversation);
+
         return conversationMapper.toResponse(conversation);
     }
 

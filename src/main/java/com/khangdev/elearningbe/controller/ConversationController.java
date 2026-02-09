@@ -45,6 +45,13 @@ public class ConversationController {
                 .build();
     }
 
+    @PostMapping("/ai")
+    ApiResponse<ConversationResponse> createAiConversation() {
+        return ApiResponse.<ConversationResponse>builder()
+                .result(conversationService.createAIConversation())
+                .build();
+    }
+
     @PutMapping("/avatar/{conversationId}")
     ApiResponse<ConversationResponse> changeAvatar(
             @PathVariable UUID conversationId,

@@ -41,6 +41,8 @@ public class CourseEmbeddingServiceImpl implements CourseEmbeddingService {
 
             Embedding embedding = embeddingModel.embed(segment).content();
 
+            removeCourseEmbedding(courseEmbeddingDTO.getCourseId());
+
             embeddingStore.add(embedding, segment);
             log.info("Embedded course: {}", courseEmbeddingDTO.getTitle());
         } catch (Exception e) {

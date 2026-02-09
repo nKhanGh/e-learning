@@ -19,6 +19,7 @@ import com.khangdev.elearningbe.service.ai.CourseRecommendationService;
 import com.khangdev.elearningbe.service.user.UserService;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.service.AiServices;
@@ -106,16 +107,19 @@ public class ChatBotServiceImpl implements ChatBotService {
         }
     }
 
-    private CourseChatAssistant getOrCreateAssistant(String conversationId){
+    private CourseChatAssistant getOrCreateAssistant(String conversationId) {
         return assistantsCache.computeIfAbsent(conversationId, id -> {
-            ChatMemory memory = MessageWindowChatMemory.withMaxMessages(memorySize);
+
+            ChatMemoryProvider memoryProvider =
+                    memoryId -> MessageWindowChatMemory.withMaxMessages(memorySize);
 
             return AiServices.builder(CourseChatAssistant.class)
                     .chatLanguageModel(chatLanguageModel)
-                    .chatMemory(memory)
+                    .chatMemoryProvider(memoryProvider)
                     .build();
         });
     }
+
 
     private boolean isCourseRelatedQuery(String query) {
         String lowerQuery = query.toLowerCase();
