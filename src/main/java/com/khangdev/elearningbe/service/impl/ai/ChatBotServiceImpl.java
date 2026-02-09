@@ -60,8 +60,7 @@ public class ChatBotServiceImpl implements ChatBotService {
     private Integer topK;
 
     private final ConcurrentHashMap<String, CourseChatAssistant> assistantsCache = new ConcurrentHashMap<>();
-
-
+    private final ConcurrentHashMap<String, ChatMemory> memoryStore = new ConcurrentHashMap<>();
 
 
     @Override
@@ -107,24 +106,29 @@ public class ChatBotServiceImpl implements ChatBotService {
         }
     }
 
+    private ChatMemory getMemory(Object conversationId) {
+        return memoryStore.computeIfAbsent(
+                conversationId.toString(),
+                id -> MessageWindowChatMemory.withMaxMessages(memorySize)
+        );
+    }
+
+
     private CourseChatAssistant getOrCreateAssistant(String conversationId) {
-        return assistantsCache.computeIfAbsent(conversationId, id -> {
+        return assistantsCache.computeIfAbsent(conversationId, id ->
+                AiServices.builder(CourseChatAssistant.class)
+                        .chatLanguageModel(chatLanguageModel)
+                        .chatMemoryProvider(this::getMemory)
+                        .build()
+        );
 
-            ChatMemoryProvider memoryProvider =
-                    memoryId -> MessageWindowChatMemory.withMaxMessages(memorySize);
-
-            return AiServices.builder(CourseChatAssistant.class)
-                    .chatLanguageModel(chatLanguageModel)
-                    .chatMemoryProvider(memoryProvider)
-                    .build();
-        });
     }
 
 
     private boolean isCourseRelatedQuery(String query) {
         String lowerQuery = query.toLowerCase();
         return lowerQuery.contains("khóa học")
-                | lowerQuery.contains("học")
+                || lowerQuery.contains("học")
                 || lowerQuery.contains("course")
                 || lowerQuery.contains("muốn học")
                 || lowerQuery.contains("gợi ý")
@@ -184,5 +188,7 @@ public class ChatBotServiceImpl implements ChatBotService {
     @Override
     public void clearConversationMemory(UUID conversationId) {
         assistantsCache.remove(conversationId.toString());
+        memoryStore.remove(conversationId.toString());
     }
+
 }

@@ -5,8 +5,8 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.ollama.OllamaChatModel;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,18 +18,6 @@ import java.time.Duration;
 @Configuration
 public class LangChain4jConfig {
 
-    @Value("${langChain4j.open-ai.chat-model.api-key}")
-    private String openAiApiKey;
-
-    @Value("${langChain4j.open-ai.chat-model.model-name}")
-    private String chatModelName;
-
-    @Value("${langChain4j.open-ai.chat-model.temperature}")
-    private Double temperature;
-
-    @Value("${langChain4j.embedding-model.model-name}")
-    private String embeddingModelName;
-
     @Value("${spring.datasource.url}")
     private String datasourceUrl;
 
@@ -39,31 +27,24 @@ public class LangChain4jConfig {
     @Value("${spring.datasource.password}")
     private String datasourcePassword;
 
-    @Value("${app.ai.chatbot.memory-size:10}")
-    private Integer memorySize;
-
     @Value("${langChain4j.embedding-model.dimensions}")
     private Integer dimensions;
 
 
     @Bean
     public ChatLanguageModel chatLanguageModel() {
-        return OpenAiChatModel.builder()
-                .apiKey(openAiApiKey)
-                .modelName(chatModelName)
-                .temperature(temperature)
-                .timeout(Duration.ofSeconds(60))
-                .logRequests(true)
-                .logResponses(true)
+        return OllamaChatModel.builder()
+                .baseUrl("http://localhost:11434")
+                .modelName("llama3")
+                .temperature(0.7)
                 .build();
     }
 
     @Bean
-    EmbeddingModel embeddingModel() {
-        return OpenAiEmbeddingModel.builder()
-                .apiKey(openAiApiKey)
-                .modelName(embeddingModelName)
-                .timeout(Duration.ofSeconds(60))
+    public EmbeddingModel embeddingModel() {
+        return OllamaEmbeddingModel.builder()
+                .baseUrl("http://localhost:11434")
+                .modelName("nomic-embed-text")
                 .build();
     }
 
@@ -81,12 +62,6 @@ public class LangChain4jConfig {
                 .dropTableFirst(false)
                 .build();
     }
-
-    @Bean
-    public ChatMemory chatMemory() {
-        return MessageWindowChatMemory.withMaxMessages(memorySize);
-    }
-
 
     private String extractHost(String jdbcUrl){
         String[] parts = jdbcUrl.split("//")[1].split(":");

@@ -158,9 +158,16 @@
 
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-open-ai</artifactId>
-            <version>${langchain4j.version}</version>
+            <artifactId>langchain4j-ollama</artifactId>
+            <version>0.35.0</version>
         </dependency>
+
+
+<!--        <dependency>-->
+<!--            <groupId>dev.langchain4j</groupId>-->
+<!--            <artifactId>langchain4j-open-ai</artifactId>-->
+<!--            <version>${langchain4j.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>dev.langchain4j</groupId>
