@@ -16,9 +16,6 @@ const SettingPage = () => {
       setTheme(savedTheme);
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
     }
-    console.log("Current locale:", locale);
-    console.log('📦 Settings.title:', t('title'));
-    console.log('📦 Has translation?:', t.has('title'));
   }, []);
 
   const toggleTheme = () => {
@@ -41,7 +38,7 @@ const SettingPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-[25%_73%] gap-6">
           {/* Sidebar */}
-          <nav className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 h-fit">
+          <nav className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 h-fit">
             <div className="space-y-2">
               <button
                 onClick={() => setOpenTheme(true)}
@@ -76,7 +73,7 @@ const SettingPage = () => {
           </nav>
 
           {/* Content Area */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-6">
             {openTheme ? (
               <div className="space-y-6">
                 <div>

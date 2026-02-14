@@ -6,12 +6,10 @@ export type Locale = (typeof locales)[number];
 
 export default getRequestConfig(async ({ requestLocale }) => {
   const locale = await requestLocale;
-  console.log("🔥 i18n - locale received:", locale);
 
   if (!locale || !locales.includes(locale as Locale)) {
     const defaultLocale = "en";
-    const messages = (await import(`@/messages/${defaultLocale}.json`))
-      .default;
+    const messages = (await import(`@/messages/${defaultLocale}.json`)).default;
     return {
       locale: defaultLocale,
       messages,
@@ -19,9 +17,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
   }
 
   const messages = (await import(`@/messages/${locale}.json`)).default;
-
-  console.log("✅ Messages loaded for:", locale);
-  console.log("📝 Settings.title:", messages.Settings?.title);
 
   return {
     locale,

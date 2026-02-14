@@ -16,7 +16,7 @@ const LayoutClient = ({
     <>
       <Header openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
       <Sidebar open={openSidebar} />
-      <div className={`transition-all duration-300 ${openSidebar ? 'ml-64' : 'ml-20'} p-6`}>
+      <div className={`transition-all duration-300 ${openSidebar ? 'ml-64' : 'ml-20'} p-6 dark:bg-bg bg-white`}>
         {children}
       </div>
       <Footer openSidebar={openSidebar} />
