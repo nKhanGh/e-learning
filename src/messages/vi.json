@@ -1,0 +1,112 @@
+{
+  "HomePage": {
+    "title": "Học Kỹ Năng Từ",
+    "titleNext": "Chuyên Gia Hàng Đầu",
+    "subtitle": "Bắt đầu, chuyển hướng hoặc nâng cao sự nghiệp của bạn với hàng nghìn khóa học, chứng chỉ và bằng cấp từ các trường đại học và công ty hàng đầu thế giới.",
+    "started": "Bắt Đầu Miễn Phí",
+    "exploreBtn": "Khám Phá Khóa Học",
+    "watchCourse": "Xem Khóa Học",
+    "love": "Được hơn 10.000+ người dùng yêu thích",
+    "ready": "Sẵn sàng học chưa?",
+    "start": "Bắt đầu học những điều tuyệt vời ngay hôm nay",
+
+    "stats": {
+      "students": "Học Viên Đang Học",
+      "instructors": "Giảng Viên Chuyên Gia",
+      "courses": "Khóa Học Trực Tuyến",
+      "certificates": "Chứng Chỉ Đã Cấp"
+    },
+    "features": {
+      "title": "Vì Sao Học Cùng Chúng Tôi?",
+      "subtitle": "Mọi thứ bạn cần để nâng cao kỹ năng",
+      "learnPace": {
+        "title": "Học Theo Tốc Độ Của Bạn",
+        "description": "Truy cập khóa học mọi lúc, mọi nơi. Học theo lịch trình của bạn với quyền truy cập trọn đời vào tài liệu."
+      },
+      "experts": {
+        "title": "Giảng Viên Chuyên Gia",
+        "description": "Học từ các chuyên gia trong ngành với nhiều năm kinh nghiệm thực tế và thành tích đã được chứng minh."
+      },
+      "certified": {
+        "title": "Nhận Chứng Chỉ",
+        "description": "Nhận chứng chỉ được công nhận sau khi hoàn thành để thể hiện kỹ năng và nâng cao sự nghiệp."
+      },
+      "progress": {
+        "title": "Theo Dõi Tiến Trình",
+        "description": "Theo dõi hành trình học tập với phân tích chi tiết và đề xuất cá nhân hóa."
+      }
+    },
+    "courses": {
+      "title": "Khóa Học Phổ Biến",
+      "subtitle": "Chọn từ hơn 1000+ khóa học",
+      "viewAll": "Xem Tất Cả Khóa Học"
+    },
+    "stories": {
+      "title": "Câu Chuyện Thành Công",
+      "subtitle": "Xem cách học viên của chúng tôi thay đổi sự nghiệp của họ"
+    },
+    "cta": {
+      "title": "Bắt Đầu Hành Trình Học Tập Ngay Hôm Nay",
+      "subtitle": "Tham gia cùng hơn 50.000 học viên đang học trên nền tảng của chúng tôi",
+      "getStarted": "Bắt Đầu Miễn Phí",
+      "browseCourses": "Xem Khóa Học",
+      "noCard": "Không cần thẻ tín dụng",
+      "cancelAnytime": "Hủy bất cứ lúc nào"
+    }
+  },
+  "Settings": {
+    "title": "Cài Đặt",
+    "subtitle": "Quản lý tùy chọn của bạn",
+    "appearance": "Giao Diện",
+    "appearanceDescription": "Tùy chỉnh cách hiển thị của ứng dụng",
+    "language": "Ngôn Ngữ",
+    "themeMode": "Chế Độ Giao Diện",
+    "currentlyUsing": "Hiện đang sử dụng",
+    "mode": "chế độ",
+    "lightMode": "Chế Độ Sáng",
+    "lightModeDescription": "Sáng & rõ ràng",
+    "darkMode": "Chế Độ Tối",
+    "darkModeDescription": "Dịu mắt",
+    "selectLanguage": "Chọn ngôn ngữ bạn muốn sử dụng"
+  },
+  "Common": {
+    "home": "Trang Chủ",
+    "courses": "Khóa Học",
+    "about": "Giới Thiệu",
+    "contact": "Liên Hệ",
+    "login": "Đăng Nhập",
+    "signup": "Đăng Ký",
+    "logout": "Đăng Xuất",
+    "dashboard": "Bảng Điều Khiển",
+    "profile": "Hồ Sơ",
+    "settings": "Cài Đặt",
+    "search": "Tìm kiếm...",
+    "viewProfile": "Xem Hồ Sơ"
+  },
+  "Footer": {
+    "description": "Nền tảng học tập trực tuyến hàng đầu giúp bạn nâng cao kỹ năng và phát triển sự nghiệp với các khóa học từ các chuyên gia hàng đầu.",
+    "aboutUs": "Về Chúng Tôi",
+    "services": "Dịch Vụ",
+    "products": "Sản Phẩm",
+    "careers": "Tuyển Dụng",
+    "blog": "Blog",
+    "support": "Hỗ Trợ",
+    "helpCenter": "Trung Tâm Trợ Giúp",
+    "faq": "Câu Hỏi Thường Gặp",
+    "privacyPolicy": "Chính Sách Bảo Mật",
+    "termsOfService": "Điều Khoản Dịch Vụ",
+    "getInTouch": "Liên Hệ Với Chúng Tôi",
+    "district": "Đường abc, Quận 1,",
+    "province": "Thành Phố Hồ Chí Minh, Việt Nam",
+    "phone": "Điện thoại: (123) 456-7890",
+    "email": "learnio@gmail.com",
+    "newsletter": "Bản Tin",
+    "yourEmail": "Địa chỉ email của bạn",
+    "subscribe": "Đăng Ký",
+    "privacy": "bảo mật",
+    "terms": "điều khoản",
+    "cookies": "cookie",
+    "rightsReserved": "Mọi quyền được bảo lưu.",
+    "contactUs" : "Liên Hệ Chúng Tôi"
+  }
+}

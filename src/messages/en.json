@@ -1,0 +1,111 @@
+{
+  "HomePage": {
+    "title": "Learn Skills From",
+    "titleNext": "World-Class Experts",
+    "subtitle": "Start, switch, or advance your career with thousands of courses, certificates, and degrees from world-class universities and companies.",
+    "started": "Get Started Free",
+    "exploreBtn": "Explore Courses",
+    "watchCourse": "Watch Course",
+    "love": "Loved by 10,000+ users",
+    "ready": "Ready to learn?",
+    "start": "Start learning amazing things today",
+
+    "stats": {
+      "students": "Active Students",
+      "instructors": "Expert Instructors",
+      "courses": "Online Courses",
+      "certificates": "Certificates Issued"
+    },
+    "features": {
+      "title": "Why Learn With Us?",
+      "subtitle": "Everything you need to advance your skills",
+      "learnPace": {
+        "title": "Learn at Your Own Pace",
+        "description": "Access courses anytime, anywhere. Study on your schedule with lifetime access to course materials."
+      },
+      "experts": {
+        "title": "Expert Instructors",
+        "description": "Learn from industry professionals with years of real-world experience and proven track records."
+      },
+      "certified": {
+        "title": "Get Certified",
+        "description": "Earn recognized certificates upon completion to showcase your skills and boost your career."
+      },
+      "progress": {
+        "title": "Track Your Progress",
+        "description": "Monitor your learning journey with detailed analytics and personalized recommendations."
+      }
+    },
+    "courses": {
+      "title": "Popular Courses",
+      "subtitle": "Choose from 1000+ courses",
+      "viewAll": "View All Courses"
+    },
+    "stories": {
+      "title": "Success Stories",
+      "subtitle": "See how our students transformed their careers"
+    },
+    "cta": {
+      "title": "Start Your Learning Journey Today",
+      "subtitle": "Join over 50,000 students already learning",
+      "getStarted": "Get Started for Free",
+      "browseCourses": "Browse Courses",
+      "noCard": "No credit card required",
+      "cancelAnytime": "Cancel anytime"
+    }
+  },
+  "Settings": {
+    "title": "Settings",
+    "subtitle": "Manage your preferences",
+    "appearance": "Appearance",
+    "appearanceDescription": "Customize how the interface looks",
+    "language": "Language",
+    "themeMode": "Theme Mode",
+    "currentlyUsing": "Currently using",
+    "mode": "mode",
+    "lightMode": "Light Mode",
+    "lightModeDescription": "Bright & clear",
+    "darkMode": "Dark Mode",
+    "darkModeDescription": "Easy on eyes",
+    "selectLanguage": "Select your preferred language"
+  },
+  "Common": {
+    "home": "Home",
+    "courses": "Courses",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "settings": "Settings",
+    "search": "Search...",
+    "viewProfile": "View Profile"
+  },
+  "Footer": {
+    "description": "Learnio is your go-to platform for online learning, offering a wide range of courses to help you achieve your personal and professional goals.",
+    "aboutUs": "About Us",
+    "services": "Services",
+    "products": "Products",
+    "careers": "Careers",
+    "blog": "Blog",
+    "support": "Support",
+    "helpCenter": "Help Center",
+    "faq": "FAQ",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "getInTouch": "Get in Touch",
+    "district": "abc Street, District 1,",
+    "province": "Ho Chi Minh City, Vietnam",
+    "phone": "Phone: (123) 456-7890",
+    "email": "learnio@gmail.com",
+    "newsletter": "Newsletter",
+    "yourEmail": "Your email address",
+    "subscribe": "Subscribe",
+    "privacy": "privacy",
+    "terms": "terms",
+    "cookies": "cookies",
+    "rightsReserved": "All rights reserved."
+  }
+}
