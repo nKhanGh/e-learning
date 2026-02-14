@@ -11,6 +11,7 @@ import {
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { useTranslations } from "next-intl";
 import Loading from "../ui/Loading";
+import { login } from "@/utils/auth";
 
 interface LoginFormProps {
   onSwitchToSignUp: () => void;
@@ -71,9 +72,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
 
     setIsLoading(true);
     try {
-      // TODO: Implement login logic
-      console.log("Login with:", formData);
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
+      await login({email: formData.email, password: formData.password});
       // Handle successful login
     } catch (error) {
       console.error("Login error:", error);
