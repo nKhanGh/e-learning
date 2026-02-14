@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/app/globals.css";
 import LayoutClient from "@/components/layouts/LayoutComponent";
-import { SignupProvider } from "@/contexts/OpenAuthContext";
+import { OpenAuthProvider } from "@/contexts/OpenAuthContext";
 import { locales } from "../../i18n/request";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,9 +62,11 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased mt-20`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <SignupProvider>
-            <LayoutClient>{children}</LayoutClient>
-          </SignupProvider>
+          <AuthProvider>
+            <OpenAuthProvider>
+              <LayoutClient>{children}</LayoutClient>
+            </OpenAuthProvider>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

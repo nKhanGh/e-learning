@@ -17,7 +17,7 @@ interface OpenAuthContextType {
 
 const OpenAuthContext = createContext<OpenAuthContextType | boolean>(false);
 
-export const SignupProvider = ({ children }: { children: React.ReactNode }) => {
+export const OpenAuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [openSignUp, setOpenSignUp] = useState<boolean>(false);
   const [openLogin, setOpenLogin] = useState<boolean>(false);
 

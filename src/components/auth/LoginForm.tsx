@@ -12,12 +12,16 @@ import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { useTranslations } from "next-intl";
 import Loading from "../ui/Loading";
 import { login } from "@/utils/auth";
+import { useOpenAuth } from "@/contexts/OpenAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface LoginFormProps {
   onSwitchToSignUp: () => void;
 }
 
 const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
+  const {setOpenLogin} = useOpenAuth();
+  const {fetchUserInfo} = useAuth();
   const t = useTranslations("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -81,7 +85,9 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         password: t("invalidCredentials"),
       }));
     } finally {
+      fetchUserInfo();
       setIsLoading(false);
+      setOpenLogin(false);
     }
   };
 
