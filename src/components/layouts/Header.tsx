@@ -1,4 +1,5 @@
 "use client";
+import { useOpenAuth } from "@/contexts/OpenAuthContext";
 import {
   faChevronRight,
   faCircleUser,
@@ -11,14 +12,19 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import AuthModal from "../auth/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { logout } from "@/utils/auth";
 
 const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSidebar: React.Dispatch<React.SetStateAction<boolean>>}) => {
-  const [login, setLogin] = useState<boolean>(false);
   const [openBoard, setOpenBoard] = useState<boolean>(false);
+  const {isLoggedIn, user} = useAuth();
+
+  const {openLogin, setOpenLogin, openSignUp, setOpenSignUp} = useOpenAuth();
   const t = useTranslations('Common');
 
   return (
-    <div className="fixed top-0 left-0 w-full h-20 bg-white dark:bg-gray-900 shadow-md flex items-center z-50 px-4">
+    <div className="fixed top-0 left-0 w-full h-20 bg-white dark:bg-gray-900 shadow-md flex items-center z-40 px-4">
       <button
       onClick={() => setOpenSidebar(!openSidebar)}
       className="mr-8 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-full cursor-pointer p-3 hover:text-primary focus:bg-blue-100 dark:focus:bg-gray-700 focus:text-primary">
@@ -33,7 +39,7 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
       <button className="mr-6 bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-full cursor-pointer p-3 hover:text-primary focus:bg-blue-100 dark:focus:bg-gray-700 focus:text-primary">
         <MessageCircleMore />
       </button>
-      {login ? (
+      {isLoggedIn && user ? (
         <div className="h-16 relative flex items-center rounded-xl bg-gray-100 dark:bg-gray-800 py-4 px-6 gap-4">
           <Image
             src="/default-avatar.jpg"
@@ -43,8 +49,8 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
             className="rounded-full border-4 box-content border-white"
           />
           <div>
-            <p className="font-bold">Nguyen Huu Khang</p>
-            <p className="text-sm font-bold text-primary">Student</p>
+            <p className="font-bold">{user?.firstName}{" "}{user?.lastName}</p>
+            <p className="text-sm font-bold text-primary">{user?.role}</p>
           </div>
           <button
             className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full cursor-pointer"
@@ -64,9 +70,9 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
                     className="rounded-full border-4 box-content border-white"
                   />
                   <div>
-                    <p className="font-bold">Nguyen Huu Khang</p>
+                    <p className="font-bold">{user?.firstName} {user?.lastName}</p>
                     <p className="text-sm  text-gray-500 dark:text-gray-400">
-                      huukhang855@gmail.com
+                      {user?.email}
                     </p>
                   </div>
                 </div>
@@ -87,7 +93,10 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
                   className="mr-2 ml-auto"
                 />
               </Link>
-              <button className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-sm flex items-center justify-start">
+              <button 
+              className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-sm flex items-center justify-start"
+              onClick={logout}
+              >
                 <FontAwesomeIcon icon={faRightFromBracket} className="mr-4" />
                 {t('logout')}
                 <FontAwesomeIcon
@@ -100,17 +109,21 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
         </div>
       ) : (
         <>
-          <button className="bg-primary w-36 h-10 text-white rounded-2xl cursor-pointer mr-4 hover:bg-blue-600 justify-center">
+          <button
+          className="bg-primary w-36 h-10 text-white rounded-2xl cursor-pointer mr-4 hover:bg-blue-600 justify-center"
+            onClick={() => setOpenSignUp(true)}
+          >
             {t('signup')}
           </button>
           <button
             className="bg-gray-300 w-36 h-10 text-primary border-3 hover:border-blue-600 hover:text-white box-border rounded-2xl cursor-pointer mr-4 hover:bg-blue-600 justify-center"
-            onClick={() => setLogin(!login)}
+            onClick={() => setOpenLogin(true)}
           >
             {t('login')}
           </button>
         </>
       )}
+      {(openLogin || openSignUp) && <AuthModal />}
     </div>
   );
 };
