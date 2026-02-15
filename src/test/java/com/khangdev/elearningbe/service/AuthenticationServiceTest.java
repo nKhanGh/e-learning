@@ -10,7 +10,6 @@ import com.khangdev.elearningbe.dto.request.authentication.RegisterRequest;
 import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
 import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
 import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
-import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.UserStatus;
@@ -245,7 +244,7 @@ public class AuthenticationServiceTest {
         Mockito.when(jwtService.generateToken(user, true)).thenReturn("access");
         Mockito.when(jwtService.generateToken(user, false)).thenReturn("refresh");
 
-        RefreshTokenResponse response = authenticationService.refreshToken(request);
+        AuthenticationResponse response = authenticationService.refreshToken(request);
 
         Assertions.assertThat(response.getAccessToken()).isEqualTo("access");
         Assertions.assertThat(response.getRefreshToken()).isEqualTo("refresh");

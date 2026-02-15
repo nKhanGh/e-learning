@@ -23,13 +23,6 @@ public class UserResponse {
     private String phoneNumber;
     private UserRole role;
     private UserStatus status;
-    private boolean emailVerified;
-    private Instant emailVerifiedAt;
-    private boolean twoFactorEnabled;
-    private String twoFactorSecret;
-    private LocalDateTime lastLoginAt;
-    private String lastLoginIp;
-    private Integer failedLoginAttempts = 0;
     private LocalDateTime lockedUntil;
     private UserProfileResponse profile;
     private InstructorResponse instructor;

@@ -5,7 +5,6 @@ import com.khangdev.elearningbe.dto.request.authentication.EmailVerifyRequest;
 import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
 import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
 import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
-import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.UserStatus;
@@ -73,14 +72,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
+    public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException {
         String token = request.getRefreshToken();
         SignedJWT signedJWT = jwtService.verifyToken(token, false);
         String email = signedJWT.getJWTClaimsSet().getSubject();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         String accessToken = jwtService.generateToken(user, true);
         String refreshToken = jwtService.generateToken(user, false);
-        return RefreshTokenResponse.builder()
+        return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -57,28 +57,6 @@ public class User extends BaseEntity {
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
 
-    @Column(name = "email_verified")
-    private boolean emailVerified;
-
-    @Column(name = "email_verified_at")
-    private Instant emailVerifiedAt;
-
-    @Column(name = "two_factor_enabled")
-    private boolean twoFactorEnabled;
-
-    @Column(name = "two_factor_secret")
-    private String twoFactorSecret;
-
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-
-    @Column(name = "last_login_ip")
-    private String lastLoginIp;
-
-    @Column(name = "failed_login_attempts")
-    @Builder.Default
-    private Integer failedLoginAttempts = 0;
-
     @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
 

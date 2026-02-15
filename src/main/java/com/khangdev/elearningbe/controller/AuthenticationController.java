@@ -6,7 +6,6 @@ import com.khangdev.elearningbe.dto.request.authentication.EmailVerifyRequest;
 import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
 import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
 import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
-import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.service.user.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
@@ -49,8 +48,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/refreshtToken")
-    public ApiResponse<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
-        return ApiResponse.<RefreshTokenResponse>builder()
+    public ApiResponse<AuthenticationResponse> refreshToken(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
+        return ApiResponse.<AuthenticationResponse>builder()
                 .result(authenticationService.refreshToken(request))
                 .build();
     }

@@ -45,7 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -202,13 +201,6 @@ public class UserServiceTest {
                 .phoneNumber("0123456789")
                 .role(UserRole.INSTRUCTOR)
                 .status(UserStatus.ACTIVE)
-                .emailVerified(true)
-                .emailVerifiedAt(Instant.now())
-                .twoFactorEnabled(false)
-                .twoFactorSecret(null)
-                .lastLoginAt(LocalDateTime.now())
-                .lastLoginIp("127.0.0.1")
-                .failedLoginAttempts(0)
                 .lockedUntil(null)
                 .profile(profileResponse)
                 .instructor(instructorResponse)
@@ -277,13 +269,6 @@ public class UserServiceTest {
                 .phoneNumber("0123456789")
                 .role(UserRole.INSTRUCTOR)
                 .status(UserStatus.ACTIVE)
-                .emailVerified(true)
-                .emailVerifiedAt(Instant.now())
-                .twoFactorEnabled(false)
-                .twoFactorSecret(null)
-                .lastLoginAt(LocalDateTime.now())
-                .lastLoginIp("127.0.0.1")
-                .failedLoginAttempts(0)
                 .lockedUntil(null)
                 .profile(profile)
                 .instructor(instructor)
