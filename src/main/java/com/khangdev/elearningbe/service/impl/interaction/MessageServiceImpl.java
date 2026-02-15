@@ -1,5 +1,6 @@
 package com.khangdev.elearningbe.service.impl.interaction;
 
+import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.interaction.MessageSendRequest;
 import com.khangdev.elearningbe.dto.response.interaction.MessageResponse;
 import com.khangdev.elearningbe.dto.webSocket.UnreadCountEvent;
@@ -18,6 +19,9 @@ import com.khangdev.elearningbe.service.interaction.MessageService;
 import com.khangdev.elearningbe.service.user.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -79,5 +83,20 @@ public class MessageServiceImpl implements MessageService {
                             .build()
             );
         });
+    }
+
+    @Override
+    public PageResponse<MessageResponse> getConversationMessage(UUID conversationId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Message> result = messageRepository.findByConversationId(conversationId, pageable);
+
+        return PageResponse.<MessageResponse>builder()
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .items(result.getContent().stream().map(messageMapper::toResponse).toList())
+                .page(page)
+                .size(size)
+                .build();
     }
 }

@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
+import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.interaction.MessageSendRequest;
 import com.khangdev.elearningbe.dto.response.interaction.MessageResponse;
 import com.khangdev.elearningbe.dto.webSocket.ConversationEvent;
@@ -180,11 +181,14 @@ public class MessageController {
         );
     }
 
-
-
-
-
-
-
-
+    @GetMapping("/conversations/{conversationId}")
+    public ApiResponse<PageResponse<MessageResponse>> getConversationMessages(
+            @PathVariable UUID conversationId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<MessageResponse>>builder()
+                .result(messageService.getConversationMessage(conversationId, page, size))
+                .build();
+    }
 }
