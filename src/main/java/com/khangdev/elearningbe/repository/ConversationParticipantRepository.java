@@ -21,6 +21,8 @@ public interface ConversationParticipantRepository extends JpaRepository<Convers
     """)
     void increaseUnreadForOthers(UUID conversationId, UUID senderId);
 
+    ConversationParticipant findByConversationIdAndUserId(UUID conversationId, UUID senderId);
+
     List<ConversationParticipant> findByConversationIdAndUserIdNot(UUID conversationId, UUID userId);
 
 }

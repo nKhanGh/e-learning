@@ -1,16 +1,22 @@
 package com.khangdev.elearningbe.service.impl.interaction;
 
 import com.khangdev.elearningbe.dto.request.interaction.ConversationCreationRequest;
+import com.khangdev.elearningbe.dto.response.interaction.ConversationParticipantResponse;
 import com.khangdev.elearningbe.dto.response.interaction.ConversationResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.id.ConversationParticipantId;
 import com.khangdev.elearningbe.entity.interaction.Conversation;
 import com.khangdev.elearningbe.entity.interaction.ConversationParticipant;
+import com.khangdev.elearningbe.entity.interaction.Message;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.ConversationMapper;
+import com.khangdev.elearningbe.mapper.ConversationParticipantMapper;
+import com.khangdev.elearningbe.mapper.MessageMapper;
+import com.khangdev.elearningbe.repository.ConversationParticipantRepository;
 import com.khangdev.elearningbe.repository.ConversationRepository;
+import com.khangdev.elearningbe.repository.MessageRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
 import com.khangdev.elearningbe.service.interaction.ConversationService;
 import com.khangdev.elearningbe.service.common.FileService;
@@ -31,12 +37,28 @@ import java.util.UUID;
 @Slf4j
 public class ConversationServiceImpl implements ConversationService {
     private final ConversationRepository conversationRepository;
+    private final ConversationParticipantRepository conversationParticipantRepository;
+    private final MessageRepository  messageRepository;
     private final UserRepository userRepository;
 
     private final UserService userService;
     private final FileService fileService;
 
     private final ConversationMapper conversationMapper;
+    private final ConversationParticipantMapper conversationParticipantMapper;
+    private final MessageMapper messageMapper;
+
+    private ConversationResponse setConversationAttr(ConversationResponse response) {
+        UserResponse currentUser = userService.getMyInfo();
+        ConversationParticipant conversationParticipant = conversationParticipantRepository
+                .findByConversationIdAndUserId(response.getId(), currentUser.getId());
+
+        response.setMyParticipant(conversationParticipantMapper.toResponse(conversationParticipant));
+        var lastMessage = messageRepository.findTopByConversationIdOrderByCreatedAtDesc(response.getId());
+        lastMessage.ifPresent(message -> response.setLastMessage(messageMapper.toResponse(message)));
+
+        return response;
+    }
 
     @Override
     @Transactional
@@ -71,7 +93,8 @@ public class ConversationServiceImpl implements ConversationService {
                 .build();
 
         conversation.setParticipants(List.of(conversationParticipant));
-        return conversationMapper.toResponse(conversation);
+        ConversationResponse response =  conversationMapper.toResponse(conversation);
+        return setConversationAttr(response);
 
     }
 
@@ -79,7 +102,13 @@ public class ConversationServiceImpl implements ConversationService {
     public List<ConversationResponse> getMyConversations() {
         UUID userId = userService.getMyInfo().getId();
         return conversationRepository.findByUserId(userId)
-                .stream().map(conversationMapper::toResponse).toList();
+                .stream()
+                .map(conversation -> {
+                    ConversationResponse response =
+                            conversationMapper.toResponse(conversation);
+                    return setConversationAttr(response);
+                })
+                .toList();
     }
 
     @Override
@@ -88,7 +117,12 @@ public class ConversationServiceImpl implements ConversationService {
 
         if(isGroup) {
             return conversationRepository.searchByNameLike(keyword, currentUser.getEmail())
-                    .stream().map(conversationMapper::toResponse).toList();
+                    .stream().map(conversation -> {
+                        ConversationResponse response =
+                                conversationMapper.toResponse(conversation);
+                        return setConversationAttr(response);
+                    })
+                    .toList();
         } else {
             List<UUID> userIds = userRepository.searchUser(keyword, currentUser.getEmail())
                     .stream().map(User::getId).toList();
@@ -96,7 +130,12 @@ public class ConversationServiceImpl implements ConversationService {
                 return List.of();
             }
             return conversationRepository.findDirectConversationsWithUsers(currentUser.getId(), userIds)
-                    .stream().map(conversationMapper::toResponse).toList();
+                    .stream().map(conversation -> {
+                        ConversationResponse response =
+                                conversationMapper.toResponse(conversation);
+
+                        return setConversationAttr(response);
+                    }).toList();
         }
     }
 
@@ -156,7 +195,8 @@ public class ConversationServiceImpl implements ConversationService {
 
         conversation.setAvatarFileName(fileName);
 
-        return conversationMapper.toResponse(conversation);
+        ConversationResponse response = conversationMapper.toResponse(conversation);
+        return setConversationAttr(response);
     }
 
     @Override
@@ -172,7 +212,8 @@ public class ConversationServiceImpl implements ConversationService {
             conversation.setAvatarFileName(fileName);
             conversationRepository.save(conversation);
         }
-        return conversationMapper.toResponse(conversation);
+        ConversationResponse response = conversationMapper.toResponse(conversation);
+        return setConversationAttr(response);
     }
 
     @Override
@@ -181,7 +222,8 @@ public class ConversationServiceImpl implements ConversationService {
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
         conversation.setName(newName);
-        return conversationMapper.toResponse(conversationRepository.save(conversation));
+        ConversationResponse response = conversationMapper.toResponse(conversationRepository.save(conversation));
+        return setConversationAttr(response);
     }
 
     @Override

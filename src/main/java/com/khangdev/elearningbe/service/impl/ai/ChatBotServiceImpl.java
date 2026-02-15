@@ -67,6 +67,11 @@ public class ChatBotServiceImpl implements ChatBotService {
     public AIChatResponse chat(AIChatRequest request) {
         try{
             String conversationId = request.getConversationId().toString();
+            Conversation conversation = conversationRepository.findById(request.getConversationId())
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            if(!conversation.isAi())
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+
 
             Message userMessage = saveUserMessage(request);
 

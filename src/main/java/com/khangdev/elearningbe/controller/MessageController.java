@@ -69,14 +69,17 @@ public class MessageController {
     }
 
     @MessageMapping("/chat.typing")
-    public void sendTyping(@Payload TypingNotification request, Principal principal) {
+    public void sendTyping(@Payload UUID conversationId, Principal principal) {
         String email =  principal.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        request.setUserId(user.getId());
+        TypingNotification request = TypingNotification.builder()
+            .conversationId(conversationId)
+            .userId(user.getId())
+            .build();
         try{
             messagingTemplate.convertAndSend(
-                "/topic/conversations." + request.getConversationId().toString(),
+                "/topic/conversations." + conversationId.toString(),
                 ConversationEvent.builder()
                     .type(ConversationEventType.TYPING)
                     .data(request)

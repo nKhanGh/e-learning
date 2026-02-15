@@ -14,5 +14,4 @@ import java.util.UUID;
 public class TypingNotification {
     UUID userId;
     UUID conversationId;
-    boolean isTyping;
 }

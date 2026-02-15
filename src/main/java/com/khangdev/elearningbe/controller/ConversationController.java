@@ -52,7 +52,7 @@ public class ConversationController {
                 .build();
     }
 
-    @PutMapping("/avatar/{conversationId}")
+    @PutMapping("/{conversationId}/avatar")
     ApiResponse<ConversationResponse> changeAvatar(
             @PathVariable UUID conversationId,
             @RequestPart(value = "avatarFile") MultipartFile avatarFile
@@ -62,7 +62,7 @@ public class ConversationController {
                 .build();
     }
 
-    @PutMapping("/name/{conversationId}")
+    @PutMapping("/{conversationId}/name")
     ApiResponse<ConversationResponse> changeName(
             @PathVariable UUID conversationId,
             @RequestParam String newName

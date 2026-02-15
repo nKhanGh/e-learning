@@ -53,6 +53,7 @@ public class WebSocketEventListener {
                     .userId(userId.toString())
                     .timestamp(Instant.now())
                     .online(true)
+                    .build()
             );
         }
     }
