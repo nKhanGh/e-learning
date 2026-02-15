@@ -1,4 +1,3 @@
-// app/[locale]/chat/page.tsx - Update với responsive
 "use client";
 import { useState } from "react";
 import ChatSidebar from "@/components/chat/ChatSidebar";

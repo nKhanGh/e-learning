@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { WebSocketProvider } from "@/contexts/WebSocketContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,9 +64,11 @@ export default async function RootLayout({
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
-            <OpenAuthProvider>
-              <LayoutClient>{children}</LayoutClient>
-            </OpenAuthProvider>
+            <WebSocketProvider>
+              <OpenAuthProvider>
+                <LayoutClient>{children}</LayoutClient>
+              </OpenAuthProvider>
+            </WebSocketProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

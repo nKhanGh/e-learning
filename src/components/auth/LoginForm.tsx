@@ -21,7 +21,7 @@ interface LoginFormProps {
 
 const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
   const {setOpenLogin} = useOpenAuth();
-  const {fetchUserInfo} = useAuth();
+  const {fetchUserInfo, setAccessToken} = useAuth();
   const t = useTranslations("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -76,8 +76,9 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
 
     setIsLoading(true);
     try {
-      await login({email: formData.email, password: formData.password});
-      // Handle successful login
+      const result = await login({email: formData.email, password: formData.password});
+      setAccessToken(result.accessToken);
+
     } catch (error) {
       console.error("Login error:", error);
       setErrors((prev) => ({
