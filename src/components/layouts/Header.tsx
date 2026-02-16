@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Bell, ChevronDown, List, MessageCircleMore } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -20,6 +20,8 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
   const [openBoard, setOpenBoard] = useState<boolean>(false);
   const {isLoggedIn, user} = useAuth();
 
+  const locale = useLocale();
+
   const {openLogin, setOpenLogin, openSignUp, setOpenSignUp} = useOpenAuth();
   const t = useTranslations('Common');
 
@@ -30,19 +32,19 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
       className="mr-8 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-full cursor-pointer p-3 hover:text-primary focus:bg-blue-100 dark:focus:bg-gray-700 focus:text-primary">
         <List />
       </button>
-      <Link href="/">
+      <Link href={`/${locale}`} className="flex items-center gap-2">
         <Image src="/logo_blue.png" alt="Logo" width={140} height={40} />
       </Link>
       <button className="ml-auto mr-4 bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-full cursor-pointer p-3 hover:text-primary focus:bg-blue-100 dark:focus:bg-gray-700 focus:text-primary">
         <Bell />
       </button>
-      <button className="mr-6 bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-full cursor-pointer p-3 hover:text-primary focus:bg-blue-100 dark:focus:bg-gray-700 focus:text-primary">
+      <Link href={`/${locale}/chat`}  className="mr-6 bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-full cursor-pointer p-3 hover:text-primary focus:bg-blue-100 dark:focus:bg-gray-700 focus:text-primary">
         <MessageCircleMore />
-      </button>
+      </Link>
       {isLoggedIn && user ? (
         <div className="h-16 relative flex items-center rounded-xl bg-gray-100 dark:bg-gray-800 py-4 px-6 gap-4">
           <Image
-            src="/default-avatar.jpg"
+            src={user.profile?.avatarUrl || "/default-avatar.jpg"}
             alt="User Avatar"
             width={40}
             height={32}
@@ -63,7 +65,7 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
               <div className="bg-gray-100 dark:bg-gray-700 p-2 mb-4 rounded-md min-w-80">
                 <div className="flex gap-2 p-4">
                   <Image
-                    src="/default-avatar.jpg"
+                    src={user.profile?.avatarUrl || "/default-avatar.jpg"}
                     alt="User Avatar"
                     width={40}
                     height={32}
