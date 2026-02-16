@@ -14,7 +14,7 @@ import com.khangdev.elearningbe.enums.Gender;
 import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.enums.UserStatus;
 import com.khangdev.elearningbe.enums.VerificationStatus;
-import com.khangdev.elearningbe.service.UserService;
+import com.khangdev.elearningbe.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -168,13 +168,6 @@ public class UserControllerTest {
                 .phoneNumber("0123456789")
                 .role(UserRole.INSTRUCTOR)
                 .status(UserStatus.ACTIVE)
-                .emailVerified(true)
-                .emailVerifiedAt(Instant.now())
-                .twoFactorEnabled(false)
-                .twoFactorSecret(null)
-                .lastLoginAt(LocalDateTime.now())
-                .lastLoginIp("127.0.0.1")
-                .failedLoginAttempts(0)
                 .lockedUntil(null)
                 .profile(profileResponse)
                 .instructor(instructorResponse)

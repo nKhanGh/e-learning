@@ -3,7 +3,7 @@ package com.khangdev.elearningbe.controller;
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseTagRequest;
 import com.khangdev.elearningbe.dto.response.course.CourseTagResponse;
-import com.khangdev.elearningbe.service.CourseTagService;
+import com.khangdev.elearningbe.service.course.CourseTagService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

@@ -8,4 +8,6 @@ import org.mapstruct.Mapper;
 public interface ConversationMapper {
 
     ConversationResponse toResponse(Conversation conversation);
+
+
 }

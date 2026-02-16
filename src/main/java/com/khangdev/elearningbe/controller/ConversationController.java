@@ -3,7 +3,7 @@ package com.khangdev.elearningbe.controller;
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.request.interaction.ConversationCreationRequest;
 import com.khangdev.elearningbe.dto.response.interaction.ConversationResponse;
-import com.khangdev.elearningbe.service.ConversationService;
+import com.khangdev.elearningbe.service.interaction.ConversationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,7 +45,14 @@ public class ConversationController {
                 .build();
     }
 
-    @PutMapping("/avatar/{conversationId}")
+    @PostMapping("/ai")
+    ApiResponse<ConversationResponse> createAiConversation() {
+        return ApiResponse.<ConversationResponse>builder()
+                .result(conversationService.createAIConversation())
+                .build();
+    }
+
+    @PutMapping("/{conversationId}/avatar")
     ApiResponse<ConversationResponse> changeAvatar(
             @PathVariable UUID conversationId,
             @RequestPart(value = "avatarFile") MultipartFile avatarFile
@@ -55,7 +62,7 @@ public class ConversationController {
                 .build();
     }
 
-    @PutMapping("/name/{conversationId}")
+    @PutMapping("/{conversationId}/name")
     ApiResponse<ConversationResponse> changeName(
             @PathVariable UUID conversationId,
             @RequestParam String newName

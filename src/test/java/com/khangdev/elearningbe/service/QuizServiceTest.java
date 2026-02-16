@@ -14,6 +14,8 @@ import com.khangdev.elearningbe.dto.request.course.QuizUpdateRequest;
 import com.khangdev.elearningbe.mapper.QuizMapper;
 import com.khangdev.elearningbe.repository.LectureRepository;
 import com.khangdev.elearningbe.repository.QuizRepository;
+import com.khangdev.elearningbe.service.course.QuizService;
+import com.khangdev.elearningbe.service.user.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

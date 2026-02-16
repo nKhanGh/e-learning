@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
+import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.interaction.MessageSendRequest;
 import com.khangdev.elearningbe.dto.response.interaction.MessageResponse;
 import com.khangdev.elearningbe.dto.webSocket.ConversationEvent;
@@ -11,7 +12,11 @@ import com.khangdev.elearningbe.enums.ConversationEventType;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.UserRepository;
-import com.khangdev.elearningbe.service.*;
+import com.khangdev.elearningbe.service.common.FileService;
+import com.khangdev.elearningbe.service.common.RedisService;
+import com.khangdev.elearningbe.service.interaction.ConversationParticipantService;
+import com.khangdev.elearningbe.service.interaction.MessageService;
+import com.khangdev.elearningbe.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -37,7 +42,7 @@ public class MessageController {
     private final UserService userService;
     private final RedisService redisService;
     private final FileService fileService;
-    private final ConversationParticipantService  conversationParticipantService;
+    private final ConversationParticipantService conversationParticipantService;
 
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -64,14 +69,17 @@ public class MessageController {
     }
 
     @MessageMapping("/chat.typing")
-    public void sendTyping(@Payload TypingNotification request, Principal principal) {
+    public void sendTyping(@Payload UUID conversationId, Principal principal) {
         String email =  principal.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        request.setUserId(user.getId());
+        TypingNotification request = TypingNotification.builder()
+            .conversationId(conversationId)
+            .userId(user.getId())
+            .build();
         try{
             messagingTemplate.convertAndSend(
-                "/topic/conversations." + request.getConversationId().toString(),
+                "/topic/conversations." + conversationId.toString(),
                 ConversationEvent.builder()
                     .type(ConversationEventType.TYPING)
                     .data(request)
@@ -176,11 +184,14 @@ public class MessageController {
         );
     }
 
-
-
-
-
-
-
-
+    @GetMapping("/conversations/{conversationId}")
+    public ApiResponse<PageResponse<MessageResponse>> getConversationMessages(
+            @PathVariable UUID conversationId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<MessageResponse>>builder()
+                .result(messageService.getConversationMessage(conversationId, page, size))
+                .build();
+    }
 }

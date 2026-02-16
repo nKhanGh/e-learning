@@ -4,11 +4,9 @@ import com.khangdev.elearningbe.dto.webSocket.UserStatusEvent;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.UserRepository;
-import com.khangdev.elearningbe.service.RedisService;
-import lombok.AccessLevel;
+import com.khangdev.elearningbe.service.common.RedisService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -55,6 +53,7 @@ public class WebSocketEventListener {
                     .userId(userId.toString())
                     .timestamp(Instant.now())
                     .online(true)
+                    .build()
             );
         }
     }

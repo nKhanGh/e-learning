@@ -17,6 +17,8 @@ import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.LectureProgressMapper;
 import com.khangdev.elearningbe.repository.*;
+import com.khangdev.elearningbe.service.course.LectureProgressService;
+import com.khangdev.elearningbe.service.user.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

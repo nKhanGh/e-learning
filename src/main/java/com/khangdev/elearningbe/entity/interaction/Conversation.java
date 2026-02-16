@@ -50,4 +50,8 @@ public class Conversation extends BaseEntity {
     )
     private List<Message> messages;
 
+    @Column(name = "is_ai")
+    @Builder.Default
+    private boolean isAi = false;
+
 }

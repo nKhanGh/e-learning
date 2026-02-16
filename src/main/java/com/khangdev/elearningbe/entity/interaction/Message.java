@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.entity.interaction;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.entity.user.User;
+import com.khangdev.elearningbe.enums.MessageSenderType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,9 +28,14 @@ public class Message extends BaseEntity {
     Message parent;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
+    @JoinColumn(name = "sender_id")
     User sender;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     String content;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(nullable = false, name = "sender_type")
+    MessageSenderType senderType = MessageSenderType.USER;
 }

@@ -3,7 +3,7 @@ package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.response.interaction.ConversationParticipantResponse;
-import com.khangdev.elearningbe.service.ConversationParticipantService;
+import com.khangdev.elearningbe.service.interaction.ConversationParticipantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

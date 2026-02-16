@@ -71,6 +71,8 @@ public class SecurityConfig {
                         })
                 )
 
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+
                 .exceptionHandling(exceptionHandlingCustomize -> exceptionHandlingCustomize.accessDeniedHandler(customAccessDeniedHandler))
         ;
 

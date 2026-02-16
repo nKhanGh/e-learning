@@ -9,6 +9,7 @@ import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.CourseSectionMapper;
 import com.khangdev.elearningbe.repository.CourseRepository;
 import com.khangdev.elearningbe.repository.CourseSectionRepository;
+import com.khangdev.elearningbe.service.course.CourseSectionService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

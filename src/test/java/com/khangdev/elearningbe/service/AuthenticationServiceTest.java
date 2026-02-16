@@ -10,13 +10,17 @@ import com.khangdev.elearningbe.dto.request.authentication.RegisterRequest;
 import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
 import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
 import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
-import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.UserStatus;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.UserRepository;
+import com.khangdev.elearningbe.service.common.EmailService;
+import com.khangdev.elearningbe.service.common.JwtService;
+import com.khangdev.elearningbe.service.common.RedisService;
+import com.khangdev.elearningbe.service.user.AuthenticationService;
+import com.khangdev.elearningbe.service.user.UserService;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.assertj.core.api.Assertions;
@@ -240,7 +244,7 @@ public class AuthenticationServiceTest {
         Mockito.when(jwtService.generateToken(user, true)).thenReturn("access");
         Mockito.when(jwtService.generateToken(user, false)).thenReturn("refresh");
 
-        RefreshTokenResponse response = authenticationService.refreshToken(request);
+        AuthenticationResponse response = authenticationService.refreshToken(request);
 
         Assertions.assertThat(response.getAccessToken()).isEqualTo("access");
         Assertions.assertThat(response.getRefreshToken()).isEqualTo("refresh");

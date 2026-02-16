@@ -4,7 +4,7 @@ import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
-import com.khangdev.elearningbe.service.QuizQuestionService;
+import com.khangdev.elearningbe.service.course.QuizQuestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

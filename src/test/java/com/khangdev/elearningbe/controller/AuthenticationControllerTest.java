@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khangdev.elearningbe.dto.response.authentication.AuthenticationResponse;
 import com.khangdev.elearningbe.dto.response.authentication.EmailVerifyResponse;
 import com.khangdev.elearningbe.dto.response.authentication.LogoutResponse;
-import com.khangdev.elearningbe.dto.response.authentication.RefreshTokenResponse;
 import com.khangdev.elearningbe.dto.response.user.UserResponse;
-import com.khangdev.elearningbe.service.AuthenticationService;
+import com.khangdev.elearningbe.service.user.AuthenticationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -96,7 +95,7 @@ public class AuthenticationControllerTest {
 
     @Test
     void refreshToken_success() throws Exception {
-        RefreshTokenResponse response = RefreshTokenResponse.builder()
+        AuthenticationResponse response = AuthenticationResponse.builder()
                 .accessToken("new-access")
                 .refreshToken("new-refresh")
                 .build();

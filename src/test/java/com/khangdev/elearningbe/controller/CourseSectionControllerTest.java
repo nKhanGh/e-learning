@@ -3,7 +3,7 @@ package com.khangdev.elearningbe.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khangdev.elearningbe.dto.request.course.CourseSectionRequest;
 import com.khangdev.elearningbe.dto.response.course.CourseSectionResponse;
-import com.khangdev.elearningbe.service.CourseSectionService;
+import com.khangdev.elearningbe.service.course.CourseSectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

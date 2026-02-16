@@ -17,5 +17,6 @@ public class ConversationParticipantResponse {
     private ConversationParticipantId id;
     private UserResponse user;
     private Instant lastReadAt;
+    private long unreadCount;
     private String nickname;
 }

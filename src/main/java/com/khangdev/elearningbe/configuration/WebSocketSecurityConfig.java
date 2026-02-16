@@ -1,10 +1,9 @@
 package com.khangdev.elearningbe.configuration;
 
-import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.repository.UserRepository;
-import com.khangdev.elearningbe.service.JwtService;
+import com.khangdev.elearningbe.service.common.JwtService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;

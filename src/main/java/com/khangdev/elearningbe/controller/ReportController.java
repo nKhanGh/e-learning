@@ -6,7 +6,7 @@ import com.khangdev.elearningbe.dto.request.common.ReportHandleRequest;
 import com.khangdev.elearningbe.dto.request.common.ReportRequest;
 import com.khangdev.elearningbe.dto.request.common.ReportSearchRequest;
 import com.khangdev.elearningbe.dto.response.common.ReportResponse;
-import com.khangdev.elearningbe.service.ReportService;
+import com.khangdev.elearningbe.service.interaction.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

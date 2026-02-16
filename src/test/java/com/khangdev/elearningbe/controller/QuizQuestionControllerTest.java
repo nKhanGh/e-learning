@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
-import com.khangdev.elearningbe.service.QuizQuestionService;
+import com.khangdev.elearningbe.service.course.QuizQuestionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;

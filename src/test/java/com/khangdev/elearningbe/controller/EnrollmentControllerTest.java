@@ -1,7 +1,7 @@
 package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.response.EnrollmentResponse;
-import com.khangdev.elearningbe.service.EnrollmentService;
+import com.khangdev.elearningbe.service.course.EnrollmentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
