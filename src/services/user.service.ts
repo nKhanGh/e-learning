@@ -1,4 +1,3 @@
-import { UserResponse } from "@/types/user";
 import useAxios from "@/utils/useAxios";
 
 const axiosInstance = useAxios();

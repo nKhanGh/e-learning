@@ -5,18 +5,8 @@ import {
   faEllipsisV,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
-
-interface Chat {
-  id: string;
-  name: string;
-  avatar: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-  isOnline: boolean;
-  lastSeen?: string;
-}
+import { useEffect, useState } from "react";
+import { conversationService } from "@/services/conversation.service";
 
 interface ChatSidebarProps {
   selectedChat: string | null;
@@ -25,63 +15,24 @@ interface ChatSidebarProps {
 
 const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Mock data
-  const chats: Chat[] = [
-    {
-      id: "1",
-      name: "Sarah Johnson",
-      avatar: "SJ",
-      lastMessage: "Hey! How's the project going?",
-      lastMessageTime: "2m",
-      unreadCount: 3,
-      isOnline: true,
-    },
-    {
-      id: "2",
-      name: "Michael Chen",
-      avatar: "MC",
-      lastMessage: "Can you review my code?",
-      lastMessageTime: "15m",
-      unreadCount: 0,
-      isOnline: true,
-      lastSeen: "5 minutes ago",
-    },
-    {
-      id: "3",
-      name: "Emily Rodriguez",
-      avatar: "ER",
-      lastMessage: "Thanks for your help! 🙏",
-      lastMessageTime: "1h",
-      unreadCount: 1,
-      isOnline: false,
-      lastSeen: "2 hours ago",
-    },
-    {
-      id: "4",
-      name: "David Kumar",
-      avatar: "DK",
-      lastMessage: "See you tomorrow at the meeting",
-      lastMessageTime: "3h",
-      unreadCount: 0,
-      isOnline: false,
-      lastSeen: "1 day ago",
-    },
-    {
-      id: "5",
-      name: "Lisa Wang",
-      avatar: "LW",
-      lastMessage: "Perfect! Let's do it 👍",
-      lastMessageTime: "1d",
-      unreadCount: 0,
-      isOnline: false,
-      lastSeen: "3 days ago",
-    },
-  ];
-
-  const filteredChats = chats.filter((chat) =>
-    chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const [conversations, setConversations] = useState<ConversationResponse[]>(
+    [],
   );
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const response = await conversationService.getMyConversations();
+        setConversations(response.data.result);
+        console.log(response.data.result);
+      } catch (error) {
+        console.error("Error fetching conversations:", (error as any).response);
+      }
+    };
+
+    fetchConversations();
+  }, []);
+
 
   return (
     <div className="w-80 bg-white dark:bg-gray-900 rounded-2xl border-r border-gray-200 dark:border-border flex flex-col">
@@ -125,22 +76,20 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {filteredChats.map((chat) => (
+        {conversations.map((conversation) => (
           <button
-            key={chat.id}
-            onClick={() => onSelectChat(chat.id)}
+            key={conversation.id}
+            onClick={() => onSelectChat(conversation.id)}
             className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-border transition-colors border-l-4 ${
-              selectedChat === chat.id
+              selectedChat === conversation.id
                 ? "bg-blue-50 dark:bg-primary/10 border-primary"
                 : "border-transparent"
             }`}
           >
             {/* Avatar */}
             <div className="relative flex-shrink-0">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-semibold">
-                {chat.avatar}
-              </div>
-              {chat.isOnline && (
+              <img src={conversation.avatarUrl || "/default-avatar.png"} alt={conversation.name} className="w-12 h-12 rounded-full object-cover" />
+              {true && (
                 <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
               )}
             </div>
@@ -149,19 +98,19 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
                 <h3 className="font-semibold text-gray-900 dark:text-text truncate">
-                  {chat.name}
+                  {conversation.name}
                 </h3>
                 <span className="text-xs text-gray-500 dark:text-muted flex-shrink-0 ml-2">
-                  {chat.lastMessageTime}
+                  {conversation.lastMessageAt}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600 dark:text-muted truncate">
-                  {chat.lastMessage}
+                  {conversation.lastMessage}
                 </p>
-                {chat.unreadCount > 0 && (
+                {conversation.unreadCount > 0 && (
                   <span className="flex-shrink-0 ml-2 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {chat.unreadCount}
+                    {conversation.unreadCount}
                   </span>
                 )}
               </div>

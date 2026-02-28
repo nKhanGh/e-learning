@@ -1,7 +1,5 @@
-import { UUID } from "crypto";
-
 interface UserResponse {
-  id: UUID;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
