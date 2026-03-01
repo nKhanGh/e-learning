@@ -139,13 +139,6 @@ public class CourseRecommendationServiceImpl implements CourseRecommendationServ
 
         return CourseRecommendationDTO.builder()
                 .courseId(course.getId())
-                .title(course.getTitle())
-                .slug(course.getSlug())
-                .thumbnailUrl(course.getThumbnailUrl())
-                .price(course.getPrice())
-                .level(course.getLevel() != null ? course.getLevel().name() : "")
-                .averageRating(course.getAverageRating())
-                .totalStudents(course.getTotalStudents())
                 .similarityScore(similarityScore)
                 .reason(reason)
                 .build();

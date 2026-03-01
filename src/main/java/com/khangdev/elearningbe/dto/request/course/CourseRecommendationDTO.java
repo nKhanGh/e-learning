@@ -14,13 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CourseRecommendationDTO {
     private UUID courseId;
-    private String title;
-    private String slug;
-    private String thumbnailUrl;
-    private BigDecimal price;
-    private String level;
-    private BigDecimal averageRating;
-    private Integer totalStudents;
     private Double similarityScore;
     private String reason;
 }

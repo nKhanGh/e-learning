@@ -2,11 +2,10 @@ package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseRecommendationDTO;
-import com.khangdev.elearningbe.dto.request.interaction.AIChatRequest;
-import com.khangdev.elearningbe.dto.request.interaction.AIChatResponse;
+import com.khangdev.elearningbe.dto.request.interaction.MessageSendRequest;
+import com.khangdev.elearningbe.dto.response.interaction.MessageResponse;
 import com.khangdev.elearningbe.service.ai.ChatBotService;
 import com.khangdev.elearningbe.service.ai.CourseRecommendationService;
-import dev.langchain4j.model.chat.response.ChatResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +22,8 @@ public class AIController {
     private final CourseRecommendationService courseRecommendationService;
 
     @PostMapping("/chat")
-    public ApiResponse<AIChatResponse> chat (@RequestBody AIChatRequest request){
-        return ApiResponse.<AIChatResponse>builder()
+    public ApiResponse<MessageResponse> chat (@RequestBody MessageSendRequest request){
+        return ApiResponse.<MessageResponse>builder()
                 .result(chatBotService.chat(request))
                 .build();
     }
