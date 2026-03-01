@@ -11,6 +11,10 @@ import {
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState, useRef, useEffect } from "react";
+import { conversationService } from "@/services/conversation.service";
+import webSocketService from "@/utils/WebSocketService";
+import { useAuth } from "@/contexts/AuthContext";
+import { useConversation } from "@/contexts/ConversationContext";
 
 interface Message {
   id: string;
@@ -21,7 +25,7 @@ interface Message {
 }
 
 interface ChatMainProps {
-  selectedChat: string | null;
+  selectedChat: ConversationResponse | null;
   showInfo: boolean;
   onToggleInfo: () => void;
   onBack?: () => void;
@@ -34,43 +38,20 @@ const ChatMain = ({
   onBack,
 }: ChatMainProps) => {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: "Hey! How's the project going?",
-      time: "10:30 AM",
-      isMine: false,
-    },
-    {
-      id: "2",
-      text: "It's going great! Just finished the authentication module 🎉",
-      time: "10:32 AM",
-      isMine: true,
-      status: "read",
-    },
-    {
-      id: "3",
-      text: "That's awesome! Can I see a demo?",
-      time: "10:33 AM",
-      isMine: false,
-    },
-    {
-      id: "4",
-      text: "Sure! Let me share my screen in a bit",
-      time: "10:35 AM",
-      isMine: true,
-      status: "delivered",
-    },
-    {
-      id: "5",
-      text: "Also, I've added some cool animations to the UI",
-      time: "10:36 AM",
-      isMine: true,
-      status: "sent",
-    },
-  ]);
+  const [parentMessage, setParentMessage] = useState<MessageResponse | null>(null);
+  const [messages, setMessages] = useState<MessageResponse[]>([]);
+
+  const {user} = useAuth();
+  const {conversations, setConversations} = useConversation();
+  
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+
+
+  useEffect(() => {
+    console.log("Selected chat changed:", selectedChat);
+  }, [selectedChat]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,19 +62,21 @@ const ChatMain = ({
   }, [messages]);
 
   const handleSend = () => {
-    if (!message.trim()) return;
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      text: message,
-      time: new Date().toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-      isMine: true,
-      status: "sent",
+    if (!message.trim() || !selectedChat?.id || !user) return;
+    webSocketService.sendMessage(
+      selectedChat.id,
+      message,
+      parentMessage?.id || null,
+    );
+    const newMessage: MessageResponse = {
+      id: `temp-${Date.now()}`,
+      content: message,
+      conversationId: selectedChat.id,
+      createdAt: new Date().toISOString(),
+      parent: parentMessage || null,
+      sender: user,
+      courseRecommendations: [],
     };
-
     setMessages([...messages, newMessage]);
     setMessage("");
   };
@@ -112,7 +95,7 @@ const ChatMain = ({
           <div className="w-24 h-24 bg-gray-200 dark:bg-border rounded-full flex items-center justify-center mx-auto mb-4">
             <FontAwesomeIcon
               icon={faCircleInfo}
-              className="w-12 h-12 text-gray-400 dark:text-muted"
+              className="text-3xl text-gray-400 dark:text-muted"
             />
           </div>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-text mb-2">
@@ -134,7 +117,7 @@ const ChatMain = ({
           {/* Avatar */}
           <div className="relative">
             <img
-              src="/default-avatar.jpg"
+              src={selectedChat.ai ? "/ai-avatar.svg" : (selectedChat.avatarUrl || "/default-avatar.jpg")}
               alt="User Avatar"
               className="w-10 h-10 rounded-full object-cover"
             />
@@ -144,7 +127,7 @@ const ChatMain = ({
           {/* Info */}
           <div>
             <h2 className="font-semibold text-gray-900 dark:text-text">
-              Sarah Johnson
+              {selectedChat.name || "Unknown User"}
             </h2>
             <p className="text-xs text-green-600 dark:text-green-400">Online</p>
           </div>
@@ -152,18 +135,6 @@ const ChatMain = ({
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <button className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors">
-            <FontAwesomeIcon
-              icon={faPhone}
-              className="w-5 h-5 text-gray-600 dark:text-muted"
-            />
-          </button>
-          <button className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors">
-            <FontAwesomeIcon
-              icon={faVideo}
-              className="w-5 h-5 text-gray-600 dark:text-muted"
-            />
-          </button>
           <button
             onClick={onToggleInfo}
             className={`w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors ${
@@ -189,27 +160,27 @@ const ChatMain = ({
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex ${msg.isMine ? "justify-end" : "justify-start"}`}
+            className={`flex ${msg.sender.id === user?.id ? "justify-end" : "justify-start"}`}
           >
-            <div className={`max-w-md ${msg.isMine ? "order-2" : "order-1"}`}>
+            <div className={`max-w-md ${msg.sender.id === user?.id ? "order-2" : "order-1"}`}>
               <div
                 className={`px-4 py-2 rounded-2xl ${
-                  msg.isMine
+                  msg.sender.id === user?.id
                     ? "bg-gradient-to-tr from-primary to-secondary text-white rounded-br-none"
                     : "bg-white dark:bg-surface text-gray-900 dark:text-text rounded-bl-none shadow-sm"
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap break-words">
-                  {msg.text}
+                  {msg.content}
                 </p>
               </div>
-              <div
+              {/* <div
                 className={`flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-muted ${
-                  msg.isMine ? "justify-end" : "justify-start"
+                  msg.sender.id === user?.id ? "justify-end" : "justify-start"
                 }`}
               >
-                <span>{msg.time}</span>
-                {msg.isMine && msg.status && (
+                <span>{msg.createdAt}</span>
+                {msg.sender.id === user?.id && msg.status && (
                   <span>
                     {msg.status === "sent" && "✓"}
                     {msg.status === "read" && (
@@ -217,7 +188,7 @@ const ChatMain = ({
                     )}
                   </span>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         ))}

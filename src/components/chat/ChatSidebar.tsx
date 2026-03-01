@@ -7,10 +7,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { conversationService } from "@/services/conversation.service";
+import Image from "next/image";
 
 interface ChatSidebarProps {
-  selectedChat: string | null;
-  onSelectChat: (chatId: string) => void;
+  selectedChat: ConversationResponse | null;
+  onSelectChat: (chat: ConversationResponse) => void;
 }
 
 const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
@@ -23,7 +24,8 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
     const fetchConversations = async () => {
       try {
         const response = await conversationService.getMyConversations();
-        setConversations(response.data.result);
+        setConversations(response.data.result ?? []);
+        console.log("Fetched conversations:", response.data.result);
         console.log(response.data.result);
       } catch (error) {
         console.error("Error fetching conversations:", (error as any).response);
@@ -79,16 +81,16 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
         {conversations.map((conversation) => (
           <button
             key={conversation.id}
-            onClick={() => onSelectChat(conversation.id)}
+            onClick={() => onSelectChat(conversation)}
             className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-border transition-colors border-l-4 ${
-              selectedChat === conversation.id
+              selectedChat === conversation
                 ? "bg-blue-50 dark:bg-primary/10 border-primary"
                 : "border-transparent"
             }`}
           >
             {/* Avatar */}
-            <div className="relative flex-shrink-0">
-              <img src={conversation.avatarUrl || "/default-avatar.png"} alt={conversation.name} className="w-12 h-12 rounded-full object-cover" />
+            <div className="relative shrink-0">
+              <Image src={conversation.ai ? "/ai-avatar.svg" : (conversation.avatarUrl || "/default-avatar.jpg")} alt={"avatar"} width={48} height={48} className="rounded-full object-cover" />
               {true && (
                 <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
               )}
@@ -106,11 +108,11 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-600 dark:text-muted truncate">
-                  {conversation.lastMessage}
+                  {conversation.lastMessage?.content || "No messages yet"}
                 </p>
-                {conversation.unreadCount > 0 && (
+                {conversation.myParticipant?.unreadCount > 0 && (
                   <span className="flex-shrink-0 ml-2 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {conversation.unreadCount}
+                    {conversation.myParticipant?.unreadCount}
                   </span>
                 )}
               </div>

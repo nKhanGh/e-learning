@@ -147,7 +147,7 @@ npm run type-check   # Kiểm tra TypeScript
 
 ## 🤝 Đóng góp
 
-Pull requests luôn được chào đón! Vui lòng mở issue trước khi thực hiện thay đổi lớn để thảo luận cùng nhóm.
+Pull requests luôn được chào đón! Vui lòng mở issue trước khi thực hiện thay đổi lớn để thảo luận.
 
 ---
 

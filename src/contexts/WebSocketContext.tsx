@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useEffect, useRef, useMemo } from "react";
+import { createContext, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
 import webSocketService from "@/utils/WebSocketService";
 
@@ -37,10 +37,9 @@ export const WebSocketProvider = ({
     }
   }, [accessToken, isLoggedIn]);
 
-  const contextValue = useMemo(() => ({}), []);
 
   return (
-    <WebSocketContext.Provider value={contextValue}>
+    <WebSocketContext.Provider value={{}}>
       {children}
     </WebSocketContext.Provider>
   );

@@ -20,7 +20,11 @@ interface ConversationResponse {
   description: string;
   avatarUrl: string;
   myParticipant: ConversationParticipantResponse;
-  lastMessage: string;
+  ai: boolean;
+  lastMessage: Message;
+  messages: MessageResponse[];
+  typingAvatarUrl: string | null;
+  hasMore: boolean;
 }
 
 interface ConversationCreationRequest {

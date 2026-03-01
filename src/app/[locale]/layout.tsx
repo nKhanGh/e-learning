@@ -64,11 +64,14 @@ export default async function RootLayout({
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
-            <WebSocketProvider>
               <OpenAuthProvider>
-                <LayoutClient>{children}</LayoutClient>
+                  <LayoutClient />
+                  <main
+                    className={` p-4 dark:bg-bg bg-white content`}
+                  >
+                    {children}
+                  </main>
               </OpenAuthProvider>
-            </WebSocketProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

@@ -1,6 +1,5 @@
 "use client";
 import { userService } from "@/services/user.service";
-import { UserResponse } from "@/types/user";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 interface AuthContextType {

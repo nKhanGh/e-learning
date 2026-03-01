@@ -18,7 +18,7 @@ import { useState } from "react";
 interface ChatInfoProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedChat: string | null;
+  selectedChat: ConversationResponse | null;
 }
 
 const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
