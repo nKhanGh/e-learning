@@ -1,10 +1,11 @@
 package com.khangdev.elearningbe.entity.course;
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.enums.ContentType;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.List;
 import java.util.UUID;
@@ -65,7 +66,7 @@ public class Lecture extends BaseEntity {
     private String captionUrl;
 
     // File attachments
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "JSON")
     private List<String> attachments; // JSON array
 

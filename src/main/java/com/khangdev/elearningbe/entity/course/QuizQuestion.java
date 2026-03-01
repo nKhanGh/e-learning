@@ -1,9 +1,10 @@
 package com.khangdev.elearningbe.entity.course;
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,11 +43,11 @@ public class QuizQuestion extends BaseEntity {
     @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "JSON")
     private List<String> options;
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "JSON", name = "correct_answers")
     private List<String> correctAnswers;
 

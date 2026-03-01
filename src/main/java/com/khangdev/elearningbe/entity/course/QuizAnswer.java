@@ -1,11 +1,12 @@
 package com.khangdev.elearningbe.entity.course;
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.entity.id.QuizAnswerId;
 import com.khangdev.elearningbe.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -33,7 +34,7 @@ public class QuizAnswer extends BaseEntity {
     @JoinColumn(name = "quiz_question_id")
     private QuizQuestion question;
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false)
     private List<String> answers;
 

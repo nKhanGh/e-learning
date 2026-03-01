@@ -1,11 +1,13 @@
 package com.khangdev.elearningbe.entity.user;
 
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.enums.VerificationStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -44,8 +46,8 @@ public class Instructor extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String credentials;
 
-    @Convert(converter = StringListJsonConverter.class)
-    @Column(name = "specializations", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "specifications", columnDefinition = "jsonb")
     private List<String> specializations; // JSON array
 
     @Column(name = "video_intro_url", length = 500)
@@ -57,8 +59,8 @@ public class Instructor extends BaseEntity {
     private VerificationStatus verificationStatus = VerificationStatus.PENDING;
 
 
-    @Convert(converter = StringListJsonConverter.class)
-    @Column(name = "verification_documents", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "verification_documents", columnDefinition = "jsonb")
     private List<String> verificationDocuments;
 
     @Column(name = "verified_at")
@@ -90,8 +92,8 @@ public class Instructor extends BaseEntity {
     @Column(name = "payout_method", length = 50)
     private String payoutMethod;
 
-    @Convert(converter = StringListJsonConverter.class)
-    @Column(name = "payout_details", columnDefinition = "JSON")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "payout_details", columnDefinition = "jsonb")
     private List<String> payoutDetails;
 
     @Column(name = "commission_rate", precision = 5, scale = 2)

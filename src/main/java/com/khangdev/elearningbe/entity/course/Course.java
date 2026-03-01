@@ -1,15 +1,16 @@
 package com.khangdev.elearningbe.entity.course;
 
 
-import com.khangdev.elearningbe.converter.StringListJsonConverter;
 import com.khangdev.elearningbe.entity.user.Instructor;
 import com.khangdev.elearningbe.entity.common.BaseEntity;
 import com.khangdev.elearningbe.enums.CourseLevel;
 import com.khangdev.elearningbe.enums.CourseStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -58,16 +59,16 @@ public class Course extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String description;
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "what_you_will_learn", columnDefinition = "JSON")
     private List<String> whatYouWillLearn;
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "JSON")
     private List<String> requirements;
 
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "JSON", name = "target_audience")
     private List<String> targetAudience; // JSON array
 
@@ -134,7 +135,7 @@ public class Course extends BaseEntity {
     @Column(name = "meta_description", columnDefinition = "TEXT")
     private String metaDescription;
 
-    @Convert(converter = StringListJsonConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "meta_keywords", columnDefinition = "JSON")
     private List<String> metaKeywords;
 
