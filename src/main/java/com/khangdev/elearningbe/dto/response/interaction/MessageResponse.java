@@ -18,6 +18,7 @@ import java.util.UUID;
 public class MessageResponse {
     Instant createdAt;
     UUID id;
+    UUID conversationId;
     MessageResponse parent;
     UserResponse sender;
     String content;

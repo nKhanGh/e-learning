@@ -89,7 +89,7 @@ public class MessageServiceImpl implements MessageService {
     public PageResponse<MessageResponse> getConversationMessage(UUID conversationId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Message> result = messageRepository.findByConversationId(conversationId, pageable);
+        Page<Message> result = messageRepository.findByConversation_Id(conversationId, pageable);
 
         return PageResponse.<MessageResponse>builder()
                 .totalElements(result.getTotalElements())
