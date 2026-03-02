@@ -6,8 +6,11 @@ import {
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import { conversationService } from "@/services/conversation.service";
 import Image from "next/image";
+import { useConversation } from "@/contexts/ConversationContext";
+import { timeAgo } from "@/utils/time";
+import Typing from "../ui/Typing";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ChatSidebarProps {
   selectedChat: ConversationResponse | null;
@@ -16,24 +19,20 @@ interface ChatSidebarProps {
 
 const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [conversations, setConversations] = useState<ConversationResponse[]>(
-    [],
-  );
+  const { conversations, userStatuses } = useConversation();
 
-  useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        const response = await conversationService.getMyConversations();
-        setConversations(response.data.result ?? []);
-        console.log("Fetched conversations:", response.data.result);
-        console.log(response.data.result);
-      } catch (error) {
-        console.error("Error fetching conversations:", (error as any).response);
-      }
-    };
+  const {user} = useAuth();
 
-    fetchConversations();
-  }, []);
+  const isUserOnline = (userId: string) => {
+    return userStatuses.get(userId)?.online;
+  };
+
+  const isOnline = (chat: ConversationResponse) => {
+    const participantIds = chat.participants.map((p) => p.id);
+    return participantIds.some(
+      (id) => isUserOnline(id.userId) && id.userId !== user?.id,
+    );
+  };
 
 
   return (
@@ -78,7 +77,7 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
 
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto">
-        {conversations.map((conversation) => (
+        {Array.from(conversations?.values() || []).map((conversation) => (
           <button
             key={conversation.id}
             onClick={() => onSelectChat(conversation)}
@@ -90,8 +89,18 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
           >
             {/* Avatar */}
             <div className="relative shrink-0">
-              <Image src={conversation.ai ? "/ai-avatar.svg" : (conversation.avatarUrl || "/default-avatar.jpg")} alt={"avatar"} width={48} height={48} className="rounded-full object-cover" />
-              {true && (
+              <Image
+                src={
+                  conversation.ai
+                    ? "/ai-avatar.svg"
+                    : conversation.avatarUrl || "/default-avatar.jpg"
+                }
+                alt={"avatar"}
+                width={48}
+                height={48}
+                className="rounded-full object-cover"
+              />
+              {isOnline(conversation) && (
                 <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
               )}
             </div>
@@ -103,13 +112,19 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
                   {conversation.name}
                 </h3>
                 <span className="text-xs text-gray-500 dark:text-muted flex-shrink-0 ml-2">
-                  {conversation.lastMessageAt}
+                  {conversation.lastMessageAt
+                    ? timeAgo(conversation.lastMessageAt)
+                    : ""}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600 dark:text-muted truncate">
-                  {conversation.lastMessage?.content || "No messages yet"}
-                </p>
+                {conversation.typingAvatarUrl ? (
+                  <Typing avatarUrl={conversation.typingAvatarUrl} size="sm" />
+                ) : (
+                  <p className="text-sm text-gray-600 dark:text-muted truncate">
+                    {conversation.lastMessage?.content || "No messages yet"}
+                  </p>
+                )}
                 {conversation.myParticipant?.unreadCount > 0 && (
                   <span className="flex-shrink-0 ml-2 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {conversation.myParticipant?.unreadCount}

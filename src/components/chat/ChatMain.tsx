@@ -8,12 +8,17 @@ import {
   faEllipsisV,
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState, useRef, useEffect, use } from "react";
+import { useState, useRef, useEffect } from "react";
 import webSocketService from "@/utils/WebSocketService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversation } from "@/contexts/ConversationContext";
 import { messageService } from "@/services/message.service";
 import { timeAgo } from "@/utils/time";
+import { aiService } from "@/services/ai.service";
+import Typing from "../ui/Typing";
+import Loading from "../ui/Loading";
+import { useLocale } from "next-intl";
+import Link from "next/link";
 
 interface Message {
   id: string;
@@ -41,6 +46,9 @@ const ChatMain = ({
     null,
   );
   const [isOnline, setIsOnline] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  const locale = useLocale();
 
   const { user } = useAuth();
   const { conversations, setConversations, userStatuses } = useConversation();
@@ -84,26 +92,86 @@ const ChatMain = ({
     scrollToBottom();
   }, [selectedChat]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim() || !selectedChat?.id || !user) return;
-    if (selectedChat.ai){
-      
+    setSending(true);
+    if (selectedChat.ai) {
+      const messageToSend = message;
+      setMessage("");
+      const myMessage: MessageResponse = {
+        id: `temp-${Date.now()}`,
+        content: messageToSend,
+        sender: user,
+        conversationId: selectedChat.id,
+        createdAt: new Date().toISOString(),
+        parent: parentMessage || null,
+        courseRecommendations: [],
+      };
+      try {
+        setConversations((prev) => {
+          if (!prev) return prev;
+          const updated = new Map(prev);
+          const conversation = updated.get(selectedChat.id);
+          if (conversation) {
+            if (!conversation.messages.some((msg) => msg.id === myMessage.id)) {
+              conversation.messages = [
+                ...(conversation.messages || []),
+                myMessage,
+              ];
+              conversation.lastMessage = myMessage;
+              conversation.lastMessageAt = myMessage.createdAt;
+              conversation.typingAvatarUrl = "/ai-avatar.svg";
+            }
+            updated.set(selectedChat.id, conversation);
+          }
+          return updated;
+        });
+        scrollToBottom();
+        const response = await aiService.chat({
+          conversationId: selectedChat.id,
+          content: messageToSend,
+          parentId: parentMessage?.id || null,
+        });
+        const newMessage = response.data.result;
+        setConversations((prev) => {
+          if (!prev) return prev;
+          const updated = new Map(prev);
+          const conversation = updated.get(selectedChat.id);
+          if (conversation) {
+            if (
+              !conversation.messages.some((msg) => msg.id === newMessage.id)
+            ) {
+              conversation.messages = [...conversation.messages, newMessage];
+              conversation.lastMessage = newMessage;
+            }
+            updated.set(selectedChat.id, conversation);
+          }
+          return updated;
+        });
+      } catch (error) {
+        console.error("Error sending AI message:", (error as any).response);
+      } finally {
+        setSending(false);
+        setConversations((prev) => {
+          if (!prev) return prev;
+          const updated = new Map(prev);
+          const conversation = updated.get(selectedChat.id);
+          if (conversation) {
+            conversation.typingAvatarUrl = null;
+            updated.set(selectedChat.id, conversation);
+          }
+          return updated;
+        });
+      }
+      return;
     }
     webSocketService.sendMessage(
       selectedChat.id,
       message,
       parentMessage?.id || null,
     );
-    const newMessage: MessageResponse = {
-      id: `temp-${Date.now()}`,
-      content: message,
-      conversationId: selectedChat.id,
-      createdAt: new Date().toISOString(),
-      parent: parentMessage || null,
-      sender: user,
-      courseRecommendations: [],
-    };
     setMessage("");
+    setSending(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -120,7 +188,9 @@ const ChatMain = ({
   useEffect(() => {
     if (!selectedChat) return;
     const participantIds = selectedChat.participants.map((p) => p.id);
-    const online = participantIds.some((id) => isUserOnline(id.userId) && id.userId !== user?.id);
+    const online = participantIds.some(
+      (id) => isUserOnline(id.userId) && id.userId !== user?.id,
+    );
     console.log("User online status for chat", userStatuses);
     setIsOnline(online);
   }, [selectedChat, userStatuses]);
@@ -211,7 +281,7 @@ const ChatMain = ({
             )}
             {!isOnline && isDirect && (
               <p className="text-sm text-gray-500 dark:text-muted">
-                Online {" "}
+                Online{" "}
                 {(() => {
                   const participantId = getOtherParticipantId();
                   return participantId &&
@@ -292,12 +362,82 @@ const ChatMain = ({
                         {msg.content}
                       </p>
                     </div>
+                    {msg.courseRecommendations &&
+                      msg.courseRecommendations.length > 0 && (
+                        <div className="flex flex-col gap-3 mt-3">
+                          {msg.courseRecommendations.map((course) => (
+                            <Link
+                              href={`/${locale}/courses/${course.courseId}`}
+                              key={course.courseId}
+                              className="group block bg-white dark:bg-surface rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-white/5"
+                            >
+                              <div className="relative w-full h-28 overflow-hidden">
+                                <img
+                                  src={
+                                    course.thumbnailUrl ||
+                                    "/default-course-background.png"
+                                  }
+                                  alt={course.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                                <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-full">
+                                  ✦ {(course.similarityScore * 100).toFixed(0)}%
+                                  match
+                                </div>
+                              </div>
+
+                              {/* Content */}
+                              <div className="p-3 flex flex-col gap-2">
+                                {/* Title */}
+                                <p className="font-semibold text-sm text-gray-800 dark:text-white leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                  {course.title}
+                                </p>
+
+                                {/* Tags row */}
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                                    {course.category}
+                                  </span>
+                                  <span
+                                    className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                                      course.level === "BEGINNER"
+                                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                        : course.level === "INTERMEDIATE"
+                                          ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                    }`}
+                                  >
+                                    {course.level}
+                                  </span>
+                                </div>
+
+                                {/* Reason */}
+                                <p className="text-[11px] text-gray-400 dark:text-muted leading-relaxed line-clamp-2">
+                                  {course.reason}
+                                </p>
+
+                                {/* Footer */}
+                                <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-white/5">
+                                  <span className="text-sm font-bold text-primary">
+                                    ${course.originalPrice}
+                                  </span>
+                                  <span className="text-[10px] text-gray-400 dark:text-muted group-hover:text-primary transition-colors">
+                                    View course →
+                                  </span>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     <div
                       className={`flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-muted ${
                         isMyMessage(msg) ? "justify-end" : "justify-start"
                       }`}
                     >
-                      <span>{timeAgo(msg?.createdAt)}</span>
+                      {isUserLastMessageInGroup(index) && (
+                        <span>{timeAgo(msg?.createdAt)}</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -306,6 +446,11 @@ const ChatMain = ({
           ),
         )}
         <div ref={messagesEndRef} />
+        {selectedChat?.typingAvatarUrl && (
+          <Typing
+            avatarUrl={selectedChat.typingAvatarUrl || "/default-avatar.jpg"}
+          />
+        )}
       </div>
 
       {/* Input */}
@@ -333,28 +478,34 @@ const ChatMain = ({
               />
             </button>
           </div>
-          {message.trim().length === 0 ? (
-            <button
-              onClick={handleSend}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0"
-            >
-              <FontAwesomeIcon
-                icon={faThumbsUp}
-                className="text-2xl text-primary hover:text-primary/80"
-              />
-            </button>
-          ) : (
-            <button
-              onClick={handleSend}
-              disabled={!message.trim()}
-              className="w-10 h-10 rounded-full  disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors flex-shrink-0"
-            >
-              <FontAwesomeIcon
-                icon={faPaperPlane}
-                className="text-2xl text-primary hover:text-primary/80"
-              />
-            </button>
+          {sending && (
+            <div className="w-10">
+              <Loading size="sm" color="blue" />
+            </div>
           )}
+          {!sending &&
+            (message.trim().length === 0 ? (
+              <button
+                disabled={sending}
+                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0"
+              >
+                <FontAwesomeIcon
+                  icon={faThumbsUp}
+                  className="text-2xl text-primary hover:text-primary/80"
+                />
+              </button>
+            ) : (
+              <button
+                onClick={handleSend}
+                disabled={!message.trim() || sending}
+                className="w-10 h-10 rounded-full  disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors flex-shrink-0"
+              >
+                <FontAwesomeIcon
+                  icon={faPaperPlane}
+                  className="text-2xl text-primary hover:text-primary/80"
+                />
+              </button>
+            ))}
         </div>
       </div>
     </div>
