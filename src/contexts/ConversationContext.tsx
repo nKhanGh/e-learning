@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useAuth } from "./AuthContext";
 import { conversationService } from "@/services/conversation.service";
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
@@ -14,11 +21,13 @@ type UserStatus = {
 
 type ConversationContextType = {
   conversations: Map<string, ConversationResponse> | null;
-  setConversations: React.Dispatch<React.SetStateAction<Map<string, ConversationResponse> | null>>;
+  setConversations: React.Dispatch<
+    React.SetStateAction<Map<string, ConversationResponse> | null>
+  >;
   userStatuses: Map<string, UserStatus>;
   unreadCount: number;
   wsConnected: boolean;
-}
+};
 
 const ConversationContext = createContext<ConversationContextType | null>(null);
 
@@ -36,6 +45,9 @@ export const ConversationProvider = ({
   );
   const [unreadCount, setUnreadCount] = useState(0);
   const [wsConnected, setWsConnected] = useState(false);
+
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const { user } = useAuth();
 
   const currentUserId = user?.id;
@@ -62,79 +74,120 @@ export const ConversationProvider = ({
     fetchConversations();
   }, [currentUserId]);
 
+  const updateConversationWithMessage = (
+    prev: Map<string, ConversationResponse> | null,
+    msg: MessageResponse,
+  ): Map<string, ConversationResponse> | null => {
+    if (!prev) return prev;
+    const updatedMap = new Map(prev);
+    const existingConversation = updatedMap.get(msg.conversationId);
+    if (existingConversation) {
+      if (existingConversation.lastMessage.id === msg.id) {
+        return prev; // No update needed
+      }
+      updatedMap.set(msg.conversationId, {
+        ...existingConversation,
+        lastMessage: msg,
+        lastMessageAt: msg.createdAt,
+        messages: [...existingConversation.messages, msg],
+        myParticipant: {
+          ...existingConversation.myParticipant,
+          unreadCount:
+            existingConversation.myParticipant.unreadCount +
+            (msg.sender.id === currentUserId ? 0 : 1),
+        },
+      });
+    }
+    return updatedMap;
+  };
+
+  const updateConversationWithTyping = (
+    prev: Map<string, ConversationResponse> | null,
+    conversationId: string,
+    typingAvatarFileName: string | null,
+  ): Map<string, ConversationResponse> | null => {
+    if (!prev) return prev;
+    const updatedMap = new Map(prev);
+    const existingConversation = updatedMap.get(conversationId);
+    if (existingConversation) {
+      updatedMap.set(conversationId, {
+        ...existingConversation,
+        typingAvatarFileName,
+      });
+    }
+    return updatedMap;
+  };
+
+  const updateUserStatusMap = (event: {
+    userId: string;
+    online: boolean;
+    timestamp: Timestamp;
+  }): Map<string, UserStatus> => {
+    const updatedMap = new Map(userStatuses);
+    updatedMap.set(event.userId, {
+      userId: event.userId,
+      online: event.online,
+      lastSeen: event.timestamp,
+    });
+    return updatedMap;
+  };
+
+  const handleConnected = () => {
+    console.log("💬 Chat: WebSocket connected");
+    setWsConnected(true);
+  };
+
+  const handleMessage = (msg: MessageResponse) => {
+    console.log("💬 New message received via WebSocket:", msg);
+    setConversations((prev) => updateConversationWithMessage(prev, msg));
+  };
+
+  const handleTypingStart = (
+    conversationId: string,
+    typingAvatarFileName: string | null,
+  ) => {
+    setConversations((prev) =>
+      updateConversationWithTyping(prev, conversationId, typingAvatarFileName),
+    );
+  };
+
+  const handleTypingEnd = (conversationId: string) => {
+    setConversations((prev) =>
+      updateConversationWithTyping(prev, conversationId, null),
+    );
+  };
+
+  const handleTyping = (data: TypingNotification) => {
+    console.log("💬 Typing event received:", data);
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    const typingAvatarFileName =
+      data.userId === currentUserId ? null : data.avatarFileName;
+    if (data.typing) {
+      handleTypingStart(data.conversationId, typingAvatarFileName);
+    } else {
+      handleTypingEnd(data.conversationId);
+      return;
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      handleTypingEnd(data.conversationId);
+    }, 3000);
+  };
+
+  const handleUserStatusChange = (event: {
+    userId: string;
+    online: boolean;
+    timestamp: Timestamp;
+  }) => {
+    console.log("💬 User status change event:", event);
+    setUserStatuses(updateUserStatusMap(event));
+  };
+
+  const handleUnread = (count: number) => setUnreadCount(count);
+
   useEffect(() => {
-    const handleConnected = () => {
-      console.log("💬 Chat: WebSocket connected");
-      setWsConnected(true);
-    };
-
-    const handleMessage = (msg: MessageResponse) => {
-      console.log("💬 New message received via WebSocket:", msg);
-      setConversations((prev) => {
-        if (!prev) return prev;
-
-        const updatedMap = new Map(prev);
-        const existingConversation = updatedMap.get(msg.conversationId);
-        if (existingConversation) {
-          if (existingConversation.lastMessage.id === msg.id) {
-            return prev; // No update needed
-          }
-          updatedMap.set(msg.conversationId, {
-            ...existingConversation,
-            lastMessage: msg,
-            lastMessageAt: msg.createdAt,
-            messages: [...existingConversation.messages, msg],
-            myParticipant: {
-              ...existingConversation.myParticipant,
-              unreadCount:
-                existingConversation.myParticipant.unreadCount +
-                (msg.sender.id === currentUserId ? 0 : 1),
-            },
-          });
-        }
-        return updatedMap;
-      });
-    };
-
-    const handleTyping = (data: {
-      conversationId: string;
-      userId: string;
-      typingAvatarUrl: string;
-    }) => {
-      console.log("💬 Typing event received:", data);
-      setConversations((prev) => {
-        if (!prev) return prev;
-        const updatedMap = new Map(prev);
-        const existingConversation = updatedMap.get(data.conversationId);
-        if (existingConversation) {
-          updatedMap.set(data.conversationId, {
-            ...existingConversation,
-            typingAvatarUrl:
-              data.userId === currentUserId ? null : data.typingAvatarUrl,
-          });
-        }
-        return updatedMap;
-      });
-    };
-
-    const handleUserStatusChange = (event: {
-      userId: string;
-      online: boolean;
-      timestamp: Timestamp;
-    }) => {
-      console.log("💬 User status change event:", event);
-      setUserStatuses((prev) => {
-        const updatedMap = new Map(prev);
-        updatedMap.set(event.userId, {
-          userId: event.userId,
-          online: event.online,
-          lastSeen: event.timestamp,
-        });
-        return updatedMap;
-      });
-    };
-
-    const handleUnread = (count: number) => setUnreadCount(count);
     webSocketService.on("connected", handleConnected);
     webSocketService.on("message", handleMessage);
     webSocketService.on("typing", handleTyping);
@@ -142,14 +195,14 @@ export const ConversationProvider = ({
     webSocketService.on("userStatus", handleUserStatusChange);
 
     return () => {
-            console.log('💬 Cleaning up chat listeners');
-            webSocketService.off('connected', handleConnected);
-            webSocketService.off('message', handleMessage);
-            webSocketService.off('typing', handleTyping);
-            webSocketService.off('unread', handleUnread);
-            webSocketService.off('userStatus', handleUserStatusChange);
-        };
-  }, [currentUserId]);
+      console.log("💬 Cleaning up chat listeners");
+      webSocketService.off("connected", handleConnected);
+      webSocketService.off("message", handleMessage);
+      webSocketService.off("typing", handleTyping);
+      webSocketService.off("unread", handleUnread);
+      webSocketService.off("userStatus", handleUserStatusChange);
+    };
+  }, [currentUserId, userStatuses]);
 
   const value = useMemo(
     () => ({
@@ -177,4 +230,4 @@ export const useConversation = () => {
     );
   }
   return context;
-}
+};

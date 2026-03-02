@@ -20,13 +20,6 @@ import Loading from "../ui/Loading";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 
-interface Message {
-  id: string;
-  text: string;
-  time: string;
-  isMine: boolean;
-  status?: "sent" | "delivered" | "read";
-}
 
 interface ChatMainProps {
   selectedChat: ConversationResponse | null;
@@ -34,6 +27,17 @@ interface ChatMainProps {
   onToggleInfo: () => void;
   onBack?: () => void;
 }
+
+const getLevelClassName = (level: string) => {
+  switch (level) {
+    case "BEGINNER":
+      return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+    case "INTERMEDIATE":
+      return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+    default:
+      return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+  }
+};
 
 const ChatMain = ({
   selectedChat,
@@ -45,8 +49,11 @@ const ChatMain = ({
   const [parentMessage, setParentMessage] = useState<MessageResponse | null>(
     null,
   );
+  const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
   const [isOnline, setIsOnline] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [sending, setSending] = useState(
+    sendingIds.has(selectedChat?.id ?? ""),
+  );
 
   const locale = useLocale();
 
@@ -59,6 +66,9 @@ const ChatMain = ({
 
   useEffect(() => {
     console.log("Selected chat changed:", selectedChat);
+    setSending(sendingIds.has(selectedChat?.id ?? ""));
+    console.log("Current sending IDs:", sendingIds);
+    console.log("Current conversations map:", selectedChat?.id);
 
     const fetchMessages = async () => {
       if (!selectedChat) return;
@@ -93,8 +103,10 @@ const ChatMain = ({
   }, [selectedChat]);
 
   const handleSend = async () => {
-    if (!message.trim() || !selectedChat?.id || !user) return;
+    if (!message.trim() || !selectedChat?.id || !user || sending) return;
+    webSocketService.sendTyping(selectedChat.id, false);
     setSending(true);
+    setSendingIds((prev) => new Set(prev).add(selectedChat.id));
     if (selectedChat.ai) {
       const messageToSend = message;
       setMessage("");
@@ -120,7 +132,7 @@ const ChatMain = ({
               ];
               conversation.lastMessage = myMessage;
               conversation.lastMessageAt = myMessage.createdAt;
-              conversation.typingAvatarUrl = "/ai-avatar.svg";
+              conversation.typingAvatarFileName = "/ai-avatar.svg";
             }
             updated.set(selectedChat.id, conversation);
           }
@@ -157,10 +169,15 @@ const ChatMain = ({
           const updated = new Map(prev);
           const conversation = updated.get(selectedChat.id);
           if (conversation) {
-            conversation.typingAvatarUrl = null;
+            conversation.typingAvatarFileName = null;
             updated.set(selectedChat.id, conversation);
           }
           return updated;
+        });
+        setSendingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(selectedChat.id);
+          return next;
         });
       }
       return;
@@ -177,8 +194,12 @@ const ChatMain = ({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      handleSend()
+      return;
     }
+    console.log("Key pressed:", e.key);
+
+    webSocketService.sendTyping(selectedChat?.id || "", true);
   };
 
   const isUserOnline = (userId: string) => {
@@ -317,138 +338,147 @@ const ChatMain = ({
       </div>
 
       {/* Messages */}
+
       <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900">
-        {(conversations?.get(selectedChat?.id)?.messages ?? []).map(
-          (msg, index) => (
-            <div key={msg.id} className={`w-full`}>
-              {isFirstMessageInGroup(index) && (
-                <div className="text-xs w-full flex justify-center text-gray-500 dark:text-muted mb-2">
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    day: "2-digit",
-                    month: "long",
-                    year: "2-digit",
-                  })}
-                </div>
-              )}
-              <div
-                className={`w-full flex ${isMyMessage(msg) ? "justify-end" : "justify-start"}`}
-              >
+        {conversations?.get(selectedChat?.id)?.messages === null ||
+        conversations?.get(selectedChat?.id)?.messages?.length === 0 ? (
+          <div className="text-center text-gray-500 dark:text-muted mt-36">
+            <div>
+              <FontAwesomeIcon
+                icon={faCircleInfo}
+                className="text-3xl text-gray-400 dark:text-muted mb-4"
+              />
+            </div>
+            No messages yet. Start the conversation now!
+          </div>
+        ) : (
+          (conversations?.get(selectedChat?.id)?.messages ?? []).map(
+            (msg, index) => (
+              <div key={msg.id} className={`w-full`}>
+                {isFirstMessageInGroup(index) && (
+                  <div className="text-xs w-full flex justify-center text-gray-500 dark:text-muted mb-2">
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      day: "2-digit",
+                      month: "long",
+                      year: "2-digit",
+                    })}
+                  </div>
+                )}
                 <div
-                  className={`max-w-md flex ${isMyMessage(msg) ? "order-2" : "order-1"}`}
+                  className={`w-full flex ${isMyMessage(msg) ? "justify-end" : "justify-start"}`}
                 >
-                  {isMyMessage(msg) ? null : (
-                    <img
-                      src={
-                        selectedChat.ai
-                          ? "/ai-avatar.svg"
-                          : msg.sender?.profile?.avatarUrl ||
-                            "/default-avatar.jpg"
-                      }
-                      alt="Sender Avatar"
-                      className="w-12 h-12 rounded-full object-cover mr-3"
-                    />
-                  )}
-                  <div>
-                    <div
-                      className={`px-4 py-2 rounded-2xl ${
-                        isMyMessage(msg)
-                          ? "bg-gradient-to-tr from-primary to-secondary text-white rounded-br-none"
-                          : "bg-white dark:bg-surface text-gray-900 dark:text-text rounded-bl-none shadow-sm"
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap break-words">
-                        {msg.content}
-                      </p>
-                    </div>
-                    {msg.courseRecommendations &&
-                      msg.courseRecommendations.length > 0 && (
-                        <div className="flex flex-col gap-3 mt-3">
-                          {msg.courseRecommendations.map((course) => (
-                            <Link
-                              href={`/${locale}/courses/${course.courseId}`}
-                              key={course.courseId}
-                              className="group block bg-white dark:bg-surface rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-white/5"
-                            >
-                              <div className="relative w-full h-28 overflow-hidden">
-                                <img
-                                  src={
-                                    course.thumbnailUrl ||
-                                    "/default-course-background.png"
-                                  }
-                                  alt={course.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                />
-                                <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-full">
-                                  ✦ {(course.similarityScore * 100).toFixed(0)}%
-                                  match
-                                </div>
-                              </div>
-
-                              {/* Content */}
-                              <div className="p-3 flex flex-col gap-2">
-                                {/* Title */}
-                                <p className="font-semibold text-sm text-gray-800 dark:text-white leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                                  {course.title}
-                                </p>
-
-                                {/* Tags row */}
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                                    {course.category}
-                                  </span>
-                                  <span
-                                    className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${
-                                      course.level === "BEGINNER"
-                                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                        : course.level === "INTERMEDIATE"
-                                          ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                                    }`}
-                                  >
-                                    {course.level}
-                                  </span>
+                  <div
+                    className={`max-w-md flex ${isMyMessage(msg) ? "order-2" : "order-1"}`}
+                  >
+                    {isMyMessage(msg) ? null : (
+                      <img
+                        src={
+                          selectedChat.ai
+                            ? "/ai-avatar.svg"
+                            : msg.sender?.profile?.avatarUrl ||
+                              "/default-avatar.jpg"
+                        }
+                        alt="Sender Avatar"
+                        className="w-12 h-12 rounded-full object-cover mr-3"
+                      />
+                    )}
+                    <div>
+                      <div
+                        className={`px-4 py-2 rounded-2xl ${
+                          isMyMessage(msg)
+                            ? "bg-linear-to-tr from-primary to-secondary text-white rounded-br-none"
+                            : "bg-white dark:bg-surface text-gray-900 dark:text-text rounded-bl-none shadow-sm"
+                        }`}
+                      >
+                        <p className="text-sm whitespace-pre-wrap wrap-break-words">
+                          {msg.content}
+                        </p>
+                      </div>
+                      {msg.courseRecommendations &&
+                        msg.courseRecommendations.length > 0 && (
+                          <div className="flex flex-col gap-3 mt-3">
+                            {msg.courseRecommendations.map((course) => (
+                              <Link
+                                href={`/${locale}/courses/${course.courseId}`}
+                                key={course.courseId}
+                                className="group block bg-white dark:bg-surface rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-white/5"
+                              >
+                                <div className="relative w-full h-28 overflow-hidden">
+                                  <img
+                                    src={
+                                      course.thumbnailUrl ||
+                                      "/default-course-background.png"
+                                    }
+                                    alt={course.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  />
+                                  <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-full">
+                                    ✦{" "}
+                                    {(course.similarityScore * 100).toFixed(0)}%
+                                    match
+                                  </div>
                                 </div>
 
-                                {/* Reason */}
-                                <p className="text-[11px] text-gray-400 dark:text-muted leading-relaxed line-clamp-2">
-                                  {course.reason}
-                                </p>
+                                {/* Content */}
+                                <div className="p-3 flex flex-col gap-2">
+                                  {/* Title */}
+                                  <p className="font-semibold text-sm text-gray-800 dark:text-white leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                    {course.title}
+                                  </p>
 
-                                {/* Footer */}
-                                <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-white/5">
-                                  <span className="text-sm font-bold text-primary">
-                                    ${course.originalPrice}
-                                  </span>
-                                  <span className="text-[10px] text-gray-400 dark:text-muted group-hover:text-primary transition-colors">
-                                    View course →
-                                  </span>
+                                  {/* Tags row */}
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                                      {course.category}
+                                    </span>
+                                    <span
+                                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${getLevelClassName(course.level)}`}
+                                    >
+                                      {course.level}
+                                    </span>
+                                  </div>
+
+                                  {/* Reason */}
+                                  <p className="text-[11px] text-gray-400 dark:text-muted leading-relaxed line-clamp-2">
+                                    {course.reason}
+                                  </p>
+
+                                  {/* Footer */}
+                                  <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-white/5">
+                                    <span className="text-sm font-bold text-primary">
+                                      ${course.originalPrice}
+                                    </span>
+                                    <span className="text-[10px] text-gray-400 dark:text-muted group-hover:text-primary transition-colors">
+                                      View course →
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    <div
-                      className={`flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-muted ${
-                        isMyMessage(msg) ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      {isUserLastMessageInGroup(index) && (
-                        <span>{timeAgo(msg?.createdAt)}</span>
-                      )}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      <div
+                        className={`flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-muted ${
+                          isMyMessage(msg) ? "justify-end" : "justify-start"
+                        }`}
+                      >
+                        {isUserLastMessageInGroup(index) && (
+                          <span>{timeAgo(msg?.createdAt)}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ),
+            ),
+          )
         )}
         <div ref={messagesEndRef} />
-        {selectedChat?.typingAvatarUrl && (
+        {conversations?.get(selectedChat?.id)?.typingAvatarFileName && (
           <Typing
-            avatarUrl={selectedChat.typingAvatarUrl || "/default-avatar.jpg"}
+            avatarFileName={conversations.get(selectedChat?.id)?.typingAvatarFileName || "/default-avatar.jpg"}
           />
         )}
       </div>
@@ -456,7 +486,7 @@ const ChatMain = ({
       {/* Input */}
       <div className="p-4 border-t border-gray-200 dark:border-border bg-white dark:bg-surface">
         <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors flex-shrink-0">
+          <button className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors shrink-0">
             <FontAwesomeIcon
               icon={faImage}
               className="w-5 h-5 text-gray-600 dark:text-muted"
@@ -467,7 +497,7 @@ const ChatMain = ({
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               placeholder="Type a message..."
               className="w-full h-full px-4 py-3 pr-12 bg-gray-100 dark:bg-border rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-text placeholder-gray-500 dark:placeholder-muted"
             />
@@ -498,7 +528,7 @@ const ChatMain = ({
               <button
                 onClick={handleSend}
                 disabled={!message.trim() || sending}
-                className="w-10 h-10 rounded-full  disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors flex-shrink-0"
+                className="w-10 h-10 rounded-full  disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
               >
                 <FontAwesomeIcon
                   icon={faPaperPlane}

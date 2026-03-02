@@ -1,4 +1,4 @@
-const Typing = ({ size = "md", avatarUrl }: { size?: "sm" | "md" | "lg" | "xl"; avatarUrl?: string | null }) => {
+const Typing = ({ size = "md", avatarFileName }: { size?: "sm" | "md" | "lg" | "xl"; avatarFileName?: string | null }) => {
 
   const sizeClasses = {
     sm: "w-6 h-6 border-1",
@@ -8,10 +8,10 @@ const Typing = ({ size = "md", avatarUrl }: { size?: "sm" | "md" | "lg" | "xl"; 
   };
   return (
     <div className="flex items-center space-x-2">
-      {/* {avatarUrl && */}
+      {/* {avatarFileName && */}
         <div className={`${sizeClasses[size]} rounded-full bg-gray-300 dark:bg-gray-600 animate-pulse`}>
           <img
-            src={avatarUrl ?? "./default-avatar.jpg"}
+            src={avatarFileName ? process.env.NEXT_PUBLIC_AVATAR_BASE_URL + avatarFileName :  "./default-avatar.jpg"}
             alt="Avatar"
             className={`w-full h-full rounded-full object-cover`}
           />

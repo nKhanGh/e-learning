@@ -23,9 +23,6 @@ interface MessagePayload {
   content: string;
 }
 
-interface TypingPayload {
-  conversationId: string;
-}
 
 interface ReadPayload {
   conversationId: string;
@@ -245,7 +242,8 @@ class WebSocketService {
       this.stompClient.subscribe("/user/queue/message", (message) => {
         try {
           const data = JSON.parse(message.body);
-          this.emit("message", data);
+          console.log("[WebSocket] Received message:", data.data);
+          this.emit("message", data.data);
         } catch (error) {
           console.error("[WebSocket] Error parsing message:", error);
           this.emit("error", { subscription: "message", error });
@@ -256,7 +254,7 @@ class WebSocketService {
       this.stompClient.subscribe("/user/queue/typing", (message) => {
         try {
           const data = JSON.parse(message.body);
-          this.emit("typing", data);
+          this.emit("typing", data.data);
         } catch (error) {
           console.error("[WebSocket] Error parsing typing:", error);
           this.emit("error", { subscription: "typing", error });
@@ -267,7 +265,7 @@ class WebSocketService {
       this.stompClient.subscribe("/user/queue/unread-count", (message) => {
         try {
           const data = JSON.parse(message.body);
-          this.emit("unread", data);
+          this.emit("unread", data.data);
         } catch (error) {
           console.error("[WebSocket] Error parsing unread-count:", error);
           this.emit("error", { subscription: "unread-count", error });
@@ -278,7 +276,7 @@ class WebSocketService {
       this.stompClient.subscribe("/user/queue/read-receipt", (message) => {
         try {
           const data = JSON.parse(message.body);
-          this.emit("readReceipt", data);
+          this.emit("readReceipt", data.data);
         } catch (error) {
           console.error("[WebSocket] Error parsing read-receipt:", error);
           this.emit("error", { subscription: "read-receipt", error });
@@ -356,6 +354,7 @@ class WebSocketService {
     }
 
     try {
+      console.log("[WebSocket] Sending message:", { conversationId, parentId, content });
       const payload: MessagePayload = {
         conversationId,
         parentId,
@@ -378,7 +377,7 @@ class WebSocketService {
   /**
    * Send typing indicator
    */
-  sendTyping(conversationId: string): boolean {
+  sendTyping(conversationId: string, typing: boolean = true): boolean {
     if (!this.stompClient?.connected) {
       return false;
     }
@@ -389,7 +388,8 @@ class WebSocketService {
     }
 
     try {
-      const payload: TypingPayload = { conversationId };
+      const payload: TypingRequest = { conversationId, typing };
+      console.log("[WebSocket] Sending typing indicator:", payload);
 
       this.stompClient.publish({
         destination: "/app/chat.typing",
@@ -490,7 +490,7 @@ class WebSocketService {
     if (this.token) {
       console.log("[WebSocket] Forcing reconnect...");
       this.disconnect();
-      setTimeout(() => {
+      this.reconnectTimer = setTimeout(() => {
         if (this.token) {
           this.connect(this.token);
         }
@@ -505,7 +505,7 @@ class WebSocketService {
 const webSocketService = new WebSocketService();
 
 // Cleanup on window unload (browser only)
-if (typeof window !== "undefined") {
+if (globalThis.window !== undefined) {
   window.addEventListener("beforeunload", () => {
     webSocketService.disconnect();
   });

@@ -5,7 +5,7 @@ import {
   faEllipsisV,
   faPlus,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useConversation } from "@/contexts/ConversationContext";
 import { timeAgo } from "@/utils/time";
@@ -21,7 +21,7 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { conversations, userStatuses } = useConversation();
 
-  const {user} = useAuth();
+  const { user } = useAuth();
 
   const isUserOnline = (userId: string) => {
     return userStatuses.get(userId)?.online;
@@ -33,7 +33,15 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
       (id) => isUserOnline(id.userId) && id.userId !== user?.id,
     );
   };
-
+  const getAvatarUrl = (conversation: ConversationResponse): string => {
+    if (conversation.ai) {
+      return "/ai-avatar.svg";
+    }
+    if (conversation.avatarUrl) {
+      return process.env.NEXT_PUBLIC_AVATAR_BASE_URL + conversation.avatarUrl;
+    }
+    return "/default-avatar.jpg";
+  };
 
   return (
     <div className="w-80 bg-white dark:bg-gray-900 rounded-2xl border-r border-gray-200 dark:border-border flex flex-col">
@@ -90,11 +98,7 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
             {/* Avatar */}
             <div className="relative shrink-0">
               <Image
-                src={
-                  conversation.ai
-                    ? "/ai-avatar.svg"
-                    : conversation.avatarUrl || "/default-avatar.jpg"
-                }
+                src={getAvatarUrl(conversation)}
                 alt={"avatar"}
                 width={48}
                 height={48}
@@ -111,22 +115,25 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
                 <h3 className="font-semibold text-gray-900 dark:text-text truncate">
                   {conversation.name}
                 </h3>
-                <span className="text-xs text-gray-500 dark:text-muted flex-shrink-0 ml-2">
+                <span className="text-xs text-gray-500 dark:text-muted shrink-0 ml-2">
                   {conversation.lastMessageAt
                     ? timeAgo(conversation.lastMessageAt)
                     : ""}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                {conversation.typingAvatarUrl ? (
-                  <Typing avatarUrl={conversation.typingAvatarUrl} size="sm" />
+                {conversation.typingAvatarFileName ? (
+                  <Typing
+                    avatarFileName={conversation.typingAvatarFileName}
+                    size="sm"
+                  />
                 ) : (
                   <p className="text-sm text-gray-600 dark:text-muted truncate">
                     {conversation.lastMessage?.content || "No messages yet"}
                   </p>
                 )}
                 {conversation.myParticipant?.unreadCount > 0 && (
-                  <span className="flex-shrink-0 ml-2 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="shrink-0 ml-2 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {conversation.myParticipant?.unreadCount}
                   </span>
                 )}

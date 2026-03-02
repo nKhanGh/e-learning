@@ -23,7 +23,7 @@ interface ConversationResponse {
   ai: boolean;
   lastMessage: Message;
   messages: MessageResponse[];
-  typingAvatarUrl: string | null;
+  typingAvatarFileName: string | null;
   hasMore: boolean;
 }
 
@@ -32,4 +32,26 @@ interface ConversationCreationRequest {
   participantIds: string[];
   name: string;
   description: string;
+}
+
+interface TypingRequest {
+  conversationId: string;
+  typing: boolean;
+}
+
+interface TypingNotification {
+  conversationId: string;
+  userId: string;
+  avatarFileName: string;
+  typing: boolean;
+}
+
+interface ReadNotification{
+  conversationId: string;
+  userId: string;
+}
+
+interface ConversationEvent {
+  type: ConversationEventType;
+  data: TypingNotification | MessageResponse | ReadNotification;
 }
