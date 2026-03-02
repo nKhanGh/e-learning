@@ -14,7 +14,7 @@ type UserStatus = {
 
 type ConversationContextType = {
   conversations: Map<string, ConversationResponse> | null;
-  setConversations: (conversations: Map<string, ConversationResponse> | null) => void;
+  setConversations: React.Dispatch<React.SetStateAction<Map<string, ConversationResponse> | null>>;
   userStatuses: Map<string, UserStatus>;
   unreadCount: number;
   wsConnected: boolean;

@@ -23,7 +23,6 @@ const LayoutClient = () => {
     <>
       <Header openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
       <Sidebar open={openSidebar} />
-      {!hideFooter && <Footer openSidebar={openSidebar} />}
     </>
   );
 }

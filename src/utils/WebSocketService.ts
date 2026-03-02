@@ -175,6 +175,10 @@ class WebSocketService {
         this.reconnectAttempts = 0;
         this.emit("connected", { timestamp: Date.now() });
         this.setupSubscriptions();
+        this.stompClient?.publish({
+        destination: '/app/user.online.request',
+        body: JSON.stringify({}),
+      });
       };
 
       // Connection error
@@ -206,6 +210,7 @@ class WebSocketService {
 
       // Activate connection
       this.stompClient.activate();
+      
     } catch (error) {
       console.error("[WebSocket] Connection error:", error);
       this.emit("error", { type: "connection", error });
@@ -284,6 +289,7 @@ class WebSocketService {
       this.stompClient.subscribe("/topic/user.online", (message) => {
         try {
           const data = JSON.parse(message.body);
+          console.log("[WebSocket] Received user.online update:", data);
           this.emit("userStatus", data);
         } catch (error) {
           console.error("[WebSocket] Error parsing user.online:", error);

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { authService } from "@/services/auth.service";
+import webSocketService from "./WebSocketService";
 
 export const login = async (request: AuthenticationRequest) => {
   try {
@@ -30,6 +31,7 @@ export const logout = async () => {
   if (refreshToken && accessToken) {
     try {
       await authService.logout({ accessToken, refreshToken });
+      webSocketService.disconnect();
     } catch (error) {
       console.error("Logout error:", error);
     }

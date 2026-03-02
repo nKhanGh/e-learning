@@ -6,15 +6,14 @@ import {
   faImage,
   faFaceSmile,
   faEllipsisV,
-  faPhone,
-  faVideo,
   faThumbsUp,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState, useRef, useEffect } from "react";
-import { conversationService } from "@/services/conversation.service";
+import { useState, useRef, useEffect, use } from "react";
 import webSocketService from "@/utils/WebSocketService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversation } from "@/contexts/ConversationContext";
+import { messageService } from "@/services/message.service";
+import { timeAgo } from "@/utils/time";
 
 interface Message {
   id: string;
@@ -38,19 +37,43 @@ const ChatMain = ({
   onBack,
 }: ChatMainProps) => {
   const [message, setMessage] = useState("");
-  const [parentMessage, setParentMessage] = useState<MessageResponse | null>(null);
-  const [messages, setMessages] = useState<MessageResponse[]>([]);
+  const [parentMessage, setParentMessage] = useState<MessageResponse | null>(
+    null,
+  );
+  const [isOnline, setIsOnline] = useState(false);
 
-  const {user} = useAuth();
-  const {conversations, setConversations} = useConversation();
-  
+  const { user } = useAuth();
+  const { conversations, setConversations, userStatuses } = useConversation();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-
+  const isMyMessage = (msg: MessageResponse) => msg.sender?.id === user?.id;
 
   useEffect(() => {
     console.log("Selected chat changed:", selectedChat);
+
+    const fetchMessages = async () => {
+      if (!selectedChat) return;
+      try {
+        const response = await messageService.getMessagesByConversationId(
+          selectedChat.id,
+        );
+        setConversations((prev) => {
+          if (!prev) return prev;
+          const updated = new Map(prev);
+          const conversation = updated.get(selectedChat.id);
+          if (conversation) {
+            conversation.messages = response.data.result.items;
+            updated.set(selectedChat.id, conversation);
+          }
+          return updated;
+        });
+        console.log("Fetched messages:", response.data.result);
+      } catch (error) {
+        console.error("Error fetching messages:", (error as any).response);
+      }
+    };
+    fetchMessages();
   }, [selectedChat]);
 
   const scrollToBottom = () => {
@@ -59,10 +82,13 @@ const ChatMain = ({
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [selectedChat]);
 
   const handleSend = () => {
     if (!message.trim() || !selectedChat?.id || !user) return;
+    if (selectedChat.ai){
+      
+    }
     webSocketService.sendMessage(
       selectedChat.id,
       message,
@@ -77,7 +103,6 @@ const ChatMain = ({
       sender: user,
       courseRecommendations: [],
     };
-    setMessages([...messages, newMessage]);
     setMessage("");
   };
 
@@ -87,6 +112,50 @@ const ChatMain = ({
       handleSend();
     }
   };
+
+  const isUserOnline = (userId: string) => {
+    return userStatuses.get(userId)?.online;
+  };
+
+  useEffect(() => {
+    if (!selectedChat) return;
+    const participantIds = selectedChat.participants.map((p) => p.id);
+    const online = participantIds.some((id) => isUserOnline(id.userId) && id.userId !== user?.id);
+    console.log("User online status for chat", userStatuses);
+    setIsOnline(online);
+  }, [selectedChat, userStatuses]);
+
+  const isFirstMessageInGroup = (index: number) => {
+    if (!selectedChat) return true;
+    if (index === 0) return true;
+    const messages = conversations?.get(selectedChat.id)?.messages;
+    if (!messages) return true;
+    const prevTime = new Date(messages[index - 1].createdAt).getTime();
+    const currentTime = new Date(messages[index].createdAt).getTime();
+
+    const diffInMinutes = (currentTime - prevTime) / (1000 * 60);
+
+    return diffInMinutes >= 10;
+  };
+
+  const isUserLastMessageInGroup = (index: number) => {
+    if (!selectedChat) return true;
+    const messages = conversations?.get(selectedChat.id)?.messages;
+    if (!messages || index === messages.length - 1) return true;
+    return messages[index + 1]?.sender?.id !== messages[index]?.sender?.id;
+  };
+
+  const getOtherParticipantId = () => {
+    if (!selectedChat) return null;
+    if (!isDirect) return null;
+    const otherParticipant = selectedChat.participants.find(
+      (p) => p.id.userId !== user?.id,
+    );
+    return otherParticipant?.id.userId || null;
+  };
+
+  const isDirect =
+    selectedChat?.participants.length && selectedChat.participants.length === 2;
 
   if (!selectedChat) {
     return (
@@ -117,11 +186,17 @@ const ChatMain = ({
           {/* Avatar */}
           <div className="relative">
             <img
-              src={selectedChat.ai ? "/ai-avatar.svg" : (selectedChat.avatarUrl || "/default-avatar.jpg")}
+              src={
+                selectedChat.ai
+                  ? "/ai-avatar.svg"
+                  : selectedChat.avatarUrl || "/default-avatar.jpg"
+              }
               alt="User Avatar"
               className="w-10 h-10 rounded-full object-cover"
             />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
+            {isOnline && (
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
+            )}
           </div>
 
           {/* Info */}
@@ -129,7 +204,23 @@ const ChatMain = ({
             <h2 className="font-semibold text-gray-900 dark:text-text">
               {selectedChat.name || "Unknown User"}
             </h2>
-            <p className="text-xs text-green-600 dark:text-green-400">Online</p>
+            {isOnline && isDirect && (
+              <p className="text-xs text-green-600 dark:text-green-400">
+                Online
+              </p>
+            )}
+            {!isOnline && isDirect && (
+              <p className="text-sm text-gray-500 dark:text-muted">
+                Online {" "}
+                {(() => {
+                  const participantId = getOtherParticipantId();
+                  return participantId &&
+                    userStatuses.get(participantId)?.lastSeen
+                    ? timeAgo(userStatuses.get(participantId)?.lastSeen || "")
+                    : "Never";
+                })()}
+              </p>
+            )}
           </div>
         </div>
 
@@ -157,41 +248,63 @@ const ChatMain = ({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.sender.id === user?.id ? "justify-end" : "justify-start"}`}
-          >
-            <div className={`max-w-md ${msg.sender.id === user?.id ? "order-2" : "order-1"}`}>
+        {(conversations?.get(selectedChat?.id)?.messages ?? []).map(
+          (msg, index) => (
+            <div key={msg.id} className={`w-full`}>
+              {isFirstMessageInGroup(index) && (
+                <div className="text-xs w-full flex justify-center text-gray-500 dark:text-muted mb-2">
+                  {new Date(msg.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "2-digit",
+                    month: "long",
+                    year: "2-digit",
+                  })}
+                </div>
+              )}
               <div
-                className={`px-4 py-2 rounded-2xl ${
-                  msg.sender.id === user?.id
-                    ? "bg-gradient-to-tr from-primary to-secondary text-white rounded-br-none"
-                    : "bg-white dark:bg-surface text-gray-900 dark:text-text rounded-bl-none shadow-sm"
-                }`}
+                className={`w-full flex ${isMyMessage(msg) ? "justify-end" : "justify-start"}`}
               >
-                <p className="text-sm whitespace-pre-wrap break-words">
-                  {msg.content}
-                </p>
+                <div
+                  className={`max-w-md flex ${isMyMessage(msg) ? "order-2" : "order-1"}`}
+                >
+                  {isMyMessage(msg) ? null : (
+                    <img
+                      src={
+                        selectedChat.ai
+                          ? "/ai-avatar.svg"
+                          : msg.sender?.profile?.avatarUrl ||
+                            "/default-avatar.jpg"
+                      }
+                      alt="Sender Avatar"
+                      className="w-12 h-12 rounded-full object-cover mr-3"
+                    />
+                  )}
+                  <div>
+                    <div
+                      className={`px-4 py-2 rounded-2xl ${
+                        isMyMessage(msg)
+                          ? "bg-gradient-to-tr from-primary to-secondary text-white rounded-br-none"
+                          : "bg-white dark:bg-surface text-gray-900 dark:text-text rounded-bl-none shadow-sm"
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap break-words">
+                        {msg.content}
+                      </p>
+                    </div>
+                    <div
+                      className={`flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-muted ${
+                        isMyMessage(msg) ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      <span>{timeAgo(msg?.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              {/* <div
-                className={`flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-muted ${
-                  msg.sender.id === user?.id ? "justify-end" : "justify-start"
-                }`}
-              >
-                <span>{msg.createdAt}</span>
-                {msg.sender.id === user?.id && msg.status && (
-                  <span>
-                    {msg.status === "sent" && "✓"}
-                    {msg.status === "read" && (
-                      <span className="text-blue-500">✓✓</span>
-                    )}
-                  </span>
-                )}
-              </div> */}
             </div>
-          </div>
-        ))}
+          ),
+        )}
         <div ref={messagesEndRef} />
       </div>
 
