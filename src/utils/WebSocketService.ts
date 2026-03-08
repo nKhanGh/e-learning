@@ -24,7 +24,7 @@ interface MessagePayload {
 }
 
 
-interface ReadPayload {
+interface ReadRequest {
   conversationId: string;
 }
 
@@ -418,7 +418,7 @@ class WebSocketService {
     }
 
     try {
-      const payload: ReadPayload = { conversationId };
+      const payload: ReadRequest = { conversationId };
 
       this.stompClient.publish({
         destination: "/app/chat.read",
@@ -505,7 +505,7 @@ class WebSocketService {
 const webSocketService = new WebSocketService();
 
 // Cleanup on window unload (browser only)
-if (globalThis.window !== undefined) {
+if (typeof globalThis.window !== "undefined") {
   window.addEventListener("beforeunload", () => {
     webSocketService.disconnect();
   });

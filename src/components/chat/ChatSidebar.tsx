@@ -11,6 +11,7 @@ import { useConversation } from "@/contexts/ConversationContext";
 import { timeAgo } from "@/utils/time";
 import Typing from "../ui/Typing";
 import { useAuth } from "@/contexts/AuthContext";
+import webSocketService from "@/utils/WebSocketService";
 
 interface ChatSidebarProps {
   selectedChat: ConversationResponse | null;
@@ -19,9 +20,24 @@ interface ChatSidebarProps {
 
 const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { conversations, userStatuses } = useConversation();
+  const { conversations, userStatuses, setConversations } = useConversation();
 
   const { user } = useAuth();
+
+  const handleChooseChat = (conversation: ConversationResponse) => {
+    onSelectChat(conversation);
+    webSocketService.markAsRead(conversation.id);
+    setConversations((prev) => {
+      if (!prev) return prev;
+      const updated = new Map(prev);
+      const conv = updated.get(conversation.id);
+      if (conv) {
+        conv.myParticipant.unreadCount = 0;
+        updated.set(conversation.id, conv);
+      }
+      return updated;
+    });
+  };
 
   const isUserOnline = (userId: string) => {
     return userStatuses.get(userId)?.online;
@@ -88,7 +104,7 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
         {Array.from(conversations?.values() || []).map((conversation) => (
           <button
             key={conversation.id}
-            onClick={() => onSelectChat(conversation)}
+            onClick={() => handleChooseChat(conversation)}
             className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-border transition-colors border-l-4 ${
               selectedChat === conversation
                 ? "bg-blue-50 dark:bg-primary/10 border-primary"

@@ -20,7 +20,6 @@ import Loading from "../ui/Loading";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 
-
 interface ChatMainProps {
   selectedChat: ConversationResponse | null;
   showInfo: boolean;
@@ -49,6 +48,7 @@ const ChatMain = ({
   const [parentMessage, setParentMessage] = useState<MessageResponse | null>(
     null,
   );
+  const [page, setPage] = useState(0);
   const [sendingIds, setSendingIds] = useState<Set<string>>(new Set());
   const [isOnline, setIsOnline] = useState(false);
   const [sending, setSending] = useState(
@@ -61,46 +61,121 @@ const ChatMain = ({
   const { conversations, setConversations, userStatuses } = useConversation();
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<boolean>(false);
+  const isLoadingMoreRef = useRef<boolean>(false);
+  const isInitialLoadRef = useRef<boolean>(true);
 
   const isMyMessage = (msg: MessageResponse) => msg.sender?.id === user?.id;
 
-  useEffect(() => {
-    console.log("Selected chat changed:", selectedChat);
-    setSending(sendingIds.has(selectedChat?.id ?? ""));
-    console.log("Current sending IDs:", sendingIds);
-    console.log("Current conversations map:", selectedChat?.id);
+  const fetchMessages = async (conversationId: string, page = 0, size = 20) => {
+    if (!selectedChat || isLoadingMoreRef.current) return;
+    isLoadingMoreRef.current = true;
+    try {
+      const response = await messageService.getMessagesByConversationId(
+        conversationId,
+        page,
+        size,
+      );
+      console.log(
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaFetched messages for conversation:",
+        conversationId,
+        "with page:",
+        page,
+        "response:",
+        response.data.result,
+      );
 
-    const fetchMessages = async () => {
-      if (!selectedChat) return;
-      try {
-        const response = await messageService.getMessagesByConversationId(
-          selectedChat.id,
-        );
-        setConversations((prev) => {
-          if (!prev) return prev;
-          const updated = new Map(prev);
-          const conversation = updated.get(selectedChat.id);
-          if (conversation) {
-            conversation.messages = response.data.result.items;
-            updated.set(selectedChat.id, conversation);
-          }
-          return updated;
-        });
-        console.log("Fetched messages:", response.data.result);
-      } catch (error) {
-        console.error("Error fetching messages:", (error as any).response);
+      const hasMore = response.data.result.totalPages > page + 1;
+
+      setConversations((prev) => {
+        if (!prev) return prev;
+        const updated = new Map(prev);
+        const existing = updated.get(conversationId);
+        if (existing) {
+          // Clone conversation object để tránh mutate
+          const conversation = { ...existing };
+          const existingIds = new Set(
+            conversation.messages?.map((m) => m.id) || [],
+          );
+          const uniqueNewItems = response.data.result.items.filter(
+            (item: MessageResponse) => !existingIds.has(item.id),
+          );
+          conversation.messages = [
+            ...uniqueNewItems,
+            ...(conversation.messages || []),
+          ];
+          conversation.hasMore = hasMore;
+          updated.set(conversationId, conversation);
+        }
+        return updated;
+      });
+      setPage(page + 1);
+      const container = containerRef.current;
+      const prevScrollHeight = container?.scrollHeight || 0;
+      requestAnimationFrame(() => {
+        if (isInitialLoadRef.current) {
+          // Lần đầu load: scroll xuống cuối
+          messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+          isInitialLoadRef.current = false;
+        } else if (container) {
+          // Load more: giữ nguyên vị trí scroll
+          const newScrollHeight = container.scrollHeight;
+          container.scrollTop = newScrollHeight - prevScrollHeight;
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching messages:", (error as any).response);
+    } finally {
+      isLoadingMoreRef.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedChat) return;
+
+    isInitialLoadRef.current = true;
+    setPage(0);
+    isLoadingMoreRef.current = false;
+    console.log("init fetch messages for conversation:", selectedChat.id);
+    setConversations((prev) => {
+      if (!prev) return prev;
+      const updated = new Map(prev);
+      const conversation = updated.get(selectedChat.id);
+      if (conversation) {
+        conversation.messages = [];
+        conversation.hasMore = true;
+        updated.set(selectedChat.id, conversation);
       }
+      return updated;
+    });
+
+    fetchMessages(selectedChat.id, 0, 20);
+
+    return () => {
+      isLoadingMoreRef.current = false;
     };
-    fetchMessages();
+  }, [selectedChat?.id]);
+
+  useEffect(() => {
+    setSending(sendingIds.has(selectedChat?.id ?? ""));
   }, [selectedChat]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    console.log("Scrolled to bottom");
+    setConversations((prev) => {
+      if (!prev || !selectedChat) return prev;
+      const updated = new Map(prev);
+      const conversation = updated.get(selectedChat.id);
+      if (conversation) {
+        conversation.myParticipant.unreadCount = 0;
+        updated.set(selectedChat.id, conversation);
+      }
+      return updated;
+    });
   };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [selectedChat]);
 
   const handleSend = async () => {
     if (!message.trim() || !selectedChat?.id || !user || sending) return;
@@ -132,7 +207,7 @@ const ChatMain = ({
               ];
               conversation.lastMessage = myMessage;
               conversation.lastMessageAt = myMessage.createdAt;
-              conversation.typingAvatarFileName = "/ai-avatar.svg";
+              conversation.typingAvatarFileName = "ai-avatar.svg";
             }
             updated.set(selectedChat.id, conversation);
           }
@@ -179,6 +254,7 @@ const ChatMain = ({
           next.delete(selectedChat.id);
           return next;
         });
+        scrollToBottom();
       }
       return;
     }
@@ -194,10 +270,10 @@ const ChatMain = ({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend()
+      handleSend();
+      webSocketService.sendTyping(selectedChat?.id || "", false);
       return;
     }
-    console.log("Key pressed:", e.key);
 
     webSocketService.sendTyping(selectedChat?.id || "", true);
   };
@@ -212,7 +288,6 @@ const ChatMain = ({
     const online = participantIds.some(
       (id) => isUserOnline(id.userId) && id.userId !== user?.id,
     );
-    console.log("User online status for chat", userStatuses);
     setIsOnline(online);
   }, [selectedChat, userStatuses]);
 
@@ -229,11 +304,34 @@ const ChatMain = ({
     return diffInMinutes >= 10;
   };
 
+  const isUserFirstMessageInGroup = (index: number) => {
+    if (!selectedChat) return true;
+    const messages = conversations?.get(selectedChat.id)?.messages;
+    if (!messages || index === 0) return true;
+
+    const current = messages[index];
+    const prev = messages[index - 1];
+
+    const isDifferentSender = prev.sender?.id !== current.sender?.id;
+    const isTimeExceeded =
+      new Date(messages[index].createdAt).getTime() -
+        new Date(messages[index - 1].createdAt).getTime() >
+      5 * 60 * 1000;
+
+    return isDifferentSender || isTimeExceeded;
+  };
+
   const isUserLastMessageInGroup = (index: number) => {
     if (!selectedChat) return true;
     const messages = conversations?.get(selectedChat.id)?.messages;
     if (!messages || index === messages.length - 1) return true;
-    return messages[index + 1]?.sender?.id !== messages[index]?.sender?.id;
+    const isDifferentSender =
+      messages[index + 1]?.sender?.id !== messages[index]?.sender?.id;
+    const isTimeExceeded =
+      new Date(messages[index + 1].createdAt).getTime() -
+        new Date(messages[index].createdAt).getTime() >
+      5 * 60 * 1000;
+    return isDifferentSender || isTimeExceeded;
   };
 
   const getOtherParticipantId = () => {
@@ -247,6 +345,64 @@ const ChatMain = ({
 
   const isDirect =
     selectedChat?.participants.length && selectedChat.participants.length === 2;
+
+  useEffect(() => {
+    if (!topSentinelRef.current || !selectedChat) return;
+
+    const conversation = conversations?.get(selectedChat.id);
+    if (!conversation?.hasMore) return;
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        const firstEntry = entries[0];
+
+        if (!firstEntry.isIntersecting) return;
+        if (loadMoreRef.current) return;
+        if (!conversations?.get(selectedChat.id)?.hasMore) return;
+        if (page === 0) return;
+
+        console.log("Loading more messages... with page:", page);
+        const conv = conversations?.get(selectedChat.id);
+        if (!conv?.hasMore) return;
+
+        await fetchMessages(selectedChat.id, page, 20);
+      },
+      {
+        root: containerRef.current,
+        threshold: 0.1,
+      },
+    );
+
+    observer.observe(topSentinelRef.current);
+
+    return () => observer.disconnect();
+  }, [selectedChat, conversations]);
+
+  useEffect(() => {
+    if (!messagesEndRef.current || !selectedChat) return;
+    const observer = new IntersectionObserver(async (entries) => {
+      const firstEntry = entries[0];
+      if (firstEntry.isIntersecting) {
+        setConversations((prev) => {
+          if (!prev || !selectedChat) return prev;
+          const updated = new Map(prev);
+          const conversation = updated.get(selectedChat.id);
+          if (conversation) {
+            conversation.myParticipant.unreadCount = 0;
+            updated.set(selectedChat.id, conversation);
+          }
+          return updated;
+        });
+        webSocketService.markAsRead(selectedChat.id);
+      }
+    }, {
+      root: containerRef.current,
+      threshold: 0.1,
+    });
+
+    observer.observe(messagesEndRef.current);
+
+    return () => observer.disconnect();
+  }, [selectedChat]);
 
   if (!selectedChat) {
     return (
@@ -339,7 +495,11 @@ const ChatMain = ({
 
       {/* Messages */}
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900">
+      <div
+        className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900"
+        ref={containerRef}
+      >
+        <div ref={topSentinelRef} className="h-px"></div>{" "}
         {conversations?.get(selectedChat?.id)?.messages === null ||
         conversations?.get(selectedChat?.id)?.messages?.length === 0 ? (
           <div className="text-center text-gray-500 dark:text-muted mt-36">
@@ -372,7 +532,7 @@ const ChatMain = ({
                   <div
                     className={`max-w-md flex ${isMyMessage(msg) ? "order-2" : "order-1"}`}
                   >
-                    {isMyMessage(msg) ? null : (
+                    {!isMyMessage(msg) && isUserFirstMessageInGroup(index) && (
                       <img
                         src={
                           selectedChat.ai
@@ -381,15 +541,21 @@ const ChatMain = ({
                               "/default-avatar.jpg"
                         }
                         alt="Sender Avatar"
-                        className="w-12 h-12 rounded-full object-cover mr-3"
+                        className={`w-8 h-8 rounded-full object-cover mr-3 mt-auto mb-1 ${isUserLastMessageInGroup(index) ? "mb-6" : ""}`}
                       />
                     )}
                     <div>
+                      {!isMyMessage(msg) &&
+                        isUserFirstMessageInGroup(index) && (
+                          <p className="text-xs  text-gray-500 dark:text-muted  mb-1">
+                            {msg.sender?.firstName || "Unknown User"}
+                          </p>
+                        )}
                       <div
-                        className={`px-4 py-2 rounded-2xl ${
+                        className={`px-4 py-2 rounded-sm ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-11"} ${
                           isMyMessage(msg)
-                            ? "bg-linear-to-tr from-primary to-secondary text-white rounded-br-none"
-                            : "bg-white dark:bg-surface text-gray-900 dark:text-text rounded-bl-none shadow-sm"
+                            ? `bg-linear-to-tr from-primary to-secondary rounded-l-2xl text-white ${isUserLastMessageInGroup(index) && "rounded-br-2xl"} ${isUserFirstMessageInGroup(index) && "rounded-tr-2xl"}`
+                            : `bg-white dark:bg-surface text-gray-900 dark:text-text rounded-r-2xl ${isUserLastMessageInGroup(index) && "rounded-bl-2xl"} ${isUserFirstMessageInGroup(index) && "rounded-tl-2xl"}`
                         }`}
                       >
                         <p className="text-sm whitespace-pre-wrap wrap-break-words">
@@ -460,7 +626,7 @@ const ChatMain = ({
                           </div>
                         )}
                       <div
-                        className={`flex items-center gap-1 mt-1 text-xs text-gray-500 dark:text-muted ${
+                        className={`flex items-center gap-1 mt-1 ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-11"} text-xs text-gray-500 dark:text-muted ${
                           isMyMessage(msg) ? "justify-end" : "justify-start"
                         }`}
                       >
@@ -475,12 +641,15 @@ const ChatMain = ({
             ),
           )
         )}
-        <div ref={messagesEndRef} />
         {conversations?.get(selectedChat?.id)?.typingAvatarFileName && (
           <Typing
-            avatarFileName={conversations.get(selectedChat?.id)?.typingAvatarFileName || "/default-avatar.jpg"}
+            avatarFileName={
+              conversations.get(selectedChat?.id)?.typingAvatarFileName ||
+              "/default-avatar.jpg"
+            }
           />
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}

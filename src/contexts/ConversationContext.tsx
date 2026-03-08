@@ -89,7 +89,7 @@ export const ConversationProvider = ({
         ...existingConversation,
         lastMessage: msg,
         lastMessageAt: msg.createdAt,
-        messages: [...existingConversation.messages, msg],
+        messages: [...(existingConversation.messages || []), msg],
         myParticipant: {
           ...existingConversation.myParticipant,
           unreadCount:
@@ -186,6 +186,28 @@ export const ConversationProvider = ({
   };
 
   const handleUnread = (count: number) => setUnreadCount(count);
+
+  const handleRead = (data: ReadNotification) => {
+    setConversations((prev) => {
+      if (!prev) return prev;
+      const updatedMap = new Map(prev);
+      const conversation = updatedMap.get(data.conversationId);
+      if (conversation) {
+        if (conversation.myParticipant.id.userId !== data.userId) {
+          conversation.myParticipant.unreadCount = 0;
+          conversation.myParticipant.lastReadAt = new Date().toISOString();
+        }
+        conversation.participants.forEach((p) => {
+          if (p.id.userId === data.userId) {
+            p.unreadCount = 0;
+            p.lastReadAt = new Date().toISOString();
+          }
+        });
+        updatedMap.set(data.conversationId, conversation);
+      }
+      return updatedMap;
+    });
+  }
 
   useEffect(() => {
     webSocketService.on("connected", handleConnected);
