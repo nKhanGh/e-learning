@@ -20,12 +20,37 @@ interface ConversationResponse {
   description: string;
   avatarUrl: string;
   myParticipant: ConversationParticipantResponse;
-  lastMessage: string;
+  ai: boolean;
+  lastMessage: Message;
+  messages: MessageResponse[];
+  typingAvatarFileName: string | null;
+  hasMore: boolean;
+}
+
+interface TypingRequest {
+  conversationId: string;
+  typing: boolean;
+}
+
+interface TypingNotification {
+  conversationId: string;
+  userId: string;
+  avatarFileName: string;
+  typing: boolean;
+}
+
+interface ReadNotification{
+  conversationId: string;
+  userId: string;
+}
+
+interface ConversationEvent {
+  type: ConversationEventType;
+  data: TypingNotification | MessageResponse | ReadNotification;
 }
 
 interface ConversationCreationRequest {
-  isGroup: boolean;
   participantIds: string[];
-  name: string;
-  description: string;
+  name: string | null;
+  description: string | null;
 }

@@ -12,7 +12,7 @@ const useAxios = () => {
   });
 
 
-  const aixosNoAuth = axios.create({
+  const axiosNoAuth = axios.create({
     baseURL: process.env.NEXT_PUBLIC_APP_API_URL || "/api",
   });
 
@@ -38,7 +38,7 @@ const useAxios = () => {
         originalRequest._retry = true;
         try {
           const refreshToken = localStorage.getItem("learnioRefreshToken");
-          const res = await aixosNoAuth.post("/auth/refresh", {
+          const res = await axiosNoAuth.post("/auth/refresh", {
             refreshToken,
           });
           const newAccessToken = res.data.result.accessToken;

@@ -9,6 +9,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
+import Footer from "@/components/layouts/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,11 +65,15 @@ export default async function RootLayout({
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
-            <WebSocketProvider>
               <OpenAuthProvider>
-                <LayoutClient>{children}</LayoutClient>
+                  <LayoutClient />
+                  <main
+                    className={` p-4 dark:bg-bg bg-white content`}
+                  >
+                    {children}
+                  </main>
+                  <Footer />
               </OpenAuthProvider>
-            </WebSocketProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

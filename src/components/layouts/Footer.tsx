@@ -15,17 +15,20 @@ import {
   faArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
-const Footer = ({ openSidebar }: { openSidebar: boolean }) => {
+const Footer = () => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const pathname = usePathname();
+  const hideFooter = pathname.endsWith("/chat");
   
   const t = useTranslations('Footer');
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={`bg-white dark:bg-surface border-t border-gray-200 dark:border-border transition-all duration-300 ${openSidebar ? 'ml-64' : 'ml-20'}`}>
+    <footer className={`content bg-white dark:bg-surface border-t border-gray-200 dark:border-border transition-all duration-300 ${hideFooter ? 'hidden' : ''}`}>
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
