@@ -118,20 +118,6 @@ export const ConversationProvider = ({
     return updatedMap;
   };
 
-  const updateUserStatusMap = (event: {
-    userId: string;
-    online: boolean;
-    timestamp: Timestamp;
-  }): Map<string, UserStatus> => {
-    const updatedMap = new Map(userStatuses);
-    updatedMap.set(event.userId, {
-      userId: event.userId,
-      online: event.online,
-      lastSeen: event.timestamp,
-    });
-    return updatedMap;
-  };
-
   const handleConnected = () => {
     console.log("💬 Chat: WebSocket connected");
     setWsConnected(true);
@@ -182,7 +168,15 @@ export const ConversationProvider = ({
     timestamp: Timestamp;
   }) => {
     console.log("💬 User status change event:", event);
-    setUserStatuses(updateUserStatusMap(event));
+    setUserStatuses((prev) => {
+      const updatedMap = new Map(prev);
+      updatedMap.set(event.userId, {
+        userId: event.userId,
+        online: event.online,
+        lastSeen: event.timestamp,
+      });
+      return updatedMap;
+    });
   };
 
   const handleUnread = (count: number) => setUnreadCount(count);
@@ -207,13 +201,14 @@ export const ConversationProvider = ({
       }
       return updatedMap;
     });
-  }
+  };
 
   useEffect(() => {
     webSocketService.on("connected", handleConnected);
     webSocketService.on("message", handleMessage);
     webSocketService.on("typing", handleTyping);
     webSocketService.on("unread", handleUnread);
+    webSocketService.on("readReceipt", handleRead);
     webSocketService.on("userStatus", handleUserStatusChange);
 
     return () => {
@@ -222,9 +217,10 @@ export const ConversationProvider = ({
       webSocketService.off("message", handleMessage);
       webSocketService.off("typing", handleTyping);
       webSocketService.off("unread", handleUnread);
+      webSocketService.off("readReceipt", handleRead);
       webSocketService.off("userStatus", handleUserStatusChange);
     };
-  }, [currentUserId, userStatuses]);
+  }, [currentUserId]);
 
   const value = useMemo(
     () => ({

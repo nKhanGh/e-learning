@@ -379,25 +379,28 @@ const ChatMain = ({
 
   useEffect(() => {
     if (!messagesEndRef.current || !selectedChat) return;
-    const observer = new IntersectionObserver(async (entries) => {
-      const firstEntry = entries[0];
-      if (firstEntry.isIntersecting) {
-        setConversations((prev) => {
-          if (!prev || !selectedChat) return prev;
-          const updated = new Map(prev);
-          const conversation = updated.get(selectedChat.id);
-          if (conversation) {
-            conversation.myParticipant.unreadCount = 0;
-            updated.set(selectedChat.id, conversation);
-          }
-          return updated;
-        });
-        webSocketService.markAsRead(selectedChat.id);
-      }
-    }, {
-      root: containerRef.current,
-      threshold: 0.1,
-    });
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        const firstEntry = entries[0];
+        if (firstEntry.isIntersecting) {
+          setConversations((prev) => {
+            if (!prev || !selectedChat) return prev;
+            const updated = new Map(prev);
+            const conversation = updated.get(selectedChat.id);
+            if (conversation) {
+              conversation.myParticipant.unreadCount = 0;
+              updated.set(selectedChat.id, conversation);
+            }
+            return updated;
+          });
+          webSocketService.markAsRead(selectedChat.id);
+        }
+      },
+      {
+        root: containerRef.current,
+        threshold: 0.1,
+      },
+    );
 
     observer.observe(messagesEndRef.current);
 
@@ -530,7 +533,9 @@ const ChatMain = ({
                   className={`w-full flex ${isMyMessage(msg) ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-md flex ${isMyMessage(msg) ? "order-2" : "order-1"}`}
+                    className={`max-w-md flex ${isMyMessage(msg) ? "order-2" : "order-1"}
+                    ${isUserLastMessageInGroup(index) ? "mb-2" : "mb-[2px]"} 
+                    `}
                   >
                     {!isMyMessage(msg) && isUserFirstMessageInGroup(index) && (
                       <img
@@ -552,7 +557,7 @@ const ChatMain = ({
                           </p>
                         )}
                       <div
-                        className={`px-4 py-2 rounded-sm ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-11"} ${
+                        className={`px-4 py-2 group rounded-sm relative ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-11"} ${
                           isMyMessage(msg)
                             ? `bg-linear-to-tr from-primary to-secondary rounded-l-2xl text-white ${isUserLastMessageInGroup(index) && "rounded-br-2xl"} ${isUserFirstMessageInGroup(index) && "rounded-tr-2xl"}`
                             : `bg-white dark:bg-surface text-gray-900 dark:text-text rounded-r-2xl ${isUserLastMessageInGroup(index) && "rounded-bl-2xl"} ${isUserFirstMessageInGroup(index) && "rounded-tl-2xl"}`
@@ -561,6 +566,39 @@ const ChatMain = ({
                         <p className="text-sm whitespace-pre-wrap wrap-break-words">
                           {msg.content}
                         </p>
+                        <div
+                          className={`absolute ${
+                            isMyMessage(msg)
+                              ? "-left-2 -translate-x-full"
+                              : "-right-2 translate-x-full"
+                          } top-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10`}
+                        >
+                          <div className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                            {new Date(msg.createdAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                            {/* Arrow pointing to message */}
+                            <div
+                              className={`absolute top-1/2 -translate-y-1/2 ${
+                                isMyMessage(msg)
+                                  ? "right-0 translate-x-full"
+                                  : "left-0 -translate-x-full"
+                              }`}
+                            >
+                              <div
+                                className={`w-0 h-0 border-4 ${
+                                  isMyMessage(msg)
+                                    ? "border-l-gray-200 dark:border-l-gray-700 border-y-transparent border-r-transparent"
+                                    : "border-r-gray-200 dark:border-r-gray-700 border-y-transparent border-l-transparent"
+                                }`}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       {msg.courseRecommendations &&
                         msg.courseRecommendations.length > 0 && (
@@ -625,7 +663,7 @@ const ChatMain = ({
                             ))}
                           </div>
                         )}
-                      <div
+                      {/* <div
                         className={`flex items-center gap-1 mt-1 ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-11"} text-xs text-gray-500 dark:text-muted ${
                           isMyMessage(msg) ? "justify-end" : "justify-start"
                         }`}
@@ -633,7 +671,7 @@ const ChatMain = ({
                         {isUserLastMessageInGroup(index) && (
                           <span>{timeAgo(msg?.createdAt)}</span>
                         )}
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
