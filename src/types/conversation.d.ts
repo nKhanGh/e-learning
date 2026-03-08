@@ -27,13 +27,6 @@ interface ConversationResponse {
   hasMore: boolean;
 }
 
-interface ConversationCreationRequest {
-  isGroup: boolean;
-  participantIds: string[];
-  name: string;
-  description: string;
-}
-
 interface TypingRequest {
   conversationId: string;
   typing: boolean;
@@ -54,4 +47,10 @@ interface ReadNotification{
 interface ConversationEvent {
   type: ConversationEventType;
   data: TypingNotification | MessageResponse | ReadNotification;
+}
+
+interface ConversationCreationRequest {
+  participantIds: string[];
+  name: string | null;
+  description: string | null;
 }

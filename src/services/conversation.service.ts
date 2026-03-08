@@ -18,12 +18,22 @@ export const conversationService = {
         params: { keyword, isGroup },
       },
     ),
-  createConversation: async ({avatarFile, data} : {avatarFile?: File, data: ConversationCreationRequest}) => {
+  createConversation: async ({
+    avatarFile,
+    data,
+  }: {
+    avatarFile?: File;
+    data: ConversationCreationRequest;
+  }) => {
     const formData = new FormData();
+    console.log("Creating conversation with data:", data);
     if (avatarFile) {
       formData.append("avatarFile", avatarFile);
     }
-    formData.append("data", JSON.stringify(data));
+    formData.append(
+      "data",
+      new Blob([JSON.stringify(data)], { type: "application/json" }),
+    );
     return axiosInstance.post<ApiResponse<ConversationResponse>>(
       "/conversations",
       formData,
