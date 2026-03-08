@@ -14,10 +14,11 @@ import Link from "next/link";
 import { useState } from "react";
 import AuthModal from "../auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
-import { logout } from "@/utils/auth";
+import LogoutModal from "../auth/LogoutModal";
 
 const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSidebar: React.Dispatch<React.SetStateAction<boolean>>}) => {
   const [openBoard, setOpenBoard] = useState<boolean>(false);
+  const [openLogout, setOpenLogout] = useState<boolean>(false);
   const {isLoggedIn, user} = useAuth();
 
   const locale = useLocale();
@@ -26,6 +27,7 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
   const t = useTranslations('Common');
 
   return (
+    <>
     <div className="fixed top-0 left-0 w-full h-20 bg-white dark:bg-gray-900 shadow-md flex items-center z-40 px-4">
       <button
       onClick={() => setOpenSidebar(!openSidebar)}
@@ -97,7 +99,7 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
               </Link>
               <button 
               className="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-500 rounded-sm flex items-center justify-start"
-              onClick={logout}
+              onClick={() => setOpenLogout(true)}
               >
                 <FontAwesomeIcon icon={faRightFromBracket} className="mr-4" />
                 {t('logout')}
@@ -127,6 +129,8 @@ const Header = ({openSidebar, setOpenSidebar} : {openSidebar: boolean, setOpenSi
       )}
       {(openLogin || openSignUp) && <AuthModal />}
     </div>
+    {openLogout && <LogoutModal open={openLogout} onClose={() => setOpenLogout(false)} />}
+    </>
   );
 };
 export default Header;

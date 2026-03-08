@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { conversationService } from "@/services/conversation.service";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface ChatCreationProps {
   open: boolean;
@@ -64,7 +65,6 @@ const ChatCreation = ({ open, onClose, onCreate }: ChatCreationProps) => {
     try {
       const response = await userService.searchUsers(keyword);
       setSearchResults(response.data.result);
-      console.log("Search results:", response);
     } catch (error) {
       console.error("Error searching users:", error);
       setSearchResults([]);
@@ -90,7 +90,7 @@ const ChatCreation = ({ open, onClose, onCreate }: ChatCreationProps) => {
 
   const handleCreate = async () => {
     if (selectedUsers.length === 0) {
-      alert("Please select at least one user");
+      toast.warning("Please select at least one user to start a conversation.");
       return;
     }
 
@@ -104,6 +104,7 @@ const ChatCreation = ({ open, onClose, onCreate }: ChatCreationProps) => {
       });
       onCreate?.(response.data.result);
     } catch (error) {
+      toast.error(`Failed to create conversation: ${error instanceof Error ? error.message : "An unknown error occurred."}`);
       console.error("Error creating conversation:", error);
     } finally {
       handleClose();

@@ -78,15 +78,7 @@ const ChatMain = ({
         page,
         size,
       );
-      console.log(
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaFetched messages for conversation:",
-        conversationId,
-        "with page:",
-        page,
-        "response:",
-        response.data.result,
-      );
-
+     
       const hasMore = response.data.result.totalPages > page + 1;
 
       setConversations((prev) => {
@@ -125,6 +117,7 @@ const ChatMain = ({
           container.scrollTop = newScrollHeight - prevScrollHeight;
         }
       });
+
     } catch (error) {
       console.error("Error fetching messages:", (error as any).response);
     } finally {

@@ -112,6 +112,8 @@
   "login": {
     "title": "Chào mừng trở lại!",
     "subtitle": "Đăng nhập để tiếp tục hành trình học tập của bạn",
+    "loginSuccess": "Đăng nhập thành công!",
+    "loginFailed": "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
     "loginWithGoogle": "Đăng nhập với Google",
     "loginWithGithub": "Đăng nhập với GitHub",
     "or": "Hoặc tiếp tục với email",

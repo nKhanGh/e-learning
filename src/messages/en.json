@@ -119,6 +119,8 @@
     "password": "Password",
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
+    "loginSuccess": "Login successful!",
+    "loginFailed": "Login failed. Please check your credentials and try again.",
     "loginButton": "Sign In",
     "noAccount": "Don't have an account?",
     "signup": "Sign up for free",

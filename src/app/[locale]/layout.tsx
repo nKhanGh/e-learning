@@ -10,6 +10,7 @@ import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import Footer from "@/components/layouts/Footer";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -72,6 +73,7 @@ export default async function RootLayout({
                   >
                     {children}
                   </main>
+                  <Toaster />
                   <Footer />
               </OpenAuthProvider>
           </AuthProvider>

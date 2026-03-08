@@ -1,27 +1,37 @@
 import axios from "axios";
 import { authService } from "@/services/auth.service";
 import webSocketService from "./WebSocketService";
+import { toast } from "sonner";
 
 export const login = async (request: AuthenticationRequest) => {
   try {
+    console.log("Attempting login with request:", request);
     const response = await authService.login(request);
-    localStorage.setItem(
-      "learnioAccessToken",
-      response.data.result.accessToken,
-    );
-    localStorage.setItem(
-      "learnioRefreshToken",
-      response.data.result.refreshToken,
-    );
+    console.log("Login response:", response);
+
+    const result = response?.data?.result;
+    if (!result?.accessToken || !result?.refreshToken) {
+      const backendMessage =
+        response?.data?.message || "Login failed";
+      throw new Error(backendMessage);
+    }
+
+    localStorage.setItem("learnioAccessToken", result.accessToken);
+    localStorage.setItem("learnioRefreshToken", result.refreshToken);
 
     console.log("Login successful:", response.data);
+    return result;
+  } catch (error: unknown) {
+    console.log("Login error:", error);
 
-    return response.data.result;
-  } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(error.response?.data?.message || "Login failed");
+      const data = error.response?.data as
+        | { message?: string; error?: string }
+        | undefined;
+      throw new Error(data?.message || data?.error || "Login failed");
     }
-    throw new Error("An unknown error occurred during login.");
+
+    throw new Error(error instanceof Error ? error.message : "Login failed");
   }
 };
 
@@ -40,4 +50,4 @@ export const logout = async () => {
   localStorage.removeItem("learnioRefreshToken");
 
   globalThis.dispatchEvent(new Event("logout"));
-}
+};

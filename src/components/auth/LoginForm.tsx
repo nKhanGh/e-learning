@@ -14,14 +14,15 @@ import Loading from "../ui/Loading";
 import { login } from "@/utils/auth";
 import { useOpenAuth } from "@/contexts/OpenAuthContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface LoginFormProps {
   onSwitchToSignUp: () => void;
 }
 
 const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
-  const {setOpenLogin} = useOpenAuth();
-  const {fetchUserInfo, setAccessToken} = useAuth();
+  const { setOpenLogin } = useOpenAuth();
+  const { fetchUserInfo, setAccessToken } = useAuth();
   const t = useTranslations("login");
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -69,21 +70,27 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
     return !newErrors.email && !newErrors.password;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
     setIsLoading(true);
     try {
-      const result = await login({email: formData.email, password: formData.password});
+      const result = await login({
+        email: formData.email,
+        password: formData.password,
+      });
       setAccessToken(result.accessToken);
+      toast.success(t("loginSuccess"));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : t("loginFailed");
 
-    } catch (error) {
-      console.error("Login error:", error);
+      toast.error(message);
+
       setErrors((prev) => ({
         ...prev,
-        password: t("invalidCredentials"),
+        password: message,
       }));
     } finally {
       fetchUserInfo();
@@ -102,11 +109,9 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
       {/* Header */}
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          {t('title')}
+          {t("title")}
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          {t('subtitle')}
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 
       {/* Social Login Buttons */}
@@ -117,7 +122,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
           className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200 font-medium"
         >
           <FontAwesomeIcon icon={faGoogle} className="w-5 h-5 text-red-500" />
-          {t('loginWithGoogle')}
+          {t("loginWithGoogle")}
         </button>
 
         <button
@@ -126,7 +131,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
           className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200 font-medium"
         >
           <FontAwesomeIcon icon={faGithub} className="w-5 h-5" />
-          {t('loginWithGithub')}
+          {t("loginWithGithub")}
         </button>
       </div>
 
@@ -136,7 +141,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         </div>
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-            {t('or')}
+            {t("or")}
           </span>
         </div>
       </div>
@@ -146,7 +151,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
             htmlFor="email"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            {t('email')}
+            {t("email")}
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -180,7 +185,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
             htmlFor="password"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
           >
-            {t('password')}
+            {t("password")}
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -229,14 +234,14 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
               className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
             />
             <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-              {t('rememberMe')}
+              {t("rememberMe")}
             </span>
           </label>
           <button
             type="button"
             className="text-sm text-primary hover:text-primary/80 font-medium"
           >
-            {t('forgotPassword')}
+            {t("forgotPassword")}
           </button>
         </div>
 
@@ -248,23 +253,23 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         >
           {isLoading ? (
             <div className="flex items-center gap-2">
-              <Loading size="sm" color="gray"/>
-              {t('loggingIn')}
+              <Loading size="sm" color="gray" />
+              {t("loggingIn")}
             </div>
           ) : (
-            t('loginButton')
+            t("loginButton")
           )}
         </button>
       </form>
 
       <div className="mt-6 flex items-center flex-col text-sm text-gray-600 dark:text-gray-400">
-        {t('noAccount')}{" "}
+        {t("noAccount")}{" "}
         <div className="w-[50%] h-px dark:bg-gray-500 my-2"></div>
         <button
           onClick={onSwitchToSignUp}
           className="text-primary hover:text-primary/80 font-semibold hover:underline transition-all"
         >
-          {t('signup')}
+          {t("signup")}
         </button>
       </div>
     </div>

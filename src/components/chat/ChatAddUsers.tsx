@@ -4,6 +4,7 @@ import { faCheck, faPlus, faSearch, faUsers, faXmark } from "@fortawesome/free-s
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const ChatAddUsers = ({
   conversationId,
@@ -50,8 +51,10 @@ const ChatAddUsers = ({
           user.id,
         );
       });
+      toast.success(`${selectedUsers.length} user${selectedUsers.length > 1 ? "s" : ""} added to conversation!`);
       onClose();
     } catch (error) {
+      toast.error(`Failed to add users: ${error instanceof Error ? error.message : "An unknown error occurred."}`);
       console.error("Error adding participants:", error);
     }
   }

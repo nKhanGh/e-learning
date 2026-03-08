@@ -20,6 +20,7 @@ import { useConversation } from "@/contexts/ConversationContext";
 import { useAuth } from "@/contexts/AuthContext";
 import ChatAddUsers from "./ChatAddUsers";
 import { conversationParticipantService } from "@/services/conversationParticipant.service";
+import ChatLeaveModal from "./ChatLeaveModal";
 
 interface ChatInfoProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
   const [showUsers, setShowUsers] = useState(false);
   const [openAddUsers, setOpenAddUsers] = useState(false);
   const [isOnline, setIsOnline] = useState(false);
+  const [openLeaving, setOpenLeaving] = useState(false);
 
   const { userStatuses } = useConversation();
   const { user } = useAuth();
@@ -41,17 +43,6 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
     return userStatuses.get(userId)?.online;
   };
 
-  const handleLeaveConversation = async () => {
-    try{
-      await conversationParticipantService.leave(selectedChat!.id);
-    } catch (error) {
-      console.error("Failed to leave conversation", error);
-    } finally {
-      setTimeout(() => {
-        globalThis.location.reload();
-      }, 500);
-    }
-  }
 
   useEffect(() => {
     if (!selectedChat) return;
@@ -174,9 +165,9 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                   </span>
                 </button>
 
-                <button 
+                <button
 
-                onClick={handleLeaveConversation}
+                onClick={() => setOpenLeaving(true)}
                 className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-border transition-colors">
                   <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -413,6 +404,7 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
         )}
       </AnimatePresence>
       {openAddUsers && <ChatAddUsers conversationId={selectedChat.id} open={openAddUsers} onClose={() => setOpenAddUsers(false)} />}
+        {openLeaving && <ChatLeaveModal conversationId={selectedChat.id} open={openLeaving} onClose={() => setOpenLeaving(false)} />}
     </>
   );
 };

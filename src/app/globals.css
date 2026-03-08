@@ -151,3 +151,124 @@ button {
 .animate-typing {
   animation: typing 1.2s infinite ease-in-out;
 }
+
+/* app/globals.css hoặc styles/toaster.css */
+
+/* Toast container animations */
+@keyframes toast-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Custom toast styles */
+[data-sonner-toast] {
+  animation: toast-in 0.2s ease-out;
+  font-family: inherit;
+}
+
+[data-sonner-toast][data-removed="true"] {
+  animation: toast-out 0.2s ease-in;
+}
+
+/* Icon styling */
+[data-sonner-toast] [data-icon] {
+  flex-shrink: 0;
+}
+
+/* Success toast */
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: rgb(34 197 94); /* green-500 */
+}
+
+/* Error toast */
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: rgb(239 68 68); /* red-500 */
+}
+
+/* Warning toast */
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: rgb(234 179 8); /* yellow-500 */
+}
+
+/* Info toast */
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: rgb(59 130 246); /* blue-500 */
+}
+
+/* Loading toast */
+[data-sonner-toast][data-type="loading"] [data-icon] {
+  color: rgb(107 114 128); /* gray-500 */
+}
+
+/* Close button hover effect */
+[data-sonner-toast] [data-close-button] {
+  transition: all 0.2s ease;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  transform: scale(1.1);
+}
+
+/* Progress bar */
+[data-sonner-toast] [data-progress] {
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.3),
+    rgba(59, 130, 246, 0.8)
+  );
+}
+
+/* Dark mode adjustments */
+.dark [data-sonner-toast] {
+  backdrop-filter: blur(8px);
+}
+
+[data-sonner-toast] [data-close-button] {
+  background: rgb(243 244 246) !important; /* gray-100 */
+  color: rgb(107 114 128) !important; /* gray-500 */
+  border: none !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  background: rgb(229 231 235) !important; /* gray-200 */
+  color: rgb(55 65 81) !important; /* gray-700 */
+}
+
+.dark [data-sonner-toast] [data-close-button] {
+  background: rgb(55 65 81) !important; /* gray-700 */
+  color: rgb(156 163 175) !important; /* gray-400 */
+}
+
+.dark [data-sonner-toast] [data-close-button]:hover {
+  background: rgb(75 85 99) !important; /* gray-600 */
+  color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  [data-sonner-toaster] {
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+  }
+
+  [data-sonner-toast] {
+    padding: 12px !important;
+  }
+}
