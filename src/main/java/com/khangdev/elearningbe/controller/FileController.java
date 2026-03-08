@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,13 +25,18 @@ public class FileController {
     private final FileService fileService;
     private final UserService userService;
 
-    @GetMapping("/avatar/{fileName}")
-    public ResponseEntity<Resource> downloadAvatar(@PathVariable String fileName) throws MalformedURLException {
+    @GetMapping("/avatars/{fileName}")
+    public ResponseEntity<Resource> downloadAvatar(@PathVariable String fileName)
+            throws MalformedURLException {
 
         Resource resource = fileService.loadAvatarFile(fileName);
 
+        MediaType mediaType = MediaTypeFactory
+                .getMediaType(fileName)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
+                .contentType(mediaType)
                 .body(resource);
     }
 

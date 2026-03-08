@@ -2,6 +2,7 @@ package com.khangdev.elearningbe.service.interaction;
 
 import com.khangdev.elearningbe.dto.response.interaction.ConversationParticipantResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ConversationParticipantService {
@@ -10,4 +11,5 @@ public interface ConversationParticipantService {
     ConversationParticipantResponse leaveConversation(UUID conversationId);
     ConversationParticipantResponse removeParticipant(UUID conversationId, UUID participantId);
     void markAsRead(UUID conversationId, UUID participantId);
+    List<String> getParticipantEmails(UUID conversationId);
 }

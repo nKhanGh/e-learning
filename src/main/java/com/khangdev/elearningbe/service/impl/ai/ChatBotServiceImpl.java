@@ -1,7 +1,6 @@
 package com.khangdev.elearningbe.service.impl.ai;
 
 import com.khangdev.elearningbe.dto.request.course.CourseRecommendationDTO;
-import com.khangdev.elearningbe.dto.request.interaction.AIChatRequest;
 import com.khangdev.elearningbe.dto.request.interaction.MessageSendRequest;
 import com.khangdev.elearningbe.dto.response.interaction.MessageResponse;
 import com.khangdev.elearningbe.entity.interaction.Conversation;

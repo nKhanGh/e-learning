@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -103,5 +104,11 @@ public class ConversationParticipantServiceImpl implements ConversationParticipa
         conversationParticipant.setUnreadCount(0L);
         conversationParticipant.setLastReadAt(Instant.now());
         conversationParticipantRepository.save(conversationParticipant);
+    }
+
+
+    @Override
+    public List<String> getParticipantEmails(UUID conversationId) {
+        return conversationParticipantRepository.findUserEmailsByConversationId(conversationId);
     }
 }

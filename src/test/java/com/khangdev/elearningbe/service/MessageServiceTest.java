@@ -80,7 +80,7 @@ public class MessageServiceTest {
                 .content("hello")
                 .build();
 
-        MessageResponse result = messageService.sendMessage(request);
+        MessageResponse result = messageService.sendMessage(request, user.getEmail());
 
         Assertions.assertThat(result.getContent()).isEqualTo("hello");
     }
@@ -114,7 +114,7 @@ public class MessageServiceTest {
                 .content("reply")
                 .build();
 
-        MessageResponse result = messageService.sendMessage(request);
+        MessageResponse result = messageService.sendMessage(request, user.getEmail());
 
         Assertions.assertThat(result.getContent()).isEqualTo("reply");
     }
@@ -140,7 +140,7 @@ public class MessageServiceTest {
                 .content("reply")
                 .build();
 
-        Assertions.assertThatThrownBy(() -> messageService.sendMessage(request))
+        Assertions.assertThatThrownBy(() -> messageService.sendMessage(request, user.getEmail()))
                 .isInstanceOf(AppException.class)
                 .extracting("errorCode")
                 .isEqualTo(ErrorCode.MESSAGE_NOT_FOUND);

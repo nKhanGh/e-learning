@@ -11,7 +11,7 @@ public interface FileService {
      String uploadAvatar(MultipartFile file) throws IOException;
      String uploadVideo(MultipartFile file) throws IOException;
      String uploadDocument(MultipartFile file) throws IOException;
-    public String uploadChatFile(MultipartFile file) throws IOException;
+     String uploadChatFile(MultipartFile file) throws IOException;
      String generateSignedUrl(String fileId, UUID lectureId, UUID userId);
      boolean verifySignedUrl(String fileId, UUID lectureId, UUID userId,
                                    long expiryTime, String signature);

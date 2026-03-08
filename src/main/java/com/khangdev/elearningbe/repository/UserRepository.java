@@ -13,15 +13,17 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
+
     List<User> findAllByEmailContainingIgnoreCase(String emailPart);
 
     @Query("""
-select u from User u
+
+            select u from User u
 where (
-    lower(concat( u.firstName, ' ', u.lastName)) like lower(concat('%', :keyword, '%'))
-    or lower(concat( u.lastName, ' ', u.firstName)) like lower(concat('%', :keyword, '%'))
-    and u.email <> :currentEmail
+    lower(concat(u.firstName, ' ', u.lastName)) like lower(concat('%', :keyword, '%'))
+    or lower(concat(u.lastName, ' ', u.firstName)) like lower(concat('%', :keyword, '%'))
 )
+and u.email <> :currentEmail
 """)
     List<User> searchUser(@Param("keyword") String keyword, @Param("currentEmail") String currentEmail);
 }

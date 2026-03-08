@@ -25,4 +25,10 @@ public interface ConversationParticipantRepository extends JpaRepository<Convers
 
     List<ConversationParticipant> findByConversationIdAndUserIdNot(UUID conversationId, UUID userId);
 
+    @Query("""
+        SELECT cp.user.email
+        FROM ConversationParticipant cp
+        WHERE cp.conversation.id = :conversationId
+    """)
+    List<String> findUserEmailsByConversationId(UUID conversationId);
 }
