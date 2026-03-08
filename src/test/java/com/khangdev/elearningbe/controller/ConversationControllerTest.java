@@ -71,7 +71,6 @@ public class ConversationControllerTest {
                 .thenReturn(response);
 
         ConversationCreationRequest request = ConversationCreationRequest.builder()
-                .isGroup(false)
                 .name("Chat")
                 .build();
 

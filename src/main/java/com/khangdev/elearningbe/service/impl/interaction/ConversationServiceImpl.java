@@ -150,11 +150,9 @@ public class ConversationServiceImpl implements ConversationService {
             participantIds.add(myId);
         }
 
-        if (!request.getIsGroup() && participantIds.size() != 2) {
-            throw new AppException(ErrorCode.INVALID_DIRECT_CONVERSATION);
-        }
+        boolean isGroup = participantIds.size() > 2;
 
-        if (!request.getIsGroup()) {
+        if (!isGroup) {
             UUID otherId = participantIds.stream().filter(id -> !id.equals(myId)).findFirst().get();
             conversationRepository.findDirectConversation(myId, otherId)
                     .ifPresent(c -> { throw new AppException(ErrorCode.DIRECT_CONVERSATION_ALREADY_EXISTS); });
@@ -169,7 +167,7 @@ public class ConversationServiceImpl implements ConversationService {
 
 
         Conversation conversation = Conversation.builder()
-                .isGroup(request.getIsGroup())
+                .isGroup(isGroup)
                 .name(request.getName())
                 .description(request.getDescription())
                 .build();

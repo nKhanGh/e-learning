@@ -105,4 +105,4 @@ langChain4j:
   embedding-model:
 #    api-key: ${OPEN_AI_KEY}
     model-name: text-embedding-3-small
-    dimensions: 1536
+    dimensions: 768

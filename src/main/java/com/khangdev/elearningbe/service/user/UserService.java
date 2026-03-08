@@ -8,6 +8,7 @@ import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.enums.UserStatus;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -20,4 +21,5 @@ public interface UserService {
     UserResponse getUserById(UUID id);
     PageResponse<UserResponse> getUserInCourse(UUID courseId, int page, int size);
     UserResponse createInstructor(InstructorCreationRequest request);
+    List<UserResponse> searchUsers(String keyword);
 }

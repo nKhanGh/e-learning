@@ -1,14 +1,15 @@
 package com.khangdev.elearningbe.service.impl.ai;
 
 import com.khangdev.elearningbe.dto.request.course.CourseRecommendationDTO;
-import com.khangdev.elearningbe.dto.request.interaction.AIChatRequest;
-import com.khangdev.elearningbe.dto.request.interaction.AIChatResponse;
+import com.khangdev.elearningbe.dto.request.interaction.MessageSendRequest;
+import com.khangdev.elearningbe.dto.response.interaction.MessageResponse;
 import com.khangdev.elearningbe.entity.interaction.Conversation;
 import com.khangdev.elearningbe.entity.interaction.Message;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.MessageSenderType;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
+import com.khangdev.elearningbe.mapper.MessageMapper;
 import com.khangdev.elearningbe.repository.ConversationRepository;
 import com.khangdev.elearningbe.repository.MessageRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
@@ -50,6 +51,8 @@ public class ChatBotServiceImpl implements ChatBotService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
 
+    private final MessageMapper messageMapper;
+
     @Value("${app.ai.chatbot.memory-size}")
     private Integer memorySize;
 
@@ -64,7 +67,7 @@ public class ChatBotServiceImpl implements ChatBotService {
 
 
     @Override
-    public AIChatResponse chat(AIChatRequest request) {
+    public MessageResponse chat(MessageSendRequest request) {
         try{
             String conversationId = request.getConversationId().toString();
             Conversation conversation = conversationRepository.findById(request.getConversationId())
@@ -74,14 +77,14 @@ public class ChatBotServiceImpl implements ChatBotService {
 
             Message userMessage = saveUserMessage(request);
 
-            boolean isCourseQuery = isCourseRelatedQuery(request.getMessage());
+            boolean isCourseQuery = isCourseRelatedQuery(request.getContent());
 
             String aiReply;
             List<EmbeddingMatch<TextSegment>> relevantCourses = null;
 
             if (isCourseQuery) {
                 relevantCourses = embeddingService.searchSimilarCourses(
-                        request.getMessage(),
+                        request.getContent(),
                         topK,
                         minScore
                 );
@@ -89,21 +92,17 @@ public class ChatBotServiceImpl implements ChatBotService {
                 String courseContext = embeddingService.buildCourseContext(relevantCourses);
 
                 CourseChatAssistant assistant = getOrCreateAssistant(conversationId);
-                aiReply = assistant.chatWithContext(conversationId, request.getMessage(), courseContext);
+                aiReply = assistant.chatWithContext(conversationId, request.getContent(), courseContext);
             } else {
                 CourseChatAssistant assistant = getOrCreateAssistant(conversationId);
-                aiReply = assistant.chat(conversationId, request.getMessage());
+                aiReply = assistant.chat(conversationId, request.getContent());
             }
-
-            Message aiMessage = saveAIMessage(request.getConversationId(), aiReply);
 
             List<CourseRecommendationDTO> suggestions = extractCourseSuggestions(relevantCourses);
 
-            return AIChatResponse.builder()
-                    .reply(aiReply)
-                    .messageId(aiMessage.getId())
-                    .suggestedCourses(suggestions)
-                    .build();
+            Message aiMessage = saveAIMessage(request.getConversationId(), aiReply, suggestions);
+
+            return messageMapper.toResponse(aiMessage);
         } catch (Exception e) {
             log.error("Error in chat: {}", e.getMessage(), e);
             throw new AppException(ErrorCode.ERROR_WHEN_CHAT_AI);
@@ -141,7 +140,7 @@ public class ChatBotServiceImpl implements ChatBotService {
                 || lowerQuery.contains("tư vấn");
     }
 
-    private Message saveUserMessage(AIChatRequest request){
+    private Message saveUserMessage(MessageSendRequest request){
         UUID userId = userService.getMyInfo().getId();
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -151,12 +150,14 @@ public class ChatBotServiceImpl implements ChatBotService {
         Message message = Message.builder()
                 .conversation(conversation)
                 .sender(sender)
-                .content(request.getMessage())
+                .content(request.getContent())
+                .parent(request.getParentId() != null ? messageRepository.findById(request.getParentId())
+                        .orElseThrow(() -> new AppException(ErrorCode.MESSAGE_NOT_FOUND)) : null)
                 .build();
         return messageRepository.save(message);
     }
 
-    private Message saveAIMessage(UUID conversationId, String content){
+    private Message saveAIMessage(UUID conversationId, String content, List<CourseRecommendationDTO> suggestions){
         Conversation conversation = conversationRepository.findById(conversationId)
                 .orElseThrow(() -> new AppException(ErrorCode.CONVERSATION_NOT_FOUND));
         Message message = Message.builder()
@@ -164,9 +165,11 @@ public class ChatBotServiceImpl implements ChatBotService {
                 .sender(null)
                 .content(content)
                 .conversation(conversation)
+                .courseRecommendations(suggestions)
                 .build();
         return messageRepository.save(message);
     }
+
 
     private List<CourseRecommendationDTO> extractCourseSuggestions(
             List<EmbeddingMatch<TextSegment>> matches

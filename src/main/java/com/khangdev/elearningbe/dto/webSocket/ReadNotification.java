@@ -1,4 +1,4 @@
-package com.khangdev.elearningbe.dto.request.interaction;
+package com.khangdev.elearningbe.dto.webSocket;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AIChatRequest {
+public class ReadNotification {
+    UUID userId;
     UUID conversationId;
-    String message;
 }

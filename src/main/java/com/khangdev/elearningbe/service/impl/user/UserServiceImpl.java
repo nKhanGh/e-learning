@@ -22,6 +22,7 @@ import com.khangdev.elearningbe.service.user.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +31,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     UserMapper userMapper;
@@ -154,5 +157,20 @@ public class UserServiceImpl implements UserService {
         instructorRepository.save(instructor);
         userRepository.save(user);
         return userMapper.toResponse(user);
+    }
+
+    @Override
+    public List<UserResponse> searchUsers(String keyword) {
+        keyword = keyword.toLowerCase().trim();
+        if(keyword.isEmpty()){
+            return List.of();
+        }
+        if (keyword.contains("@")){
+            return userRepository.findAllByEmailContainingIgnoreCase(keyword)
+                    .stream().map(userMapper::toResponse).toList();
+        } else {
+            return userRepository.searchUser(keyword, getMyInfo().getEmail())
+                    .stream().map(userMapper::toResponse).toList();
+        }
     }
 }

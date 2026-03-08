@@ -122,7 +122,6 @@ public class ConversationServiceTest {
     @Test
     void createConversation_direct_invalidParticipants_throwException() {
         ConversationCreationRequest request = ConversationCreationRequest.builder()
-                .isGroup(false)
                 .participantIds(List.of(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()))
                 .name("Direct")
                 .build();

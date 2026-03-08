@@ -13,7 +13,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ConversationCreationRequest {
-    private Boolean isGroup = false;
     private List<UUID> participantIds;
     private String name;
     private String description;

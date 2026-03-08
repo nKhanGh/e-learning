@@ -25,6 +25,7 @@ public class CourseEmbeddingServiceImpl implements CourseEmbeddingService {
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
 
+
     @Override
     public void embedCourse(CourseEmbeddingDTO courseEmbeddingDTO) {
         try{

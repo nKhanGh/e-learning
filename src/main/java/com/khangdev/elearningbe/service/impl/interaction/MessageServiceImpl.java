@@ -25,6 +25,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,8 +46,9 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public MessageResponse sendMessage(MessageSendRequest request) {
-        UUID userId = userService.getMyInfo().getId();
+    public MessageResponse sendMessage(MessageSendRequest request, String email) {
+        UUID userId = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)).getId();
         User sender = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Conversation conversation = conversationRepository.findById(request.getConversationId())
@@ -89,12 +92,14 @@ public class MessageServiceImpl implements MessageService {
     public PageResponse<MessageResponse> getConversationMessage(UUID conversationId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Message> result = messageRepository.findByConversationId(conversationId, pageable);
+        Page<Message> result = messageRepository.findByConversation_IdOrderByCreatedAtDesc(conversationId, pageable);
+        List<Message> items = new ArrayList<>(result.getContent());
+        Collections.reverse(items);
 
         return PageResponse.<MessageResponse>builder()
                 .totalElements(result.getTotalElements())
                 .totalPages(result.getTotalPages())
-                .items(result.getContent().stream().map(messageMapper::toResponse).toList())
+                .items(items.stream().map(messageMapper::toResponse).toList())
                 .page(page)
                 .size(size)
                 .build();

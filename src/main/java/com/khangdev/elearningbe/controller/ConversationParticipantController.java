@@ -30,10 +30,10 @@ public class ConversationParticipantController {
                 .build();
     }
 
-    @PostMapping("/{participantId}")
+    @PostMapping
     public ApiResponse<ConversationParticipantResponse> add(
             @PathVariable UUID conversationId,
-            @PathVariable UUID participantId
+            @RequestParam(name = "participantId") UUID participantId
     ) {
         return ApiResponse.<ConversationParticipantResponse>builder()
                 .result(conversationParticipantService.addParticipant(conversationId, participantId))

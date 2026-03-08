@@ -69,8 +69,7 @@ public class MessageControllerTest {
 
     @Test
     void sendMessageRest_success() throws Exception {
-        Mockito.when(messageService.sendMessage(ArgumentMatchers.any()))
-                .thenReturn(messageResponse);
+        Mockito.when(messageService.sendMessage(ArgumentMatchers.any(),  ArgumentMatchers.any())).thenReturn(messageResponse);
 
         MessageSendRequest request = MessageSendRequest.builder()
                 .conversationId(UUID.randomUUID())
@@ -89,8 +88,7 @@ public class MessageControllerTest {
         UUID conversationId = UUID.randomUUID();
         Mockito.when(fileService.uploadChatFile(ArgumentMatchers.any()))
                 .thenReturn("file.pdf");
-        Mockito.when(messageService.sendMessage(ArgumentMatchers.any()))
-                .thenReturn(messageResponse);
+        Mockito.when(messageService.sendMessage(ArgumentMatchers.any(),   ArgumentMatchers.any())).thenReturn(messageResponse);
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",

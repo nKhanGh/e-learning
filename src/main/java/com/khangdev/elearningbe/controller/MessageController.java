@@ -4,9 +4,7 @@ import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.interaction.MessageSendRequest;
 import com.khangdev.elearningbe.dto.response.interaction.MessageResponse;
-import com.khangdev.elearningbe.dto.webSocket.ConversationEvent;
-import com.khangdev.elearningbe.dto.webSocket.TypingNotification;
-import com.khangdev.elearningbe.dto.webSocket.UserStatusEvent;
+import com.khangdev.elearningbe.dto.webSocket.*;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.ConversationEventType;
 import com.khangdev.elearningbe.exception.AppException;
@@ -54,66 +52,91 @@ public class MessageController {
     @MessageMapping("/chat.send")
     public void sendMessage(@Payload MessageSendRequest request, Principal principal) {
         try{
-            MessageResponse messageResponse = messageService.sendMessage(request);
-
-            messagingTemplate.convertAndSend(
-                "/topic/conversations." + request.getConversationId().toString(),
-                ConversationEvent.builder()
-                    .type(ConversationEventType.MESSAGE)
-                    .data(messageResponse)
-                    .build()
+            String email = principal.getName();
+            MessageResponse messageResponse = messageService.sendMessage(request, email);
+            List<String> userEmails = conversationParticipantService.getParticipantEmails(request.getConversationId());
+            log.info(userEmails.toString());
+            userEmails.forEach(userEmail -> {
+                messagingTemplate.convertAndSendToUser(
+                        userEmail,
+                        "/queue/message",
+                        ConversationEvent.builder()
+                                .type(ConversationEventType.MESSAGE)
+                                .data(messageResponse)
+                                .build()
                 );
+            });
+
+
         } catch (AppException e) {
             log.error(e.getMessage());
         }
     }
 
     @MessageMapping("/chat.typing")
-    public void sendTyping(@Payload UUID conversationId, Principal principal) {
+    public void sendTyping(@Payload TypingRequest request, Principal principal) {
         String email =  principal.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        TypingNotification request = TypingNotification.builder()
-            .conversationId(conversationId)
-            .userId(user.getId())
-            .build();
-        try{
-            messagingTemplate.convertAndSend(
-                "/topic/conversations." + conversationId.toString(),
-                ConversationEvent.builder()
-                    .type(ConversationEventType.TYPING)
-                    .data(request)
-                    .build()
-            );
-        } catch (AppException e) {
-            log.error(e.getMessage());
-        }
+        log.info(request.toString());
+
+        TypingNotification response = TypingNotification.builder()
+                .conversationId(request.getConversationId())
+                .userId(user.getId())
+                .avatarFileName(user.getProfile().getAvatarFileName())
+                .typing(request.isTyping())
+                .build();
+        List<String> userEmails = conversationParticipantService.getParticipantEmails(request.getConversationId());
+        userEmails.forEach(userEmail -> {
+            if (userEmail.equals(user.getEmail())) return;
+            try{
+                messagingTemplate.convertAndSendToUser(
+                        userEmail,
+                        "/queue/typing",
+                        ConversationEvent.builder()
+                                .type(ConversationEventType.TYPING)
+                                .data(response)
+                                .build()
+                );
+            } catch (AppException e) {
+                log.error(e.getMessage());
+            }
+        });
     }
 
     @MessageMapping("/chat.read")
-    public void readMessage(@Payload UUID conversationId, Principal principal) {
+    public void readMessage(@Payload ReadRequest request, Principal principal) {
         String email = principal.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        try{
-            conversationParticipantService.markAsRead(conversationId, user.getId());
-            messagingTemplate.convertAndSend(
-                "/topic/conversations." + conversationId.toString(),
-                ConversationEvent.builder()
-                    .type(ConversationEventType.READ)
-                    .data(user.getId())
-                    .build()
-            );
-        } catch (AppException e) {
-            log.error(e.getMessage());
-        }
+        conversationParticipantService.markAsRead(request.getConversationId(), user.getId());
+        List<String> userEmails = conversationParticipantService.getParticipantEmails(request.getConversationId());
+        ReadNotification response = ReadNotification.builder()
+                .userId(user.getId())
+                .conversationId(request.getConversationId())
+                .build();
+        userEmails.forEach(userEmail -> {
+            try{
+                messagingTemplate.convertAndSendToUser(
+                        userEmail,
+                        "queue/read-receipt",
+                        ConversationEvent.builder()
+                                .type(ConversationEventType.READ)
+                                .data(response)
+                                .build()
+                );
+            } catch (AppException e) {
+                log.error(e.getMessage());
+            }
+        });
+
     }
 
 
     @PostMapping
     public ApiResponse<MessageResponse> sendMessageRest(@RequestBody MessageSendRequest request) {
-
-        MessageResponse messageResponse = messageService.sendMessage(request);
+        String email = userService.getMyInfo().getEmail();
+        MessageResponse messageResponse = messageService.sendMessage(request, email);
 
         messagingTemplate.convertAndSend(
                 "/topic/conversations." + request.getConversationId().toString(),

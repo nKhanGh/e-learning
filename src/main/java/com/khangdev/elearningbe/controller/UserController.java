@@ -12,6 +12,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -79,6 +80,13 @@ public class UserController {
     ApiResponse<UserResponse> createInstructor(@RequestBody InstructorCreationRequest request){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createInstructor(request))
+                .build();
+    }
+
+    @GetMapping("/search")
+    ApiResponse<List<UserResponse>> searchUser(@RequestParam String keyword){
+        return ApiResponse.<List<UserResponse>>builder()
+                .result(userService.searchUsers(keyword))
                 .build();
     }
 

@@ -11,9 +11,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TypingNotification {
-    UUID userId;
-    UUID conversationId;
-    String avatarFileName;
-    boolean typing;
+public class TypingRequest {
+    private UUID conversationId;
+    private boolean typing;
 }

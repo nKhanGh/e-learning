@@ -10,12 +10,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Transactional
 public class LangChainCourseEmbeddingJob implements CommandLineRunner {
 
     private final CourseRepository courseRepository;
@@ -26,19 +28,19 @@ public class LangChainCourseEmbeddingJob implements CommandLineRunner {
     @Override
     public void run(String... args) {
         log.info("Start LangChain4j course embedding job");
-        try {
-            List<Course> courses = courseRepository.findByStatus(CourseStatus.PUBLISHED);
-            log.info("Found {} published courses to embed", courses.size());
-
-            List<CourseEmbeddingDTO> dtos = courses.stream()
-                    .map(courseMapper::toCourseEmbeddingDTO)
-                    .toList();
-
-            embeddingService.embedCourses(dtos);
-            log.info("Successfully embedded {} courses with LangChain4j", dtos.size());
-
-        } catch (Exception e) {
-            log.error("Error in LangChain4j embedding job: {}", e.getMessage(), e);
-        }
+//        try {
+//            List<Course> courses = courseRepository.findByStatus(CourseStatus.PUBLISHED);
+//            log.info("Found {} published courses to embed", courses.size());
+//
+//            List<CourseEmbeddingDTO> dtos = courses.stream()
+//                    .map(courseMapper::toCourseEmbeddingDTO)
+//                    .toList();
+//
+//            embeddingService.embedCourses(dtos);
+//            log.info("Successfully embedded {} courses with LangChain4j", dtos.size());
+//
+//        } catch (Exception e) {
+//            log.error("Error in LangChain4j embedding job: {}", e.getMessage(), e);
+//        }
     }
 }
