@@ -56,5 +56,4 @@ public class QuizQuestion extends BaseEntity {
 
     @Column(name = "video_url", length = 500)
     private String videoUrl;
-
 }

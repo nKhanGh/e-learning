@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -28,31 +29,31 @@ public class SecurityConfig {
     CustomOauth2UserService customOauth2UserService;
     CustomAccessDeniedHandler customAccessDeniedHandler;
 
-    private static final String[] whiteList = {
+    private static final String[] whiteListPost = {
             "/auth/login", "/auth/logout", "/auth/verify-email", "auth/register",
             "/auth/introspect", "auth/refreshToken",
-            "/job-seekers",
-            "/recruiters",
             "/auth/forgot-password",
             "/auth/reset-password",
-            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-            "/addresses/**",
             "/oauth2/**",
-            "/jobs/**",
-            "/industries/**",
-            "/dashboard/**",
             "/ws/**",
+    };
+
+    private static final String[] whiteListGet = {
+            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
             "/courses/search/**",
             "/files/**",
             "/uploads/**",
+            "/course-categories/**",
+            "/courses/**"
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth ->auth.
-                        requestMatchers(whiteList).permitAll()
+                .authorizeHttpRequests(auth ->auth
+                        .requestMatchers(HttpMethod.POST, whiteListPost).permitAll()
+                        .requestMatchers(HttpMethod.GET, whiteListGet).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

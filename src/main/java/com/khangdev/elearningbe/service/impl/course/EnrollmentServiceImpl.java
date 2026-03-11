@@ -189,4 +189,13 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         return enrollmentMapper.toResponse(enrollment);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public EnrollmentResponse getMyEnrollment(UUID courseId) {
+        UUID userId = userService.getMyInfo().getId();
+        return getEnrollmentById(EnrollmentId.builder()
+                .userId(userId)
+                .courseId(courseId)
+                .build());
+    }
 }

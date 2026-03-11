@@ -13,4 +13,5 @@ public interface EnrollmentService {
     EnrollmentResponse getEnrollmentById(EnrollmentId enrollmentId);
     EnrollmentResponse access(UUID courseId);
     EnrollmentResponse complete(UUID courseId);
+    EnrollmentResponse getMyEnrollment(UUID courseId);
 }

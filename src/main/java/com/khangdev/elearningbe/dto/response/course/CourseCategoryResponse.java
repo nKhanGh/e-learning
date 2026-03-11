@@ -21,9 +21,9 @@ public class CourseCategoryResponse {
 
     private String description;
 
-    private CourseCategory parent;
+    private CourseCategoryResponse parent;
 
-    private List<CourseCategory> children = new ArrayList<>();
+    private List<CourseCategoryResponse> children = new ArrayList<>();
 
     private String iconUrl;
 

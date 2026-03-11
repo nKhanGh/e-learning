@@ -146,11 +146,11 @@ public class CourseServiceImpl implements CourseService {
                 predicates.add(cb.equal(root.get("level"), request.getLevel()));
             }
 
-            if (request.getMinPrice() != null) {
+            if (request.getMinPrice() != null && !request.getIsFree()) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("price"), request.getMinPrice()));
             }
 
-            if (request.getMaxPrice() != null) {
+            if (request.getMaxPrice() != null && !request.getIsFree()) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), request.getMaxPrice()));
             }
 

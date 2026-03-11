@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -24,5 +26,10 @@ public class CourseCategoryServiceImpl implements CourseCategoryService {
         CourseCategory courseCategory = courseCategoryMapper.toCategory(request);
         courseCategoryRepository.save(courseCategory);
         return courseCategoryMapper.toResponse(courseCategory);
+    }
+
+    @Override
+    public List<CourseCategoryResponse> getCourseCategories() {
+        return courseCategoryRepository.findAll().stream().map(courseCategoryMapper::toResponse).toList();
     }
 }

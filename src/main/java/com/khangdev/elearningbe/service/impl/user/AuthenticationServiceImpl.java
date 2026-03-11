@@ -42,10 +42,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponse login(AuthenticationRequest request) throws JOSEException {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        if(user.getStatus() == UserStatus.PENDING)
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if(!authenticated)
+            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
+        if(user.getStatus() == UserStatus.PENDING)
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         String accessToken = jwtService.generateToken(user, true);
         String refreshToken = jwtService.generateToken(user, false);

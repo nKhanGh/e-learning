@@ -7,10 +7,7 @@ import com.khangdev.elearningbe.service.course.CourseCategoryService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,9 +26,16 @@ public class CourseCategoryController {
     }
 
     @PostMapping("/list")
-    ApiResponse<List<CourseCategoryResponse>> update(@RequestBody List<CourseCategoryRequest> request) {
+    ApiResponse<List<CourseCategoryResponse>> createList(@RequestBody List<CourseCategoryRequest> request) {
         return ApiResponse.<List<CourseCategoryResponse>>builder()
                 .result(request.stream().map(courseCategoryService::createCourseCategory).toList())
+                .build();
+    }
+
+    @GetMapping
+    ApiResponse<List<CourseCategoryResponse>> getCourseCategories() {
+        return ApiResponse.<List<CourseCategoryResponse>>builder()
+                .result(courseCategoryService.getCourseCategories())
                 .build();
     }
 }

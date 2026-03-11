@@ -52,6 +52,13 @@ public class EnrollmentController {
                 .build();
     }
 
+    @GetMapping("/courses/{courseId}/enrollments/me")
+    public ApiResponse<EnrollmentResponse> getMyEnrollment(@PathVariable UUID courseId){
+        return ApiResponse.<EnrollmentResponse>builder()
+                .result(enrollmentService.getMyEnrollment(courseId))
+                .build();
+    }
+
     @PutMapping("/courses/{courseId}/access")
     public ApiResponse<EnrollmentResponse> access(@PathVariable UUID courseId){
         return ApiResponse.<EnrollmentResponse>builder()
