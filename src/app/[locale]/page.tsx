@@ -1,5 +1,4 @@
 // app/page.tsx
-"use client";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,123 +12,20 @@ import {
   faCertificate,
   faChartLine,
   faClock,
-  faInfinity,
-  faLaptopCode,
-  faPalette,
-  faChartBar,
-  faLanguage,
-  faCamera,
-  faMusic,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
-import { useOpenAuth } from "@/contexts/OpenAuthContext";
-import { useLocale, useTranslations } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
+import GetStatedButton from "@/components/home/GetStatedButton";
 
-export default function HomePage() {
-  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
-  const { openSignUp, setOpenSignUp } = useOpenAuth();
-  const [activeCategory, setActiveCategory] = useState("all");
-  const t = useTranslations('HomePage');
-  const tCommon = useTranslations('Common');
+export default async function HomePage() {
+  const t = await getTranslations('HomePage');
 
-  const locale = useLocale();
-
-  const categories = [
-    { id: "all", name: "All Courses", icon: faInfinity },
-    { id: "development", name: "Development", icon: faLaptopCode },
-    { id: "design", name: "Design", icon: faPalette },
-    { id: "business", name: "Business", icon: faChartBar },
-    { id: "language", name: "Languages", icon: faLanguage },
-    { id: "photography", name: "Photography", icon: faCamera },
-    { id: "music", name: "Music", icon: faMusic },
-  ];
-
-  const courses = [
-    {
-      id: 1,
-      title: "Complete Web Development Bootcamp",
-      instructor: "Dr. Angela Yu",
-      rating: 4.8,
-      students: 45234,
-      price: "$89.99",
-      originalPrice: "$129.99",
-      image: "💻",
-      category: "development",
-      level: "Beginner",
-      duration: "52 hours",
-      badge: "Bestseller",
-    },
-    {
-      id: 2,
-      title: "UI/UX Design Masterclass",
-      instructor: "John Smith",
-      rating: 4.9,
-      students: 32145,
-      price: "$79.99",
-      originalPrice: "$119.99",
-      image: "🎨",
-      category: "design",
-      level: "Intermediate",
-      duration: "38 hours",
-      badge: "Hot",
-    },
-    {
-      id: 3,
-      title: "Python for Data Science",
-      instructor: "Jose Portilla",
-      rating: 4.7,
-      students: 56789,
-      price: "$94.99",
-      originalPrice: "$139.99",
-      image: "📊",
-      category: "development",
-      level: "Advanced",
-      duration: "45 hours",
-      badge: "Trending",
-    },
-    {
-      id: 4,
-      title: "Digital Marketing Fundamentals",
-      instructor: "Sarah Johnson",
-      rating: 4.6,
-      students: 28567,
-      price: "$69.99",
-      originalPrice: "$99.99",
-      image: "📱",
-      category: "business",
-      level: "Beginner",
-      duration: "30 hours",
-      badge: "New",
-    },
-    {
-      id: 5,
-      title: "Advanced JavaScript Concepts",
-      instructor: "Maximilian Schwarzmüller",
-      rating: 4.9,
-      students: 42890,
-      price: "$84.99",
-      originalPrice: "$124.99",
-      image: "⚡",
-      category: "development",
-      level: "Advanced",
-      duration: "48 hours",
-      badge: "Bestseller",
-    },
-    {
-      id: 6,
-      title: "Photography Masterclass",
-      instructor: "Phil Ebiner",
-      rating: 4.8,
-      students: 19456,
-      price: "$74.99",
-      originalPrice: "$109.99",
-      image: "📸",
-      category: "photography",
-      level: "All Levels",
-      duration: "35 hours",
-      badge: null,
-    },
-  ];
+  const res = await fetch(
+    "http://localhost:8080/api/courses/search?page=0&size=6",
+  );
+  const data = await res.json();
+  const locale = await getLocale();
+  const courses = data.result.items as CourseResponse[];
+  console.log(courses);
 
   const features = [
     {
@@ -199,15 +95,11 @@ export default function HomePage() {
     },
   ];
 
-  const filteredCourses =
-    activeCategory === "all"
-      ? courses
-      : courses.filter((course) => course.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-white dark:bg-bg">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-bg dark:via-surface dark:to-bg">
+      <section className="relative overflow-hidden bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-bg dark:via-surface dark:to-bg">
         {/* Decorative Elements */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl"></div>
@@ -219,7 +111,7 @@ export default function HomePage() {
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-text mb-6 leading-tight">
                 {t('title')}
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">
+                <span className="block text-transparent bg-clip-text bg-linear-to-r from-primary via-secondary to-accent">
                   {t('titleNext')}
                 </span>
               </h1>
@@ -229,16 +121,7 @@ export default function HomePage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <button
-                  onClick={() => setOpenSignUp(true)}
-                  className="group px-8 py-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105"
-                >
-                  {t('started')}
-                  <FontAwesomeIcon
-                    icon={faArrowRight}
-                    className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                  />
-                </button>
+                <GetStatedButton />
                 <Link
                   href={`/${locale}/courses`}
                   className="px-8 py-4 bg-white dark:bg-surface border-2 border-gray-200 dark:border-border hover:border-primary dark:hover:border-primary text-gray-900 dark:text-text font-semibold rounded-lg transition-all duration-300 hover:scale-105"
@@ -252,17 +135,17 @@ export default function HomePage() {
                   {[1, 2, 3, 4].map((i) => (
                     <div
                       key={i}
-                      className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary border-2 border-white dark:border-bg flex items-center justify-center text-white font-semibold text-sm"
+                      className="w-10 h-10 rounded-full bg-linear-to-br from-primary to-secondary border-2 border-white dark:border-bg flex items-center justify-center text-white font-semibold text-sm"
                     >
-                      {String.fromCharCode(64 + i)}
+                      {String.fromCodePoint(64 + i)}
                     </div>
                   ))}
                 </div>
                 <div className="text-left">
                   <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
+                    {new Array(5).map((a) => (
                       <FontAwesomeIcon
-                        key={i}
+                        key={a}
                         icon={faStar}
                         className="w-4 h-4 text-yellow-400"
                       />
@@ -276,12 +159,12 @@ export default function HomePage() {
             </div>
 
             {/* Right Content - Illustration/Image */}
-            <div className="relative lg:h-[500px] hidden lg:block">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl transform rotate-6"></div>
-              <div className="absolute inset-0 bg-gradient-to-tl from-accent/20 to-primary/20 rounded-3xl transform -rotate-3"></div>
+            <div className="relative lg:h-125 hidden lg:block">
+              <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 rounded-3xl transform rotate-6"></div>
+              <div className="absolute inset-0 bg-linear-to-tl from-accent/20 to-primary/20 rounded-3xl transform -rotate-3"></div>
               <div className="relative bg-white dark:bg-surface rounded-3xl shadow-2xl p-8 h-full flex items-center justify-center border border-gray-200 dark:border-border">
                 <div className="text-center">
-                  <div className="w-48 h-48 mx-auto bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mb-6 shadow-lg">
+                  <div className="w-48 h-48 mx-auto bg-linear-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mb-6 shadow-lg">
                     <FontAwesomeIcon
                       icon={faRocket}
                       className="text-7xl text-white"
@@ -304,9 +187,9 @@ export default function HomePage() {
       <section className="py-12 bg-white dark:bg-surface border-y border-gray-200 dark:border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-2">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-4xl font-bold text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary mb-2">
                   {stat.value}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-muted font-medium">
@@ -331,13 +214,13 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <div
-                key={index}
+                key={feature.color}
                 className="group bg-white dark:bg-surface rounded-2xl p-6 border border-gray-200 dark:border-border hover:border-transparent dark:hover:border-transparent transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
               >
                 <div
-                  className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
+                  className={`w-14 h-14 bg-linear-to-br ${feature.color} rounded-xl flex items-center justify-center mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}
                 >
                   <FontAwesomeIcon
                     icon={feature.icon}
@@ -380,38 +263,22 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap gap-3 mb-8">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
-                  activeCategory === category.id
-                    ? "bg-primary text-white shadow-lg shadow-primary/30"
-                    : "bg-gray-100 dark:bg-border text-gray-700 dark:text-muted hover:bg-gray-200 dark:hover:bg-muted"
-                }`}
-              >
-                <FontAwesomeIcon icon={category.icon} className="w-4 h-4" />
-                {category.name}
-              </button>
-            ))}
-          </div>
-
           {/* Courses Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
+            {courses?.map((course) => (
               <Link
                 key={course.id}
                 href={`/courses/${course.id}`}
                 className="group bg-white dark:bg-bg rounded-2xl border border-gray-200 dark:border-border overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
               >
                 {/* Course Image */}
-                <div className="relative h-48 bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-6xl">
-                  {course.image}
-                  {course.badge && (
+                <div className="relative h-48 bg-linear-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-6xl">
+                  <img src={course.thumbnailUrl ?? './default-course-background.png'} alt={course.title} className="w-full h-full object-cover" />
+                  {(course.isBestseller || course.isFeatured || course.isFree) && (
                     <div className="absolute top-4 left-4 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
-                      {course.badge}
+                      {course.isBestseller && "Bestseller"}
+                      {course.isFeatured && "Featured"}
+                      {course.isFree && "Free"}
                     </div>
                   )}
                 </div>
@@ -424,7 +291,7 @@ export default function HomePage() {
                     </span>
                     <span className="text-xs text-gray-500 dark:text-muted flex items-center gap-1">
                       <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
-                      {course.duration}
+                      {course.durationMinutes} minutes
                     </span>
                   </div>
 
@@ -433,7 +300,7 @@ export default function HomePage() {
                   </h3>
 
                   <p className="text-sm text-gray-600 dark:text-muted mb-4">
-                    {course.instructor}
+                    {course.instructor.firstName} {" "} {course.instructor.lastName}
                   </p>
 
                   <div className="flex items-center gap-4 mb-4">
@@ -443,11 +310,11 @@ export default function HomePage() {
                         className="w-4 h-4 text-yellow-400"
                       />
                       <span className="font-semibold text-gray-900 dark:text-text">
-                        {course.rating}
+                        {course.averageRating}
                       </span>
                     </div>
                     <span className="text-sm text-gray-500 dark:text-muted">
-                      ({course.students.toLocaleString()} students)
+                      ({course.totalEnrollments.toLocaleString()} students)
                     </span>
                   </div>
 
@@ -485,15 +352,15 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
+            {testimonials.map((testimonial) => (
               <div
-                key={index}
+                key={testimonial.name}
                 className="bg-white dark:bg-surface rounded-2xl p-6 border border-gray-200 dark:border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
               >
                 <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
+                  {new Array(testimonial.rating).map((rating) => (
                     <FontAwesomeIcon
-                      key={i}
+                      key={rating}
                       icon={faStar}
                       className="w-4 h-4 text-yellow-400"
                     />
@@ -514,7 +381,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex items-center gap-3 mt-6 pt-6 border-t border-gray-200 dark:border-border">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                  <div className="w-12 h-12 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
                     {testimonial.avatar}
                   </div>
                   <div>
@@ -534,7 +401,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent"></div>
+        <div className="absolute inset-0 bg-linear-to-br from-primary via-secondary to-accent"></div>
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxLTEuNzktNC00LTRzLTQgMS43OS00IDQgMS43OSA0IDQgNCA0LTEuNzkgNC00em0wLTEwYzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptMC0xMGMwLTIuMjEtMS43OS00LTQtNHMtNCAxLjc5LTQgNCAxLjc5IDQgNCA0IDQtMS43OSA0LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-10"></div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -553,13 +420,13 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+            {/* <button
               onClick={() => setOpenSignUp(true)}
               className="px-8 py-4 bg-white hover:bg-gray-100 text-primary font-semibold rounded-lg transition-all duration-300 hover:scale-105 shadow-xl inline-flex items-center justify-center gap-2"
             >
               {t('cta.getStarted')}
               <FontAwesomeIcon icon={faArrowRight} className="w-4 h-4" />
-            </button>
+            </button> */}
             <Link
               href={`/${locale}/courses`}
               className="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 text-white font-semibold rounded-lg transition-all duration-300 inline-flex items-center justify-center gap-2"

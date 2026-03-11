@@ -127,7 +127,7 @@ const getLevelColor = (level: CourseLevel): string => {
   
   return (
     <Link
-      href={`/${locale}/courses/${course.slug}`}
+      href={`/${locale}/courses/${course.id}`}
       className="group bg-white dark:bg-surface rounded-2xl border border-gray-200 dark:border-border overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
     >
       {/* Thumbnail */}
