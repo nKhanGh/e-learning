@@ -103,22 +103,23 @@ npm run type-check   # Kiểm tra TypeScript
 | 🔍 Tìm kiếm & Lọc | Tìm khóa học theo từ khóa, category, giá, level, rating; sắp xếp đa tiêu chí |
 | 📚 Xem khóa học | Xem danh sách, chi tiết, curriculum outline, video preview và thông tin giảng viên |
 | ⭐ Reviews | Xem đánh giá và xếp hạng từ học viên khác |
-| 🛒 Giỏ hàng | Thêm / xóa khóa học, lưu giỏ hàng trong session |
+| 🛒 Giỏ hàng | Thêm / xóa khóa học, lưu giỏ hàng trong session (not started)|
 | 🔐 Xác thực | Đăng ký / Đăng nhập qua Email hoặc OAuth2 (Google, Facebook); Quên mật khẩu; Xác thực email |
 
 ### 👤 Student (Học viên)
 | Tính năng | Mô tả |
 |---|---|
-| 👤 Hồ sơ | Xem, chỉnh sửa profile; đổi mật khẩu; bật/tắt 2FA |
-| 💳 Đăng ký & Thanh toán | Mua khóa học qua VNPay / Stripe / PayPal; áp dụng coupon; yêu cầu hoàn tiền |
-| 🎬 Học tập | Video player đầy đủ tính năng (tốc độ, chất lượng, phụ đề); lưu vị trí xem; đánh dấu hoàn thành; ghi chú |
-| 📝 Kiểm tra | Làm quiz / assignment; xem kết quả và phản hồi từ giảng viên |
-| 💬 Tương tác | Q&A forum; comment; nhắn tin trực tiếp với giảng viên; nhận thông báo realtime |
-| ⭐ Đánh giá | Rate và review khóa học; chỉnh sửa / xóa review của mình |
-| 🏆 Chứng chỉ | Nhận, tải PDF và chia sẻ chứng chỉ lên LinkedIn |
-| 📊 Dashboard | Theo dõi tiến độ, learning streak, gợi ý khóa học, deadline sắp tới |
+| 👤 Hồ sơ | Xem, chỉnh sửa profile; đổi mật khẩu; |
+| 💳 Đăng ký & Thanh toán | Mua khóa học qua VNPay / Stripe / PayPal; áp dụng coupon; yêu cầu hoàn tiền (not started)|
+| 🎬 Học tập | Video player đầy đủ tính năng (tốc độ, chất lượng, phụ đề); lưu vị trí xem; đánh dấu hoàn thành; ghi chú (not started)|
+| 📝 Kiểm tra | Làm quiz / assignment; xem kết quả và phản hồi từ giảng viên (not started)|
+| 💬 Tương tác | Q&A forum; comment; nhắn tin trực tiếp với giảng viên; nhận thông báo realtime (not started)|
+| ⭐ Đánh giá | Rate và review khóa học; chỉnh sửa / xóa review của mình (not started)|
+| 🏆 Chứng chỉ | Nhận, tải PDF và chia sẻ chứng chỉ lên LinkedIn (not started)|
+| 📊 Dashboard | Theo dõi tiến độ, learning streak, gợi ý khóa học, deadline sắp tới (not started)|
+| 📱 Chat | Chat với người dùng khác, chat với AI gợi ý khóa học |
 
-### 👨‍🏫 Instructor (Giảng viên)
+### 👨‍🏫 Instructor (Giảng viên) (not started)
 | Tính năng | Mô tả |
 |---|---|
 | 🏢 Profile | Tạo instructor profile; verify credentials; liên kết mạng xã hội |
@@ -130,8 +131,9 @@ npm run type-check   # Kiểm tra TypeScript
 | 🏷️ Pricing & Promotions | Đặt giá; tạo coupon; tham gia chiến dịch khuyến mãi |
 | 📊 Analytics | Dashboard hiệu suất khóa học; báo cáo doanh thu; tỷ lệ hoàn thành; export Excel / CSV |
 | 💰 Earnings | Xem thu nhập; yêu cầu payout; tải tài liệu thuế |
+| 📱 Chat | Chat với người dùng khác, chat với AI gợi ý khóa học |
 
-### 🛡️ Admin & Moderator
+### 🛡️ Admin & Moderator (not started)
 | Tính năng | Mô tả |
 |---|---|
 | 👥 Quản lý người dùng | Xem, lọc, suspend, ban, đổi role, verify instructor |
