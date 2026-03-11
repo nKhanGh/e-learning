@@ -1,6 +1,6 @@
 interface PageResponse<T> {
   items: T[];
-  totalItems: number;
+  totalElements: number;
   totalPages: number;
   currentPage: number;
 }

@@ -176,5 +176,69 @@
     "acceptTermsRequired": "Bạn phải chấp nhận điều khoản và điều kiện",
     "emailInUse": "Email đã được sử dụng",
     "phoneInUse": "Số điện thoại đã được sử dụng"
+  },
+  "CoursesPage": {
+    "title": "Khám Phá Khóa Học",
+    "subtitle": "Khám phá hàng nghìn khóa học từ các chuyên gia hàng đầu trong mọi lĩnh vực",
+    "searchPlaceholder": "Tìm kiếm khóa học, kỹ năng hoặc giảng viên...",
+    "resultsCount": "khóa học được tìm thấy",
+    "search": "Tìm kiếm",
+    "filter": {
+      "title": "Bộ lọc",
+      "clear": "Xóa tất cả",
+      "apply": "Hiển thị kết quả",
+      "category": "Danh mục",
+      "level": "Cấp độ",
+      "allLevels": "Tất cả",
+      "price": "Giá",
+      "allPrices": "Tất cả",
+      "free": "Miễn phí",
+      "paid": "Có phí",
+      "features": "Tính năng",
+      "salary": "Mức lương",
+      "minSalary": "Mức lương tối thiểu",
+      "maxSalary": "Mức lương tối đa",
+      "rating": "Xếp hạng",
+      "minAverageRating": "Xếp hạng tối thiểu",
+      "maxAverageRating": "Xếp hạng tối đa",
+      "hasQuiz": "Có bài kiểm tra",
+      "hasCertificate": "Có chứng chỉ",
+      "search": "Tìm kiếm"
+    },
+    "noResults": {
+      "title": "Không tìm thấy khóa học",
+      "subtitle": "Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm",
+      "clear": "Xóa bộ lọc"
+    }
+  },
+  "CourseDetailPage": {
+    "breadcrumb": {
+      "home": "Trang chủ",
+      "courses": "Khóa học"
+    },
+    "reviews": "đánh giá",
+    "students": "học viên",
+    "createdBy": "Tạo bởi",
+    "totalHours": "tổng số giờ",
+    "whatYouLearn": "Bạn Sẽ Học Được Gì",
+    "courseContent": "Nội Dung Khóa Học",
+    "sections": "phần",
+    "lectures": "bài giảng",
+    "totalLength": "tổng thời lượng",
+    "requirements": "Yêu Cầu",
+    "instructor": "Giảng Viên",
+    "studentReviews": "Đánh Giá Của Học Viên",
+    "tags": "Thẻ",
+    "previewVideo": "Xem trước khóa học",
+    "enrollNow": "Đăng Ký Ngay",
+    "enrollFree": "Đăng Ký Miễn Phí",
+    "enrolled": "Bạn Đã Đăng Ký!",
+    "moneyBack": "Đảm bảo hoàn tiền trong 30 ngày",
+    "includes": "Khóa học này bao gồm:",
+    "videoContent": "video theo yêu cầu",
+    "fullAccess": "Truy cập trọn đời",
+    "certificate": "Chứng chỉ hoàn thành",
+    "quizzes": "Bài kiểm tra thực hành",
+    "share": "Chia sẻ khóa học"
   }
 }

@@ -175,5 +175,68 @@
     "acceptTermsRequired": "You must accept the terms and conditions",
     "emailInUse": "Email is already in use",
      "phoneInUse": "Phone number is already in use"
+  }, 
+  "CoursesPage": {
+    "title": "Explore Courses",
+    "subtitle": "Discover thousands of courses taught by expert instructors across every topic",
+    "searchPlaceholder": "Search for courses, skills, or instructors...",
+    "resultsCount": "courses found",
+    "search": "Search",
+    "filter": {
+      "title": "Filters",
+      "clear": "Clear all",
+      "apply": "Show results",
+      "category": "Category",
+      "level": "Level",
+      "allLevels": "All",
+      "price": "Price",
+      "allPrices": "All",
+      "free": "Free",
+      "paid": "Paid",
+      "features": "Features",
+      "minPrice": "Min Price",
+      "maxPrice": "Max Price",
+      "rating": "Rating",
+      "minAverageRating": "Min Average Rating",
+      "maxAverageRating": "Max Average Rating",
+      "hasQuiz": "Has Quizzes",
+      "hasCertificate": "Has Certificate",
+      "search": "Search"
+    },
+    "noResults": {
+      "title": "No courses found",
+      "subtitle": "Try adjusting your filters or search terms",
+      "clear": "Clear filters"
+    }
+  },
+  "CourseDetailPage": {
+    "breadcrumb": {
+      "home": "Home",
+      "courses": "Courses"
+    },
+    "reviews": "reviews",
+    "students": "students",
+    "createdBy": "Created by",
+    "totalHours": "total hours",
+    "whatYouLearn": "What You'll Learn",
+    "courseContent": "Course Content",
+    "sections": "sections",
+    "lectures": "lectures",
+    "totalLength": "total length",
+    "requirements": "Requirements",
+    "instructor": "Your Instructor",
+    "studentReviews": "Student Reviews",
+    "tags": "Tags",
+    "previewVideo": "Preview this course",
+    "enrollNow": "Enroll Now",
+    "enrollFree": "Enroll for Free",
+    "enrolled": "You're Enrolled!",
+    "moneyBack": "30-Day Money-Back Guarantee",
+    "includes": "This course includes:",
+    "videoContent": "on-demand video",
+    "fullAccess": "Full lifetime access",
+    "certificate": "Certificate of completion",
+    "quizzes": "Practice quizzes",
+    "share": "Share this course"
   }
 }
