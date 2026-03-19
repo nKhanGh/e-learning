@@ -128,6 +128,8 @@ const ChatMain = ({
   useEffect(() => {
     if (!selectedChat) return;
 
+    console.log("Selected chat: ", selectedChat);
+
     isInitialLoadRef.current = true;
     setPage(0);
     isLoadingMoreRef.current = false;
@@ -546,7 +548,7 @@ const ChatMain = ({
                       {!isMyMessage(msg) &&
                         isUserFirstMessageInGroup(index) && (
                           <p className="text-xs  text-gray-500 dark:text-muted  mb-1">
-                            {msg.sender?.firstName || "Unknown User"}
+                            {msg.sender?.firstName || (selectedChat.ai ? "Sofia" : "Unknown User")}
                           </p>
                         )}
                       <div
