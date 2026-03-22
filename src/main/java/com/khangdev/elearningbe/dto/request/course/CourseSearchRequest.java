@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.dto.request.course;
 
 import com.khangdev.elearningbe.enums.CourseLevel;
+import com.khangdev.elearningbe.enums.CourseSortOption;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,4 +25,7 @@ public class CourseSearchRequest {
     Boolean isFree;
     Boolean hasQuiz;
     List<String> tagNames;
+
+    @Builder.Default
+    CourseSortOption sortBy = CourseSortOption.RELEVANCE;
 }
