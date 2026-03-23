@@ -57,12 +57,58 @@ services:
       timeout: 5s
       retries: 5
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: learnio-elasticsearch
+    environment:
+      - node.name=learnio-es
+      - cluster.name=learnio-cluster
+      - discovery.type=single-node
+      # Tắt TLS để dev local đơn giản hơn
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+    volumes:
+      - learnify-es-data:/usr/share/elasticsearch/data
+    networks:
+      - learnify-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: learnio-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://learnio-elasticsearch:9200
+      # Tắt security cho phù hợp với ES config bên trên
+      - xpack.security.enabled=false
+    ports:
+      - "5601:5601"
+    networks:
+      - learnify-network
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
 volumes:
   learnify-postgres-data:
     driver: local
   learnify-redis-data:
     driver: local
   learnify-kafka-data:
+    driver: local
+  learnify-es-data:
     driver: local
 
 networks:
