@@ -25,6 +25,8 @@ public class CourseSearchRequest {
     Boolean isFree;
     Boolean hasQuiz;
     List<String> tagNames;
+    int page;
+    int size;
 
     @Builder.Default
     CourseSortOption sortBy = CourseSortOption.RELEVANCE;
