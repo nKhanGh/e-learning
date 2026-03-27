@@ -95,6 +95,8 @@ public class CourseSearchCacheServiceImpl implements CourseSearchCacheService {
         } catch (JsonProcessingException e) {
             log.warn("Cache L2 read error key={}: {}", key, e.getMessage());
         }
+
+        log.info("No cache ");
         return Optional.empty();
     }
 
@@ -105,6 +107,7 @@ public class CourseSearchCacheServiceImpl implements CourseSearchCacheService {
         try {
             String json = objectMapper.writeValueAsString(page);
             int ttl = isBrowseMode(req) ? L2_BROWSE_TTL : L2_DEFAULT_TTL;
+            l2.put(key, json, ttl, TimeUnit.SECONDS);
         } catch (JsonProcessingException e) {
             log.warn("Cache L2 write error key={}: {}", key, e.getMessage());
         }
@@ -119,20 +122,20 @@ public class CourseSearchCacheServiceImpl implements CourseSearchCacheService {
 
     @Override
     public List<CourseSearchResponse.CourseItem> getHotCourses(int size) {
-        try{
+        log.info("get hot courses size={}", size);
+        try {
             RList<String> list = redissonClient.getList(HOT_COURSES_KEY);
             List<String> raw = list.range(0, size - 1);
             List<CourseSearchResponse.CourseItem> result = new ArrayList<>();
-
             for (String json : raw) {
                 result.add(objectMapper.readValue(json, CourseSearchResponse.CourseItem.class));
             }
+
+            return result;
         } catch (JsonProcessingException e) {
             log.error("getHotCourses failed: {}", e.getMessage());
             return Collections.emptyList();
         }
-
-        return Collections.emptyList();
     }
 
     @Override

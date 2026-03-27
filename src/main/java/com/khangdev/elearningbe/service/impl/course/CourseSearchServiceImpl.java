@@ -58,8 +58,13 @@ public class CourseSearchServiceImpl implements CourseSearchService {
         SearchHits<CourseDocument> hits = elasticsearchOperations.search(query, CourseDocument.class);
 
         CourseSearchResponse.Page page = mapPage(hits, req, cacheKey, start);
+        cacheService.putAsync(cacheKey, page, req);
 
-        return null;
+        if (page.getMeta().getTotalElements() > 0) {
+            cacheService.putAsync(cacheKey, page, req);
+        }
+
+        return page;
     }
 
     @Override
@@ -93,7 +98,6 @@ public class CourseSearchServiceImpl implements CourseSearchService {
                 .withAggregation("by_tag",        aggTerms("tag_names",      30))
                 .withAggregation("price_stats",   aggStats("price"))
                 .build();
-
     }
 
 
@@ -206,6 +210,8 @@ public class CourseSearchServiceImpl implements CourseSearchService {
             )));
         }
 
+        if (filters.size() == 1) return mainQuery;
+
         return Query.of(q -> q.bool(b -> b
                 .must(mainQuery)
                 .filter(filters)
@@ -245,7 +251,7 @@ public class CourseSearchServiceImpl implements CourseSearchService {
                         FunctionScore.of(f -> f
                                 .filter(Query.of(fq -> fq.range(r -> r
                                         .field("average_rating")
-                                        .gte(JsonData.of(req.getMinAverageRating()))
+                                        .gte(JsonData.of(req.getMinAverageRating() != null ? req.getMinAverageRating(): 4.5))
                                 )))
                                 .weight(1.3)
                         ),
