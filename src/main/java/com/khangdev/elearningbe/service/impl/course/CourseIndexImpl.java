@@ -1,6 +1,10 @@
 package com.khangdev.elearningbe.service.impl.course;
 
+import com.esotericsoftware.kryo.util.ObjectMap;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khangdev.elearningbe.document.CourseDocument;
+import com.khangdev.elearningbe.dto.response.course.CourseSearchResponse;
 import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.enums.CourseStatus;
 import com.khangdev.elearningbe.exception.AppException;
@@ -11,6 +15,8 @@ import com.khangdev.elearningbe.service.course.CourseIndex;
 import com.khangdev.elearningbe.service.course.CourseSearchCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RList;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -26,7 +32,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -37,9 +45,11 @@ public class CourseIndexImpl implements CourseIndex {
     private final CourseDocumentMapper mapper;
     private final CourseRepository courseRepo;
     private final CourseSearchCacheService cacheService;
+    private final ObjectMapper objectMapper;
 
     private static final String INDEX = "courses";
     private static final int    BATCH = 100;
+    private final RedissonClient redissonClient;
 
     /**
      * Lắng nghe event khi course được publish / update nội dung.
@@ -227,5 +237,54 @@ public class CourseIndexImpl implements CourseIndex {
 
     private UUID parseUUID(String id) {
         return UUID.fromString(id);
+    }
+
+    @Scheduled(fixedRate = 3_600_000)
+    @Transactional(readOnly = true)
+    public void updateHotCourses() {
+        log.info("Updating hot courses list...");
+        try {
+            // Lấy top 100 courses theo enrollment từ Postgres
+            List<Course> topCourses = courseRepo.findTopByOrderByTotalEnrollmentsDesc(
+                    PageRequest.of(0, 100)
+            );
+
+            List<String> jsonList = topCourses.stream()
+                    .map(course -> {
+                        try {
+                            CourseSearchResponse.CourseItem item = CourseSearchResponse.CourseItem.builder()
+                                    .id(course.getId().toString())
+                                    .title(course.getTitle())
+                                    .slug(course.getSlug())
+                                    .thumbnailUrl(course.getThumbnailUrl())
+                                    .price(course.getPrice())
+                                    .originalPrice(course.getOriginalPrice())
+                                    .isFree(course.getIsFree())
+                                    .averageRating(course.getAverageRating())
+                                    .totalEnrollments(course.getTotalEnrollments())
+                                    .totalReviews(course.getTotalReviews())
+                                    .level(course.getLevel())
+                                    .instructorName(course.getInstructor() != null
+                                            ? course.getInstructor().getUser().getFirstName() + " " + course.getInstructor().getUser().getLastName() : null)
+                                    .build();
+                            return objectMapper.writeValueAsString(item);
+                        } catch (JsonProcessingException e) {
+                            log.warn("Failed to serialize course {}", course.getId());
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            // Lưu vào Redis list, TTL 2 giờ
+            RList<String> hotList = redissonClient.getList("course:hot:courses");
+            hotList.clear();
+            hotList.addAll(jsonList);
+            hotList.expire(2, TimeUnit.HOURS);
+
+            log.info("Updated hot courses: {} items", jsonList.size());
+        } catch (Exception e) {
+            log.error("updateHotCourses failed: {}", e.getMessage(), e);
+        }
     }
 }

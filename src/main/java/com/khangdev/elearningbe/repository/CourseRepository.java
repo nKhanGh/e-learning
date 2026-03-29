@@ -17,4 +17,5 @@ public interface CourseRepository extends JpaRepository<Course, UUID>, JpaSpecif
     Page<Course> findByInstructorId(UUID instructorId, Pageable pageable);
     List<Course> findByStatus(CourseStatus status);
     Slice<Course> findByStatusOrderByIdAsc(CourseStatus status,  Pageable pageable);
+    List<Course> findTopByOrderByTotalEnrollmentsDesc(Pageable pageable);
 }
