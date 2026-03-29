@@ -9,9 +9,7 @@ import com.khangdev.elearningbe.dto.response.user.UserResponse;
 import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.entity.course.CourseTag;
 import com.khangdev.elearningbe.entity.user.Instructor;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.stream.Collectors;
@@ -29,6 +27,7 @@ public abstract class CourseMapper {
     )
     public abstract CourseResponse toResponse(Course course);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract void updateCourse(
             @MappingTarget Course course,
             CourseUpdateRequest request

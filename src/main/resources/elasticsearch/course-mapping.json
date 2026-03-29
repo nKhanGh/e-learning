@@ -1,0 +1,125 @@
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "refresh_interval": "5s",
+    "analysis": {
+      "char_filter": {
+        "html_strip": { "type": "html_strip" }
+      },
+      "filter": {
+        "vi_stop": {
+          "type": "stop",
+          "stopwords": [
+            "của","và","là","có","được","trong","với","cho","từ",
+            "về","các","những","một","này","đó","theo","qua","khi",
+            "tại","bởi","hay","hoặc","nhưng","nếu","vì","do","để"
+          ]
+        },
+        "vi_synonym": {
+          "type": "synonym",
+          "synonyms": [
+            "lập trình, coding, programming, dev",
+            "machine learning, học máy, ml, trí tuệ nhân tạo, ai",
+            "thiết kế, design, ui, ux",
+            "web, website, frontend, backend, fullstack",
+            "cơ sở dữ liệu, database, db, sql",
+            "javascript, js, nodejs, node",
+            "python, py",
+            "java, spring, spring boot",
+            "khóa học, course, bài học, lớp học",
+            "người mới, beginner, cơ bản, basic",
+            "nâng cao, advanced, chuyên sâu",
+            "trung cấp, intermediate"
+          ]
+        },
+        "edge_ngram_filter": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20
+        }
+      },
+      "analyzer": {
+        "vi_analyzer": {
+          "type": "custom",
+          "tokenizer": "icu_tokenizer",
+          "char_filter": ["html_strip"],
+          "filter": ["lowercase", "icu_folding", "vi_stop", "vi_synonym"]
+        },
+        "vi_search_analyzer": {
+          "type": "custom",
+          "tokenizer": "icu_tokenizer",
+          "filter": ["lowercase", "icu_folding", "vi_stop", "vi_synonym"]
+        },
+        "autocomplete_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "edge_ngram_filter"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": false,
+    "properties": {
+      "id":             { "type": "keyword" },
+
+      "title": {
+        "type": "text",
+        "analyzer": "vi_analyzer",
+        "search_analyzer": "vi_search_analyzer",
+        "fields": {
+          "keyword":      { "type": "keyword", "ignore_above": 256 },
+          "autocomplete": { "type": "text", "analyzer": "autocomplete_analyzer",
+            "search_analyzer": "standard" }
+        }
+      },
+      "title_keyword":  { "type": "keyword" },
+      "description": {
+        "type": "text",
+        "analyzer": "vi_analyzer",
+        "search_analyzer": "vi_search_analyzer"
+      },
+      "slug":           { "type": "keyword", "index": false },
+      "thumbnail_url":  { "type": "keyword", "index": false },
+
+      "category_id":    { "type": "keyword" },
+      "category_name":  { "type": "keyword" },
+      "level":          { "type": "keyword" },
+      "language":       { "type": "keyword" },
+      "status":         { "type": "keyword" },
+
+      "is_free":        { "type": "boolean" },
+      "has_quizzes":    { "type": "boolean" },
+      "has_certificate":{ "type": "boolean" },
+      "is_featured":    { "type": "boolean" },
+      "is_bestseller":  { "type": "boolean" },
+
+      "price":          { "type": "double" },
+      "original_price": { "type": "double" },
+      "average_rating": { "type": "double" },
+
+      "total_enrollments":      { "type": "integer" },
+      "total_reviews":          { "type": "integer" },
+      "total_students":         { "type": "integer" },
+      "duration_minutes":       { "type": "integer" },
+      "total_lectures":         { "type": "integer" },
+
+      "tag_names":      { "type": "keyword" },
+
+      "instructor_id":  { "type": "keyword" },
+      "instructor_name":{ "type": "text", "analyzer": "standard" },
+
+      "popularity_score": { "type": "double" },
+
+      "published_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd'T'HH:mm:ss||epoch_millis"
+      },
+      "updated_at": {
+        "type": "date",
+        "format": "yyyy-MM-dd'T'HH:mm:ss||epoch_millis"
+      }
+    }
+  }
+}

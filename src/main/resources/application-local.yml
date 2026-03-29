@@ -11,5 +11,49 @@ spring:
       port: 6379
       password: root
 
+  elasticsearch:
+    uris: http://localhost:9200
+
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: search-indexer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      max-poll-records: 50
+    producer:
+      acks: all
+      retries: 3
+
+# Redisson — đứng độc lập, KHÔNG nằm trong spring
+redisson:
+  single-server-config:
+    address: "redis://localhost:6379"
+    password: "root"
+    connection-pool-size: 32
+    connection-minimum-idle-size: 8
+    retry-attempts: 3
+    retry-interval: 1500
+
+# Resilience4j — đứng độc lập
+resilience4j:
+  circuitbreaker:
+    instances:
+      elasticsearch:
+        sliding-window-size: 20
+        minimum-number-of-calls: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        slow-call-duration-threshold: 3s
+        slow-call-rate-threshold: 80
+        permitted-number-of-calls-in-half-open-state: 3
+
+# Actuator — đứng độc lập
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

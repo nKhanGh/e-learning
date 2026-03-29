@@ -14,6 +14,7 @@ import com.khangdev.elearningbe.repository.*;
 import com.khangdev.elearningbe.service.course.EnrollmentService;
 import com.khangdev.elearningbe.service.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final EnrollmentMapper enrollmentMapper;
 
     private final UserService userService;
+
+    KafkaTemplate<String, String> kafkaTemplate;
 
 
     @Override
@@ -65,6 +68,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .paymentAmount(course.getPrice())
                 .build();
         enrollmentRepository.save(enrollment);
+        course.setTotalEnrollments(course.getTotalEnrollments() + 1);
+        courseRepository.save(course);
+        kafkaTemplate.send("course.stats.updated", course.getId().toString());
         return enrollmentMapper.toResponse(enrollment);
     }
 

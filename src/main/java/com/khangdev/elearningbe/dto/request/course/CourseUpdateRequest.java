@@ -51,7 +51,7 @@ public class CourseUpdateRequest {
 
     private Integer durationMinutes = 0;
 
-    private CourseStatus status = CourseStatus.DRAFT;
+    private CourseStatus status;
 
     private Instant lastUpdatedContent;
 
