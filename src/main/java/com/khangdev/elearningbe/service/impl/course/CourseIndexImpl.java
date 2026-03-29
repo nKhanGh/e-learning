@@ -50,6 +50,7 @@ public class CourseIndexImpl implements CourseIndex {
             groupId  = "search-indexer",
             containerFactory = "ackKafkaListenerContainerFactory"
     )
+    @Transactional(readOnly = true)
     @Override
     public void onCoursePublished(String courseId, Acknowledgment ack) {
         log.info("Indexing published course: {}", courseId);
@@ -75,6 +76,7 @@ public class CourseIndexImpl implements CourseIndex {
             containerFactory = "ackKafkaListenerContainerFactory"
     )
     @Override
+    @Transactional(readOnly = true)
     public void onCourseStatsUpdated(String courseId, Acknowledgment ack) {
         try{
             Course course = courseRepo.findById(parseUUID(courseId)).orElse(null);
@@ -103,6 +105,7 @@ public class CourseIndexImpl implements CourseIndex {
             containerFactory = "ackKafkaListenerContainerFactory"
     )
     @Override
+    @Transactional(readOnly = true)
     public void onCourseDeleted(String courseId, Acknowledgment ack) {
         try {
             esOps.delete(courseId, IndexCoordinates.of(INDEX));

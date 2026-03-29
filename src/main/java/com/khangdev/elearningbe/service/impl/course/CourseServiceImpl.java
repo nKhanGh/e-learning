@@ -14,6 +14,7 @@ import com.khangdev.elearningbe.entity.course.CourseCategory;
 import com.khangdev.elearningbe.entity.course.CourseTag;
 import com.khangdev.elearningbe.entity.user.Instructor;
 import com.khangdev.elearningbe.entity.user.User;
+import com.khangdev.elearningbe.enums.CourseStatus;
 import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
@@ -37,6 +38,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,9 @@ public class CourseServiceImpl implements CourseService {
 
     UserMapper userMapper;
     RedisService redisService;
+
+    KafkaTemplate<String, String> kafkaTemplate;
+
 
     @Override
     @PreAuthorize("hasAuthority('INSTRUCTOR')")
@@ -92,6 +97,8 @@ public class CourseServiceImpl implements CourseService {
         course.setTags(courseTagList);
 
         courseRepository.save(course);
+        if (course.getStatus().equals(CourseStatus.PUBLISHED))
+            kafkaTemplate.send("course.published", course.getId().toString());
 
         CourseResponse result =  courseMapper.toResponse(course);
         result.setInstructor(userMapper.toResponse(user));
@@ -103,11 +110,18 @@ public class CourseServiceImpl implements CourseService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user =  userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        CourseStatus lastStatus = course.getStatus();
         if(user.getRole() != UserRole.ADMIN && user.getId() != course.getInstructor().getId())
             throw new AppException(ErrorCode.UNAUTHORIZED);
 
         courseMapper.updateCourse(course, request);
         courseRepository.save(course);
+
+        if (course.getStatus().equals(CourseStatus.PUBLISHED)){
+            kafkaTemplate.send("course.published", course.getId().toString());
+        } else if (lastStatus == CourseStatus.PUBLISHED) {
+            kafkaTemplate.send("course.deleted",  course.getId().toString());
+        }
         return  courseMapper.toResponse(course);
     }
 
@@ -228,6 +242,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void deleteCourse(UUID courseId) {
         courseRepository.deleteById(courseId);
+        kafkaTemplate.send("course.deleted",  courseId.toString());
     }
 
     @Override

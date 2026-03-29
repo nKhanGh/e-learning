@@ -15,7 +15,7 @@ spring:
     uris: http://localhost:9200
 
   kafka:
-    bootstrap-servers: localhost:9094   # 9094 = PLAINTEXT_HOST trong docker-compose của bạn
+    bootstrap-servers: localhost:9094
     consumer:
       group-id: search-indexer
       auto-offset-reset: earliest
