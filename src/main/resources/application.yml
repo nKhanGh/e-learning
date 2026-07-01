@@ -53,6 +53,27 @@ spring:
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             client-name: Facebook
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      elasticsearch:
+        registerHealthIndicator: true
+
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 20
+        minimumNumberOfCalls: 10
+
+        failureRateThreshold: 50
+
+        slowCallDurationThreshold: 2s
+        slowCallRateThreshold: 60
+
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+        eventConsumerBufferSize: 50
+
 jwt:
   signerKey: ${JWT_SIGNER_KEY}
   accessDuration: 3600
