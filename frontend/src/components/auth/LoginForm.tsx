@@ -82,7 +82,9 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         password: formData.password,
       });
       setAccessToken(result.accessToken);
+      await fetchUserInfo();
       toast.success(t("loginSuccess"));
+      setOpenLogin(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : t("loginFailed");
 
@@ -93,9 +95,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         password: message,
       }));
     } finally {
-      fetchUserInfo();
       setIsLoading(false);
-      setOpenLogin(false);
     }
   };
 
