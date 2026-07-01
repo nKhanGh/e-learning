@@ -29,12 +29,12 @@ const Pagination = ({
     return (
         items.length > 0 && (
             <div className='flex items-center justify-between w-full'>
-                <p className='text-sm text-primary'>
+                <p className='text-xs text-primary'>
                     Showing <span className='font-medium'>{items.length}</span>{' '}
                     of <span className='font-medium'>{totalItems}</span> {name}
                 </p>
 
-                <div className='flex items-center gap-2'>
+                <div className='flex items-center gap-1.5'>
                     {totalPages > 1 && (
                         <button
                             onClick={() => {
@@ -42,11 +42,11 @@ const Pagination = ({
                                 setPage((prev) => Math.max(prev - 1, 0));
                             }}
                             disabled={page === 0}
-                            className='cursor-pointer px-3 py-2 border border-primary text-primary hover:bg-primary hover:text-white rounded-lg disabled:opacity-50 focus:outline-none'
+                            className='cursor-pointer px-2.5 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white rounded-md disabled:opacity-50 focus:outline-none'
                         >
                             <FontAwesomeIcon
                                 icon={faChevronLeft}
-                                className='w-4 h-4'
+                                className='w-3.5 h-3.5'
                             />
                         </button>
                     )}
@@ -56,7 +56,7 @@ const Pagination = ({
                             scrollToTop();
                             setPage(0);
                         }}
-                        className={`px-4 py-2 rounded-lg font-medium border text-primary  ${
+                        className={`px-3.5 py-1.5 rounded-md font-medium border text-primary  ${
                             page === 0
                                 ? 'bg-primary text-white border-primary focus:outline-none'
                                 : 'border-primary hover:bg-primary hover:text-white focus:outline-none'
@@ -65,7 +65,7 @@ const Pagination = ({
                         1
                     </button>
 
-                    {page >= 3 && <span className='px-2 text-gray-500'>…</span>}
+                    {page >= 3 && <span className='px-1.5 text-gray-500'>…</span>}
 
                     {Array.from({ length: totalPages }, (_, i) => i)
                         .filter(
@@ -82,7 +82,7 @@ const Pagination = ({
                                     scrollToTop();
                                     setPage(i);
                                 }}
-                                className={`px-4 py-2 rounded-lg font-medium border text-primary ${
+                                className={`px-3.5 py-1.5 rounded-md font-medium border text-primary ${
                                     page === i
                                         ? 'bg-primary text-white border-primary focus:outline-none'
                                         : 'border-primary hover:bg-primary hover:text-white focus:outline-none'
@@ -93,7 +93,7 @@ const Pagination = ({
                         ))}
 
                     {page < totalPages - 3 && (
-                        <span className='px-2 text-gray-500'>…</span>
+                        <span className='px-1.5 text-gray-500'>…</span>
                     )}
                     {totalPages > 1 && (
                         <button
@@ -101,7 +101,7 @@ const Pagination = ({
                                 scrollToTop();
                                 setPage(totalPages - 1);
                             }}
-                            className={`px-4 py-2 rounded-lg font-medium border text-primary ${
+                            className={`px-3.5 py-1.5 rounded-md font-medium border text-primary ${
                                 page === totalPages - 1
                                     ? 'bg-primary text-white border-primary focus:outline-none dark:hover:bg-gray-300 dark:hover:text-gray-300'
                                     : 'border-primary hover:bg-primary hover:text-white focus:outline-none'
@@ -121,11 +121,11 @@ const Pagination = ({
                                 );
                             }}
                             disabled={page >= totalPages - 1}
-                            className=' cursor-pointer px-3 py-2 border border-primary text-primary hover:bg-primary hover:text-white rounded-lg  disabled:opacity-50 focus:outline-none'
+                            className=' cursor-pointer px-2.5 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white rounded-md  disabled:opacity-50 focus:outline-none'
                         >
                             <FontAwesomeIcon
                                 icon={faChevronRight}
-                                className='w-4 h-4'
+                                className='w-3.5 h-3.5'
                             />
                         </button>
                     )}

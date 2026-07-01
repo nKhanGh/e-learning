@@ -15,7 +15,7 @@ const LayoutClient = () => {
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--sidebar-width",
-      openSidebar ? "16rem" : "5rem"
+      openSidebar ? "12rem" : "3.5rem"
     );
   }, [openSidebar]);
 

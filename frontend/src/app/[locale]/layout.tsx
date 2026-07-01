@@ -62,7 +62,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased mt-20`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased mt-14`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
@@ -70,7 +70,7 @@ export default async function RootLayout({
               <OpenAuthProvider>
                   <LayoutClient />
                   <main
-                    className={` p-4 dark:bg-bg bg-white content`}
+                    className={` p-3 dark:bg-bg bg-white content`}
                   >
                     {children}
                   </main>

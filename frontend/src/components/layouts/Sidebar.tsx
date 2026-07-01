@@ -44,20 +44,20 @@ const Sidebar = ({ open }: { open: boolean }) => {
 
   return (
     <div
-      className={`px-4 py-8 fixed top-20 left-0 ${open ? "w-64" : "w-20"} transition-all duration-300 h-full bg-white dark:bg-gray-900 shadow-md flex flex-col`}
+      className={`px-2.5 py-5 fixed top-14 left-0 ${open ? "w-48" : "w-14"} transition-all duration-300 h-full bg-white dark:bg-gray-900 shadow-sm flex flex-col`}
     >
       {sidebarItems.map((item) => (
         <Link
           key={item.title}
           href={`/${locale}${item.link}`}
-          className={`flex items-center gap-4 mb-4 p-3 rounded-lg cursor-pointer group
+          className={`flex items-center gap-2.5 mb-2.5 p-2 rounded-md cursor-pointer group text-sm
                 ${pathname === item.link ? "bg-blue-50 dark:bg-gray-700 text-primary" : "text-gray-600 dark:text-gray-300"}
                 `}
         >
           <i>
             <FontAwesomeIcon
               icon={item.icon}
-              className="text-gray-600 dark:text-gray-300 group-hover:text-primary"
+              className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300 group-hover:text-primary"
             />
           </i>
           {open && (
@@ -65,22 +65,22 @@ const Sidebar = ({ open }: { open: boolean }) => {
               {item.title}
               <FontAwesomeIcon
                 icon={faChevronRight}
-                className="text-gray-600 dark:text-gray-300 ml-auto transition-transform group-hover:translate-x-1 group-hover:text-primary"
+                className="w-3 h-3 text-gray-600 dark:text-gray-300 ml-auto transition-transform group-hover:translate-x-1 group-hover:text-primary"
               />
             </div>
           )}
         </Link>
       ))}
-      <Link href={`/${locale}/settings`} className="mt-auto h-12">
+      <Link href={`/${locale}/settings`} className="mt-auto h-8">
         <div
-          className={`flex items-center gap-4 mt-auto p-3 rounded-lg cursor-pointer group
+          className={`flex items-center gap-2.5 mt-auto p-2 rounded-md cursor-pointer group text-sm
                 ${pathname === "/settings" ? "bg-blue-50 dark:bg-gray-700 text-primary" : "text-gray-600 dark:text-gray-300"}
                 `}
         >
           <i>
             <FontAwesomeIcon
               icon={faGear}
-              className="text-gray-600 dark:text-gray-300 group-hover:text-primary"
+              className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300 group-hover:text-primary"
             />
           </i>
           {open && (
@@ -88,17 +88,17 @@ const Sidebar = ({ open }: { open: boolean }) => {
               {t('settings')}
               <FontAwesomeIcon
                 icon={faChevronRight}
-                className="text-gray-600 dark:text-gray-300 ml-auto transition-transform group-hover:translate-x-1 group-hover:text-primary"
+                className="w-3 h-3 text-gray-600 dark:text-gray-300 ml-auto transition-transform group-hover:translate-x-1 group-hover:text-primary"
               />
             </div>
           )}
         </div>
       </Link>
-      <button className="flex items-center gap-4 mt-2 mb-16 p-3 rounded-lg cursor-pointer group h-12">
+      <button className="flex items-center gap-2.5 mt-1 mb-12 p-2 rounded-md cursor-pointer group h-8 text-sm">
         <i>
           <FontAwesomeIcon
             icon={faRightFromBracket}
-            className="text-gray-600 dark:text-gray-300 group-hover:text-primary"
+            className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300 group-hover:text-primary"
           />
         </i>
         {open && (

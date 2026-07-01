@@ -18,7 +18,7 @@ export default function ChatPage() {
           <div
             className={`${
               selectedChat ? "hidden md:flex" : "flex"
-            } w-full md:w-80`}
+            } w-full md:w-72`}
           >
             <ChatSidebar
               selectedChat={selectedChat}
