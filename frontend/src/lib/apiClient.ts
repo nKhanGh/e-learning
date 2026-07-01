@@ -58,7 +58,7 @@ apiClient.interceptors.response.use(
       }
 
       const response = await publicApiClient.post<ApiResponse<AuthenticationResponse>>(
-        "/auth/refreshtToken",
+        "/auth/refresh-token",
         { refreshToken },
       );
 

@@ -12,9 +12,12 @@ import {
   faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle, faGithub } from "@fortawesome/free-brands-svg-icons";
-import { Phone } from "lucide-react";
 import Loading from "../ui/Loading";
 import { useTranslations } from "next-intl";
+import { authService } from "@/services/auth.service";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { useOpenAuth } from "@/contexts/OpenAuthContext";
 
 interface SignUpFormProps {
   onSwitchToLogin: () => void;
@@ -22,8 +25,16 @@ interface SignUpFormProps {
 
 const SignUpForm = ({ onSwitchToLogin }: SignUpFormProps) => {
   const t = useTranslations("signup");
+  const { fetchUserInfo, setAccessToken } = useAuth();
+  const { setOpenSignUp } = useOpenAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [step, setStep] = useState<"form" | "verify">("form");
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
+  const [verifyError, setVerifyError] = useState("");
+  const [isVerifyLoading, setIsVerifyLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -132,15 +143,110 @@ const SignUpForm = ({ onSwitchToLogin }: SignUpFormProps) => {
 
     setIsLoading(true);
     try {
-      console.log("Sign up with:", formData);
-    } catch (error) {
-      console.error("Sign up error:", error);
+      await authService.signup({
+        email: formData.email.trim(),
+        password: formData.password,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        phone: formData.phone.trim(),
+      });
+
+      setRegisteredEmail(formData.email.trim());
+      setVerifyCode("");
+      setVerifyError("");
+      setStep("verify");
+      toast.success(t("verificationSent"));
+    } catch (error: unknown) {
+      const message = getAuthErrorMessage(error, t("signupFailed"));
+      const field = getSignupErrorField(message);
+      toast.error(message);
       setErrors((prev) => ({
         ...prev,
-        email: t("emailInUse"),
+        email: field === "email" ? message : "",
+        phone: field === "phone" ? message : "",
       }));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getAuthErrorMessage = (error: unknown, fallback: string) => {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: { data?: { message?: string; error?: string } } }).response?.data === "object"
+    ) {
+      const data = (error as { response?: { data?: { message?: string; error?: string } } }).response?.data;
+      return data?.message || data?.error || fallback;
+    }
+
+    return error instanceof Error ? error.message : fallback;
+  };
+
+  const getSignupErrorField = (message: string): "email" | "phone" => {
+    const normalizedMessage = message.toLowerCase();
+    if (normalizedMessage.includes("phone")) {
+      return "phone";
+    }
+    return "email";
+  };
+
+  const completeLogin = async (accessToken: string, refreshToken: string) => {
+    localStorage.setItem("learnioRefreshToken", refreshToken);
+    setAccessToken(accessToken);
+    await fetchUserInfo();
+    toast.success(t("signupSuccess"));
+    setOpenSignUp(false);
+  };
+
+  const handleVerifyEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!/^\d{6}$/.test(verifyCode)) {
+      setVerifyError(t("verifyCodeInvalid"));
+      return;
+    }
+
+    setIsVerifyLoading(true);
+    setVerifyError("");
+    try {
+      const response = await authService.verifyEmail({
+        email: registeredEmail,
+        verifyCode,
+      });
+      const result = response.data.result;
+
+      if (!result?.valid) {
+        throw new Error(t("verifyFailed"));
+      }
+
+      if (!result.accessToken || !result.refreshToken) {
+        throw new Error(response.data.message || t("signupFailed"));
+      }
+
+      await completeLogin(result.accessToken, result.refreshToken);
+    } catch (error: unknown) {
+      const message = getAuthErrorMessage(error, t("verifyFailed"));
+      setVerifyError(message);
+      toast.error(message);
+    } finally {
+      setIsVerifyLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setIsResending(true);
+    setVerifyError("");
+    try {
+      await authService.resendVerificationEmail({ email: registeredEmail });
+      toast.success(t("verificationResent"));
+    } catch (error: unknown) {
+      const message = getAuthErrorMessage(error, t("resendFailed"));
+      setVerifyError(message);
+      toast.error(message);
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -149,6 +255,91 @@ const SignUpForm = ({ onSwitchToLogin }: SignUpFormProps) => {
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
+
+  if (step === "verify") {
+    return (
+      <div className="w-full max-w-sm mx-auto">
+        <div className="text-center mb-7">
+          <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3.5">
+            <FontAwesomeIcon icon={faEnvelope} className="w-5 h-5" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1.5">
+            {t("verifyTitle")}
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t("verifySubtitle")}{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {registeredEmail}
+            </span>
+          </p>
+        </div>
+
+        <form onSubmit={handleVerifyEmail} className="space-y-3.5">
+          <div>
+            <label
+              htmlFor="verifyCode"
+              className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+            >
+              {t("verifyCode")}
+            </label>
+            <input
+              id="verifyCode"
+              value={verifyCode}
+              onChange={(e) => {
+                setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                setVerifyError("");
+              }}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              className={`w-full px-3.5 py-2.5 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary transition-colors bg-white dark:bg-gray-800 text-center tracking-[0.35em] font-bold text-lg text-gray-900 dark:text-white ${
+                verifyError
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                  : "border-gray-300 dark:border-gray-600 focus:border-primary"
+              }`}
+              placeholder="000000"
+            />
+            {verifyError && (
+              <p className="mt-1 text-xs text-red-500">{verifyError}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={isVerifyLoading}
+            className="w-full py-2.5 px-3.5 bg-primary hover:bg-primary/90 text-white font-semibold rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            {isVerifyLoading ? (
+              <div className="flex items-center gap-1.5">
+                <Loading size="sm" color="gray" />
+                {t("verifying")}
+              </div>
+            ) : (
+              t("verifyButton")
+            )}
+          </button>
+        </form>
+
+        <div className="mt-5 flex flex-col items-center text-xs text-gray-600 dark:text-gray-400">
+          <button
+            type="button"
+            onClick={handleResendVerification}
+            disabled={isResending}
+            className="text-primary hover:text-primary/80 font-semibold disabled:opacity-50"
+          >
+            {isResending ? t("resending") : t("resendCode")}
+          </button>
+          <div className="w-[50%] h-px bg-gray-500 my-2.5"></div>
+          <button
+            type="button"
+            onClick={() => setStep("form")}
+            className="text-primary hover:text-primary/80 font-semibold hover:underline transition-all"
+          >
+            {t("changeEmail")}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-sm mx-auto">

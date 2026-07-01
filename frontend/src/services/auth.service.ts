@@ -1,14 +1,18 @@
-import apiClient from "@/lib/apiClient";
+import apiClient, { publicApiClient } from "@/lib/apiClient";
 
 export const authService = {
   login: (payload: AuthenticationRequest) =>
-    apiClient.post<ApiResponse<AuthenticationResponse>>("/auth/login", payload),
+    publicApiClient.post<ApiResponse<AuthenticationResponse>>("/auth/login", payload),
   signup: (payload: RegisterRequest) =>
-    apiClient.post<ApiResponse<UserResponse>>("/auth/register", payload),
+    publicApiClient.post<ApiResponse<UserResponse>>("/auth/register", payload),
+  verifyEmail: (payload: EmailVerifyRequest) =>
+    publicApiClient.post<ApiResponse<EmailVerifyResponse>>("/auth/verify-email", payload),
+  resendVerificationEmail: (payload: ResendVerificationRequest) =>
+    publicApiClient.post<ApiResponse<void>>("/auth/resend-verification", payload),
   logout: (payload: LogoutRequest) =>
     apiClient.post<ApiResponse<LogoutResponse>>("/auth/logout", payload),
   refreshToken: (refreshToken: string) =>
-    apiClient.post<ApiResponse<AuthenticationResponse>>("/auth/refreshtToken", {
+    publicApiClient.post<ApiResponse<AuthenticationResponse>>("/auth/refresh-token", {
       refreshToken,
     }),
 };
