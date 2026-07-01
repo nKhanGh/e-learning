@@ -94,16 +94,16 @@ public class AuthenticationServiceTest {
                 .password("123456")
                 .build();
 
-        UserResponse response = UserResponse.builder()
+        UserResponse userResponse = UserResponse.builder()
                 .email("user@example.com")
                 .build();
-
         Mockito.when(userService.register(ArgumentMatchers.any(RegisterRequest.class)))
-                .thenReturn(response);
+                .thenReturn(userResponse);
 
         UserResponse result = authenticationService.register(request);
 
         Assertions.assertThat(result.getEmail()).isEqualTo("user@example.com");
+        Assertions.assertThat(request.getStatus()).isEqualTo(UserStatus.PENDING);
         Mockito.verify(emailService).sendOtpEmail("user@example.com");
     }
 
@@ -142,7 +142,7 @@ public class AuthenticationServiceTest {
         Assertions.assertThatThrownBy(() -> authenticationService.login(request))
                 .isInstanceOf(AppException.class)
                 .extracting("errorCode")
-                .isEqualTo(ErrorCode.UNAUTHENTICATED);
+                .isEqualTo(ErrorCode.USER_NOT_VERIFIED);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class AuthenticationServiceTest {
         Assertions.assertThatThrownBy(() -> authenticationService.login(request))
                 .isInstanceOf(AppException.class)
                 .extracting("errorCode")
-                .isEqualTo(ErrorCode.UNAUTHENTICATED);
+                .isEqualTo(ErrorCode.PASSWORD_INCORRECT);
     }
 
     @Test
@@ -264,7 +264,6 @@ public class AuthenticationServiceTest {
         Mockito.when(emailService.verifyEmail(request)).thenReturn(verifyResponse);
         Mockito.when(jwtService.generateToken(user, true)).thenReturn("access");
         Mockito.when(jwtService.generateToken(user, false)).thenReturn("refresh");
-
         EmailVerifyResponse result = authenticationService.verifyEmail(request);
 
         Assertions.assertThat(result.isValid()).isTrue();

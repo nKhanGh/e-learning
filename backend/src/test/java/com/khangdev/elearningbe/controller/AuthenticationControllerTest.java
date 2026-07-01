@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Map;
 import java.util.UUID;
-
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
 public class AuthenticationControllerTest {
@@ -73,7 +72,8 @@ public class AuthenticationControllerTest {
                         .content(objectMapper
                                 .writeValueAsString(Map.of("email", "test@example.com", "password", "123456"))))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("code").value(1000));
+                .andExpect(MockMvcResultMatchers.jsonPath("code").value(1000))
+                .andExpect(MockMvcResultMatchers.jsonPath("result.email").value("test@example.com"));
     }
 
     @Test
@@ -90,7 +90,9 @@ public class AuthenticationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(objectMapper.writeValueAsString(Map.of("refreshToken", "refresh"))))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("code").value(1000));
+                .andExpect(MockMvcResultMatchers.jsonPath("code").value(1000))
+                .andExpect(MockMvcResultMatchers.jsonPath("result.accessToken").value("access"))
+                .andExpect(MockMvcResultMatchers.jsonPath("result.refreshToken").value("refresh"));
     }
 
     @Test

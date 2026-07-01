@@ -87,6 +87,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public UserResponse register(RegisterRequest request) {
+        request.setStatus(UserStatus.PENDING);
         UserResponse userResponse = userService.register(request);
         emailService.sendOtpEmail(request.getEmail());
         return userResponse;
@@ -99,6 +100,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         EmailVerifyResponse response = emailService.verifyEmail(request);
         if(response.isValid()){
             userService.setStatus(request.getEmail(), UserStatus.ACTIVE);
+            user.setStatus(UserStatus.ACTIVE);
+            response.setAccessToken(jwtService.generateToken(user, true));
+            response.setRefreshToken(jwtService.generateToken(user, false));
         }
         return response;
     }
