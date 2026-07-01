@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -9,9 +10,9 @@ import {
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
-import { conversationService } from "@/services/conversation.service";
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 import webSocketService from "@/utils/WebSocketService";
+import { useMyConversationsQuery } from "@/hooks/queries/useConversationQueries";
 
 type UserStatus = {
   userId: string;
@@ -39,7 +40,7 @@ export const ConversationProvider = ({
   const [conversations, setConversations] = useState<Map<
     string,
     ConversationResponse
-  > | null>(new Map());
+  > | null>(null);
   const [userStatuses, setUserStatuses] = useState<Map<string, UserStatus>>(
     new Map(),
   );
@@ -51,35 +52,38 @@ export const ConversationProvider = ({
   const { user } = useAuth();
 
   const currentUserId = user?.id;
+  const conversationsQuery = useMyConversationsQuery(Boolean(currentUserId));
+  const queriedConversations = useMemo(() => {
+    if (!conversationsQuery.data) return null;
 
-  const fetchConversations = async () => {
-    try {
-      const response = await conversationService.getMyConversations();
-      const conversationsArray = response.data.result;
-      const conversationsMap = new Map(
-        conversationsArray.map((conversation: ConversationResponse) => [
-          conversation.id,
-          conversation,
-        ]),
-      );
-      setConversations(conversationsMap);
-      console.log("Fetched conversations:", conversationsArray);
-    } catch (error) {
-      console.error("Error fetching conversations:", (error as any).response);
-    }
-  };
+    return new Map(
+      conversationsQuery.data.map((conversation: ConversationResponse) => [
+        conversation.id,
+        conversation,
+      ]),
+    );
+  }, [conversationsQuery.data]);
+  const activeConversations = conversations ?? queriedConversations;
+  const setConversationState = useCallback(
+    (value: React.SetStateAction<Map<string, ConversationResponse> | null>) => {
+      setConversations((prev) => {
+        if (typeof value === "function") {
+          return value(prev ?? activeConversations);
+        }
 
-  useEffect(() => {
-    if (!currentUserId) return;
-    fetchConversations();
-  }, [currentUserId]);
+        return value;
+      });
+    },
+    [activeConversations],
+  );
 
   const updateConversationWithMessage = (
     prev: Map<string, ConversationResponse> | null,
     msg: MessageResponse,
   ): Map<string, ConversationResponse> | null => {
-    if (!prev) return prev;
-    const updatedMap = new Map(prev);
+    const source = prev ?? activeConversations;
+    if (!source) return prev;
+    const updatedMap = new Map(source);
     const existingConversation = updatedMap.get(msg.conversationId);
     if (existingConversation) {
       if (existingConversation.lastMessage.id === msg.id) {
@@ -106,8 +110,9 @@ export const ConversationProvider = ({
     conversationId: string,
     typingAvatarFileName: string | null,
   ): Map<string, ConversationResponse> | null => {
-    if (!prev) return prev;
-    const updatedMap = new Map(prev);
+    const source = prev ?? activeConversations;
+    if (!source) return prev;
+    const updatedMap = new Map(source);
     const existingConversation = updatedMap.get(conversationId);
     if (existingConversation) {
       updatedMap.set(conversationId, {
@@ -183,8 +188,9 @@ export const ConversationProvider = ({
 
   const handleRead = (data: ReadNotification) => {
     setConversations((prev) => {
-      if (!prev) return prev;
-      const updatedMap = new Map(prev);
+      const source = prev ?? activeConversations;
+      if (!source) return prev;
+      const updatedMap = new Map(source);
       const conversation = updatedMap.get(data.conversationId);
       if (conversation) {
         if (conversation.myParticipant.id.userId !== data.userId) {
@@ -224,13 +230,19 @@ export const ConversationProvider = ({
 
   const value = useMemo(
     () => ({
-      conversations,
+      conversations: activeConversations,
       userStatuses,
       unreadCount,
       wsConnected,
-      setConversations,
+      setConversations: setConversationState,
     }),
-    [conversations, userStatuses, unreadCount, wsConnected, setConversations],
+    [
+      activeConversations,
+      setConversationState,
+      unreadCount,
+      userStatuses,
+      wsConnected,
+    ],
   );
 
   return (

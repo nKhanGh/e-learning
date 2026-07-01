@@ -1,9 +1,9 @@
 import { conversationParticipantService } from "@/services/conversationParticipant.service";
-import { userService } from "@/services/user.service";
+import { useSearchUsersQuery } from "@/hooks/queries/useUserQueries";
 import { faCheck, faPlus, faSearch, faUsers, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const ChatAddUsers = ({
@@ -17,27 +17,9 @@ const ChatAddUsers = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<UserResponse[]>([]);
-  const [searchResults, setSearchResults] = useState<UserResponse[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
-    null,
-  );
-
-  const searchUser = async (keyword: string) => {
-    if (!keyword.trim()) return;
-
-    setIsSearching(true);
-    try {
-      const response = await userService.searchUsers(keyword);
-      setSearchResults(response.data.result);
-      console.log("Search results:", response);
-    } catch (error) {
-      console.error("Error searching users:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+  const searchUsersQuery = useSearchUsersQuery(searchTerm);
+  const searchResults = searchUsersQuery.data ?? [];
+  const isSearching = searchUsersQuery.isFetching;
 
     const isUserSelected = (userId: string) => {
     return selectedUsers.some((u) => u.id === userId);
@@ -45,12 +27,14 @@ const ChatAddUsers = ({
 
   const handleAdd = async () => {
     try{
-      selectedUsers.forEach(async (user) => {
-        await conversationParticipantService.add(
+      await Promise.all(
+        selectedUsers.map((user) =>
+          conversationParticipantService.add(
           conversationId,
           user.id,
-        );
-      });
+          ),
+        ),
+      );
       toast.success(`${selectedUsers.length} user${selectedUsers.length > 1 ? "s" : ""} added to conversation!`);
       onClose();
     } catch (error) {
@@ -58,29 +42,6 @@ const ChatAddUsers = ({
       console.error("Error adding participants:", error);
     }
   }
-
-  useEffect(() => {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    if (searchTerm.trim().length === 0) {
-      setSearchResults([]);
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      searchUser(searchTerm);
-    }, 500); // Wait 500ms after user stops typing
-
-    setSearchTimeout(timeout);
-
-    return () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }
-    };
-  }, [searchTerm]);
 
     const toggleUserSelection = (user: UserResponse) => {
     setSelectedUsers((prev) => {
@@ -96,7 +57,6 @@ const ChatAddUsers = ({
   const handleClose = () => {
     setSearchTerm("");
     setSelectedUsers([]);
-    setSearchResults([]);
     onClose();
   };
   return (

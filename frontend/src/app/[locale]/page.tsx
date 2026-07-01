@@ -15,16 +15,23 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { getLocale, getTranslations } from "next-intl/server";
 import GetStatedButton from "@/components/home/GetStatedButton";
+import { getServerApiBaseUrl } from "@/lib/apiClient";
+import { defaultCourseSearchRequest } from "@/lib/courseSearch";
 
 export default async function HomePage() {
   const t = await getTranslations('HomePage');
 
-  const res = await fetch(
-    "http://localhost:8080/api/courses/search?page=0&size=6",
-  );
+  const res = await fetch(`${getServerApiBaseUrl()}/courses/search?page=0&size=6`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(defaultCourseSearchRequest),
+    next: { revalidate: 60 },
+  });
   const data = await res.json();
   const locale = await getLocale();
-  const courses = data.result.items as CourseResponse[];
+  const courses = data.result?.items as CourseResponse[];
   console.log(courses);
 
   const features = [

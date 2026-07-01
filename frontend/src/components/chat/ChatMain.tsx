@@ -12,13 +12,14 @@ import { useState, useRef, useEffect } from "react";
 import webSocketService from "@/utils/WebSocketService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversation } from "@/contexts/ConversationContext";
-import { messageService } from "@/services/message.service";
 import { timeAgo } from "@/utils/time";
 import { aiService } from "@/services/ai.service";
 import Typing from "../ui/Typing";
 import Loading from "../ui/Loading";
 import { useLocale } from "next-intl";
 import Link from "next/link";
+import { useMessageQueryClient } from "@/hooks/queries/useMessageQueries";
+import { useMutation } from "@tanstack/react-query";
 
 interface ChatMainProps {
   selectedChat: ConversationResponse | null;
@@ -59,6 +60,10 @@ const ChatMain = ({
 
   const { user } = useAuth();
   const { conversations, setConversations, userStatuses } = useConversation();
+  const { fetchConversationMessages } = useMessageQueryClient();
+  const aiChatMutation = useMutation({
+    mutationFn: aiService.chat,
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
@@ -73,13 +78,13 @@ const ChatMain = ({
     if (!selectedChat || isLoadingMoreRef.current) return;
     isLoadingMoreRef.current = true;
     try {
-      const response = await messageService.getMessagesByConversationId(
+      const result = await fetchConversationMessages(
         conversationId,
         page,
         size,
       );
      
-      const hasMore = response.data.result.totalPages > page + 1;
+      const hasMore = result.totalPages > page + 1;
 
       setConversations((prev) => {
         if (!prev) return prev;
@@ -91,7 +96,7 @@ const ChatMain = ({
           const existingIds = new Set(
             conversation.messages?.map((m) => m.id) || [],
           );
-          const uniqueNewItems = response.data.result.items.filter(
+          const uniqueNewItems = result.items.filter(
             (item: MessageResponse) => !existingIds.has(item.id),
           );
           conversation.messages = [
@@ -119,7 +124,7 @@ const ChatMain = ({
       });
 
     } catch (error) {
-      console.error("Error fetching messages:", (error as any).response);
+      console.error("Error fetching messages:", error);
     } finally {
       isLoadingMoreRef.current = false;
     }
@@ -209,7 +214,7 @@ const ChatMain = ({
           return updated;
         });
         scrollToBottom();
-        const response = await aiService.chat({
+        const response = await aiChatMutation.mutateAsync({
           conversationId: selectedChat.id,
           content: messageToSend,
           parentId: parentMessage?.id || null,
@@ -231,7 +236,7 @@ const ChatMain = ({
           return updated;
         });
       } catch (error) {
-        console.error("Error sending AI message:", (error as any).response);
+        console.error("Error sending AI message:", error);
       } finally {
         setSending(false);
         setConversations((prev) => {

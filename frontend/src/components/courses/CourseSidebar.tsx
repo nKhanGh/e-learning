@@ -58,13 +58,13 @@ const CourseSidebar = ({
   filters,
   setFilters,
   courseCategories,
-  setApplyFilters,
+  onApplyFilters,
   loading,
 }: {
   filters: CourseSearchRequest;
   setFilters: React.Dispatch<React.SetStateAction<CourseSearchRequest>>;
   courseCategories: CourseCategoryResponse[];
-  setApplyFilters: React.Dispatch<React.SetStateAction<boolean>>;
+  onApplyFilters: () => void;
   loading: boolean;
 }) => {
   const t = useTranslations("CoursesPage");
@@ -106,10 +106,10 @@ const CourseSidebar = ({
       <FilterSection title={t("filter.level")}>
         <div className="space-y-2">
           {(
-            ["", "BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL_LEVELS"] as const
+            [null, "BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL_LEVELS"] as const
           )?.map((lvl) => (
             <label
-              key={lvl}
+              key={lvl ?? "all"}
               className="flex items-center gap-2.5 cursor-pointer group"
             >
               <input
@@ -120,7 +120,7 @@ const CourseSidebar = ({
                 className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
               />
               <span className="text-sm text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
-                {lvl === ""
+                {lvl === null
                   ? t("filter.allLevels")
                   : getLevelLabel(lvl as CourseLevel)}
               </span>
@@ -244,7 +244,7 @@ const CourseSidebar = ({
         </div>
       </FilterSection>
       <button
-        onClick={() => setApplyFilters(true)}
+        onClick={onApplyFilters}
         className="w-full mt-6 py-3 bg-primary text-white rounded-xl font-semibold flex items-center justify-center hover:bg-primary/90 transition-colors"
       >
         {loading ? <Loading size="smd" color="blue" /> :

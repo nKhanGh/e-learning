@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSearch,
@@ -10,12 +10,15 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "next-intl";
 import CourseCard from "@/components/courses/CourseCard";
-import { courseService } from "@/services/course.service";
 import CourseSidebar from "@/components/courses/CourseSidebar";
 import Pagination from "@/components/ui/pagination";
-import { courseCategoryService } from "@/services/courseCategory.service";
 import { CourseLevel } from "@/types/enums/CourseLevel.enum";
 import Loading from "@/components/ui/Loading";
+import {
+  useCourseCategoriesQuery,
+  useCourseSearchQuery,
+} from "@/hooks/queries/useCourseQueries";
+import { defaultCourseSearchRequest } from "@/lib/courseSearch";
 
 const getLevelLabel = (level: CourseLevel): string => {
   const map: Record<CourseLevel, string> = {
@@ -29,70 +32,28 @@ const getLevelLabel = (level: CourseLevel): string => {
 
 const CoursesPage = () => {
   const t = useTranslations("CoursesPage");
-  const [courses, setCourses] = useState<CourseResponse[]>([]);
   const [page, setPage] = useState(0);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [applyFilter, setApplyFilter] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [courseCategories, setCourseCategories] = useState<
-    CourseCategoryResponse[]
-  >([]);
   const [filters, setFilters] = useState<CourseSearchRequest>({
-    keyword: "",
-    categoryId: [],
-    level: "",
-    minPrice: null,
-    maxPrice: null,
-    minAverageRating: null,
-    maxAverageRating: null,
-    isFree: null,
-    hasQuiz: null,
-    tagNames: [],
+    ...defaultCourseSearchRequest,
+  });
+  const [submittedFilters, setSubmittedFilters] = useState<CourseSearchRequest>({
+    ...defaultCourseSearchRequest,
   });
 
   const size = 9;
+  const coursesQuery = useCourseSearchQuery(submittedFilters, page, size);
+  const categoriesQuery = useCourseCategoriesQuery();
 
-  const fetchCourses = async () => {
-    if (loading) return;
-    if (applyFilter) {
-      setPage(0);
-      setApplyFilter(false);
-    }
-    try {
-      setLoading(true);
-      const response = await courseService.searchCourses({
-        request: filters,
-        page,
-        size,
-      });
-      console.log(response);
-      setCourses(response.data.result.items);
-      setTotalItems(response.data.result.totalElements);
-      setTotalPages(response.data.result.totalPages);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
+  const applyFilters = () => {
+    setPage(0);
+    setSubmittedFilters(filters);
   };
 
-  useEffect(() => {
-    fetchCourses();
-  }, [page, applyFilter]);
-
-  useEffect(() => {
-    const fetchCourseCategories = async () => {
-      try {
-        const response = await courseCategoryService.getAllCategories();
-        console.log("Fetched course categories:", response);
-        setCourseCategories(response.data.result);
-      } catch (error) {
-        console.error("Failed to fetch course categories:", error);
-      }
-    };
-    fetchCourseCategories();
-  }, []);
+  const courses = coursesQuery.data?.items ?? [];
+  const totalItems = coursesQuery.data?.totalElements ?? 0;
+  const totalPages = coursesQuery.data?.totalPages ?? 0;
+  const courseCategories = categoriesQuery.data ?? [];
+  const loading = coursesQuery.isFetching || categoriesQuery.isFetching;
 
   const toggleCategory = (id: string) => {
     setFilters((f) => ({
@@ -106,19 +67,9 @@ const CoursesPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const clearFilters = () => {
-    setFilters({
-      keyword: "",
-      categoryId: [],
-      level: "",
-      minPrice: null,
-      maxPrice: null,
-      minAverageRating: null,
-      maxAverageRating: null,
-      isFree: null,
-      hasQuiz: null,
-      tagNames: [],
-    });
-    setApplyFilter(true);
+    setFilters({ ...defaultCourseSearchRequest });
+    setPage(0);
+    setSubmittedFilters({ ...defaultCourseSearchRequest });
   };
 
   const activeFilterCount =
@@ -163,7 +114,7 @@ const CoursesPage = () => {
               )}
             </div>
             <button
-              onClick={() => setApplyFilter(true)}
+              onClick={applyFilters}
               className="px-6 py-3 bg-primary text-white min-w-14 rounded-xl font-medium hover:bg-primary/90 transition-colors"
             >
               {loading ? <Loading size="smd" color="blue" /> :
@@ -209,7 +160,7 @@ const CoursesPage = () => {
                 filters={filters}
                 setFilters={setFilters}
                 courseCategories={courseCategories}
-                setApplyFilters={setApplyFilter}
+                onApplyFilters={applyFilters}
                 loading={loading}
               />
             </div>
@@ -255,7 +206,7 @@ const CoursesPage = () => {
                         {getLevelLabel(filters.level as CourseLevel)}
                         <button
                           onClick={() =>
-                            setFilters((f) => ({ ...f, level: "" }))
+                            setFilters((f) => ({ ...f, level: null }))
                           }
                         >
                           <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
@@ -279,7 +230,19 @@ const CoursesPage = () => {
             </div>
 
             {/* Grid */}
-            {courses.length > 0 ? (
+            {coursesQuery.isError ? (
+              <div className="text-center py-20">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-text mb-2">
+                  Failed to load courses
+                </h3>
+                <button
+                  onClick={() => coursesQuery.refetch()}
+                  className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                >
+                  Try again
+                </button>
+              </div>
+            ) : courses.length > 0 ? (
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 w-full">
                 {courses?.map((course) => (
                   <CourseCard key={course.id} course={course} />
@@ -340,7 +303,7 @@ const CoursesPage = () => {
                 filters={filters}
                 setFilters={setFilters}
                 courseCategories={courseCategories}
-                setApplyFilters={setApplyFilter}
+                onApplyFilters={applyFilters}
                 loading={loading}
               />
               <button

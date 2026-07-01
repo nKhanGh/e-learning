@@ -1,11 +1,14 @@
-import useAxios from "@/utils/useAxios";
-
-const axiosInstance = useAxios();
+import apiClient from "@/lib/apiClient";
 
 export const authService = {
-  login: (payload: AuthenticationRequest) => axiosInstance.post<ApiResponse<AuthenticationResponse>>("/auth/login", payload),
-  signup: (payload: RegisterRequest) => axiosInstance.post<ApiResponse<UserResponse>>("/auth/signup", payload),
-  logout: (payload: LogoutRequest) => axiosInstance.post<ApiResponse<LogoutResponse>>("/auth/logout", payload),
+  login: (payload: AuthenticationRequest) =>
+    apiClient.post<ApiResponse<AuthenticationResponse>>("/auth/login", payload),
+  signup: (payload: RegisterRequest) =>
+    apiClient.post<ApiResponse<UserResponse>>("/auth/register", payload),
+  logout: (payload: LogoutRequest) =>
+    apiClient.post<ApiResponse<LogoutResponse>>("/auth/logout", payload),
   refreshToken: (refreshToken: string) =>
-    axiosInstance.post<ApiResponse<AuthenticationResponse>>("/auth/refresh", { refreshToken }),
-}
+    apiClient.post<ApiResponse<AuthenticationResponse>>("/auth/refreshtToken", {
+      refreshToken,
+    }),
+};

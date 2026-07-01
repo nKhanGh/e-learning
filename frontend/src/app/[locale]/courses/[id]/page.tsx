@@ -19,6 +19,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import { CourseLevel } from "@/types/enums/CourseLevel.enum";
 import SectionAccordion from "@/components/courseDetail/SectionAcordion";
 import PurchaseCard from "@/components/courseDetail/PurchaseCard";
+import { getServerApiBaseUrl } from "@/lib/apiClient";
 
 const MOCK_SECTIONS = [
   { id: "s1", title: "Introduction to Web Development", lectures: 8, duration: 45, preview: true },
@@ -62,8 +63,11 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
 const CourseDetailPage = async ({params}: {params: Promise<{id: string}>}) => {
   const t = await getTranslations("CourseDetailPage");
   const locale = await getLocale();
+  const { id } = await params;
 
-  const courseResponse = await fetch(`http://localhost:8080/api/courses/${(await params).id}`);
+  const courseResponse = await fetch(`${getServerApiBaseUrl()}/courses/${id}`, {
+    next: { revalidate: 60 },
+  });
   const data = await courseResponse.json();
   const course = data.result as CourseResponse;
   console.log("Fetched course data:", course);

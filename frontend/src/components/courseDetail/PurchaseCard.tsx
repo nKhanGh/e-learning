@@ -1,6 +1,6 @@
 "use client";
 
-import { enrollmentService } from "@/services/enrollment.service";
+import { useMyEnrollmentQuery } from "@/hooks/queries/useEnrollmentQueries";
 import {
   faPlay,
   faCheck,
@@ -12,9 +12,8 @@ import {
   faShareNodes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { tr } from "framer-motion/m";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const PurchaseCard = ({
   course,
@@ -25,21 +24,9 @@ const PurchaseCard = ({
 }) => {
   const t = useTranslations("CourseDetailPage");
   const enrollButtonText = course.isFree ? t("enrollFree") : t("enrollNow");
-  const [enrolled, setEnrolled] = useState(false);
-
-  const fetchEnrollment = async () => {
-    try{
-      await enrollmentService.getMyEnrollment(course.id);
-      setEnrolled(true);
-    } catch(err){
-      setEnrolled(false);
-      console.log("Not enrolled or error fetching enrollment:", err);
-    }
-  }
-
-  useEffect(() => {
-    fetchEnrollment();
-  },[])
+  const [optimisticEnrolled, setOptimisticEnrolled] = useState(false);
+  const enrollmentQuery = useMyEnrollmentQuery(course.id);
+  const enrolled = enrollmentQuery.isSuccess || optimisticEnrolled;
 
   return (
     <div className="bg-white dark:bg-surface rounded-2xl shadow-2xl border border-gray-200 dark:border-border overflow-hidden">
@@ -80,7 +67,7 @@ const PurchaseCard = ({
 
         {/* CTA Button */}
         <button
-          onClick={() => setEnrolled(true)}
+          onClick={() => setOptimisticEnrolled(true)}
           className={`w-full py-3.5 rounded-xl font-bold text-base transition-all mb-3 flex items-center justify-center ${
             enrolled
               ? "bg-emerald-500 text-white cursor-default"
@@ -124,7 +111,7 @@ const PurchaseCard = ({
             ...(course.hasQuizzes
               ? [{ icon: faQuestionCircle, text: t("quizzes") }]
               : []),
-          ].map((item, i) => (
+          ].map((item) => (
             <div
               key={item.icon.iconName}
               className="flex items-center gap-3 text-sm text-gray-600 dark:text-muted"

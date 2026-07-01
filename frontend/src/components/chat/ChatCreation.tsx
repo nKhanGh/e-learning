@@ -1,7 +1,7 @@
 // components/chat/ChatCreation.tsx
 "use client";
-import { userService } from "@/services/user.service";
-import { useState, useEffect } from "react";
+import { useSearchUsersQuery } from "@/hooks/queries/useUserQueries";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faXmark,
@@ -11,9 +11,8 @@ import {
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
-import { conversationService } from "@/services/conversation.service";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { useCreateConversationMutation } from "@/hooks/queries/useConversationQueries";
 
 interface ChatCreationProps {
   open: boolean;
@@ -24,55 +23,12 @@ interface ChatCreationProps {
 const ChatCreation = ({ open, onClose, onCreate }: ChatCreationProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<UserResponse[]>([]);
-  const [searchResults, setSearchResults] = useState<UserResponse[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
-    null,
-  );
-
-  const { user } = useAuth();
-
-  // Debounced search
-  useEffect(() => {
-    if (searchTimeout) {
-      clearTimeout(searchTimeout);
-    }
-
-    if (searchTerm.trim().length === 0) {
-      setSearchResults([]);
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      searchUser(searchTerm);
-    }, 500); // Wait 500ms after user stops typing
-
-    setSearchTimeout(timeout);
-
-    return () => {
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
-      }
-    };
-  }, [searchTerm]);
-
-  const searchUser = async (keyword: string) => {
-    if (!keyword.trim()) return;
-
-    setIsSearching(true);
-    try {
-      const response = await userService.searchUsers(keyword);
-      setSearchResults(response.data.result);
-    } catch (error) {
-      console.error("Error searching users:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
+  const searchUsersQuery = useSearchUsersQuery(searchTerm);
+  const searchResults = searchUsersQuery.data ?? [];
+  const isSearching = searchUsersQuery.isFetching;
+  const createConversationMutation = useCreateConversationMutation();
   const toggleUserSelection = (user: UserResponse) => {
     setSelectedUsers((prev) => {
       const isSelected = prev.some((u) => u.id === user.id);
@@ -95,7 +51,7 @@ const ChatCreation = ({ open, onClose, onCreate }: ChatCreationProps) => {
     }
 
     try {
-      const response = await conversationService.createConversation({
+      const response = await createConversationMutation.mutateAsync({
         data: {
           name: selectedUsers.length > 1 ? name || "New Group" : null,
           description: selectedUsers.length > 1 ? description : null,
@@ -114,7 +70,6 @@ const ChatCreation = ({ open, onClose, onCreate }: ChatCreationProps) => {
   const handleClose = () => {
     setSearchTerm("");
     setSelectedUsers([]);
-    setSearchResults([]);
     setName("");
     setDescription("");
     onClose();

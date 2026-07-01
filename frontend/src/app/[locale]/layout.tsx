@@ -8,9 +8,9 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import Footer from "@/components/layouts/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +39,7 @@ export default async function RootLayout({
   params: { locale: string };
 }>) {
   const { locale } = await params;
-  if (!locales.includes(locale as any)) {
+  if (!locales.includes(locale as (typeof locales)[number])) {
     notFound();
   }
 
@@ -65,7 +65,8 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased mt-20`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
               <OpenAuthProvider>
                   <LayoutClient />
                   <main
@@ -76,7 +77,8 @@ export default async function RootLayout({
                   <Toaster />
                   <Footer />
               </OpenAuthProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>
