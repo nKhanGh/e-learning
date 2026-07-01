@@ -1,0 +1,94 @@
+# Root .gitignore for e-learning monorepo
+# Structure:
+#   backend/
+#   frontend/
+
+# ----------------------------
+# Environment / secrets
+# ----------------------------
+.env
+.env.*
+!.env.example
+
+# ----------------------------
+# OS / editor / IDE
+# ----------------------------
+.DS_Store
+
+# VS Code
+.vscode/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# STS / Eclipse
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# ----------------------------
+# Backend: Java / Maven / Spring
+# ----------------------------
+HELP.md
+target/
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Keep target folders inside source trees if they are intentionally committed
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Runtime / generated backend files
+uploads/
+backend/uploads/
+
+# ----------------------------
+# Frontend: Node / Next.js / TypeScript
+# ----------------------------
+node_modules/
+.pnp/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+coverage/
+.next/
+out/
+build/
+
+# Keep build folders inside source trees if they are intentionally committed
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Vercel
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Certificates / private keys
+*.pem
