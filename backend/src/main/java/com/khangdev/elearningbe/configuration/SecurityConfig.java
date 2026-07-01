@@ -30,8 +30,9 @@ public class SecurityConfig {
     CustomAccessDeniedHandler customAccessDeniedHandler;
 
     private static final String[] whiteListPost = {
-            "/auth/login", "/auth/logout", "/auth/verify-email", "auth/register",
-            "/auth/introspect", "auth/refreshToken",
+            "/auth/login", "/auth/logout", "/auth/verify-email", "/auth/register",
+            "/auth/introspect", "/auth/refresh-token", "/auth/refreshtToken",
+            "/auth/resend-verification",
             "/auth/forgot-password",
             "/auth/reset-password",
             "/oauth2/**",

@@ -16,6 +16,7 @@ public interface AuthenticationService {
     AuthenticationResponse refreshToken(RefreshTokenRequest request) throws ParseException, JOSEException;
     UserResponse register(RegisterRequest request);
     EmailVerifyResponse verifyEmail(EmailVerifyRequest request) throws JOSEException;
+    void resendVerificationEmail(PasswordForgotRequest request);
     void forgotPassword(PasswordForgotRequest request);
     void resetPassword(PasswordResetRequest request);
 }
