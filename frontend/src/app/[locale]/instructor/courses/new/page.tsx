@@ -31,6 +31,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type CourseCreateForm = {
   title: string;
@@ -261,44 +265,42 @@ const CourseCreatePage = () => {
               </div>
 
               <div className="grid gap-4">
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                <Label className="grid gap-1.5">
+                  <span>
                     {t("fields.title")}
                   </span>
-                  <input
+                  <Input
                     value={form.title}
                     onChange={(event) => updateForm("title", event.target.value)}
                     placeholder={t("placeholders.title")}
-                    className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
                   />
-                </label>
+                </Label>
 
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                <Label className="grid gap-1.5">
+                  <span>
                     {t("fields.slug")}
                   </span>
-                  <input
+                  <Input
                     value={slug}
                     readOnly
                     placeholder={t("placeholders.slug")}
                     className="h-10 rounded-md border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 outline-none dark:border-border dark:bg-bg/60 dark:text-muted"
                   />
-                </label>
+                </Label>
 
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                <Label className="grid gap-1.5">
+                  <span>
                     {t("fields.description")}
                   </span>
-                  <textarea
+                  <Textarea
                     value={form.description}
                     onChange={(event) =>
                       updateForm("description", event.target.value)
                     }
                     placeholder={t("placeholders.description")}
                     rows={5}
-                    className="resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
                   />
-                </label>
+                </Label>
               </div>
             </section>
 
@@ -311,10 +313,10 @@ const CourseCreatePage = () => {
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
-                <label className="grid gap-1.5 md:col-span-3">
-                  <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                <div className="grid gap-1.5 md:col-span-3">
+                  <Label>
                     {t("fields.category")}
-                  </span>
+                  </Label>
                   <Select
                     value={form.categoryId}
                     onValueChange={(value) => updateForm("categoryId", value)}
@@ -338,12 +340,12 @@ const CourseCreatePage = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </label>
+                </div>
 
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                <div className="grid gap-1.5">
+                  <Label>
                     {t("fields.level")}
-                  </span>
+                  </Label>
                   <Select
                     value={form.level}
                     onValueChange={(value) =>
@@ -361,12 +363,12 @@ const CourseCreatePage = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </label>
+                </div>
 
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                <div className="grid gap-1.5">
+                  <Label>
                     {t("fields.language")}
-                  </span>
+                  </Label>
                   <Select
                     value={form.language}
                     onValueChange={(value) => updateForm("language", value)}
@@ -382,21 +384,20 @@ const CourseCreatePage = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </label>
+                </div>
 
-                <label className="grid gap-1.5">
-                  <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                <Label className="grid gap-1.5">
+                  <span>
                     {t("fields.thumbnailUrl")}
                   </span>
-                  <input
+                  <Input
                     value={form.thumbnailUrl}
                     onChange={(event) =>
                       updateForm("thumbnailUrl", event.target.value)
                     }
                     placeholder={t("placeholders.thumbnailUrl")}
-                    className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
                   />
-                </label>
+                </Label>
               </div>
             </section>
 
@@ -410,8 +411,9 @@ const CourseCreatePage = () => {
 
               <div className="grid gap-4">
                 <div className="grid w-85 grid-cols-2 gap-2 rounded-md bg-gray-100 p-1 dark:bg-bg">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => updateForm("isFree", true)}
                     className={`flex h-9 w-full items-center justify-center rounded-md text-sm font-semibold transition-colors ${
                       form.isFree
@@ -420,9 +422,10 @@ const CourseCreatePage = () => {
                     }`}
                   >
                     {t("pricing.free")}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="ghost"
                     onClick={() => updateForm("isFree", false)}
                     className={`flex h-9 w-full items-center justify-center rounded-md text-sm font-semibold transition-colors ${
                       form.isFree
@@ -431,16 +434,16 @@ const CourseCreatePage = () => {
                     }`}
                   >
                     {t("pricing.paid")}
-                  </button>
+                  </Button>
                 </div>
 
                 {!form.isFree && (
                   <div className="grid gap-4 md:grid-cols-2">
-                    <label className="grid gap-1.5">
-                      <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                    <Label className="grid gap-1.5">
+                      <span>
                         {t("fields.price")}
                       </span>
-                      <input
+                      <Input
                         type="number"
                         min="0"
                         step="0.01"
@@ -448,14 +451,13 @@ const CourseCreatePage = () => {
                         onChange={(event) =>
                           updateForm("price", event.target.value)
                         }
-                        className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
                       />
-                    </label>
-                    <label className="grid gap-1.5">
-                      <span className="text-xs font-semibold text-gray-700 dark:text-text">
+                    </Label>
+                    <Label className="grid gap-1.5">
+                      <span>
                         {t("fields.originalPrice")}
                       </span>
-                      <input
+                      <Input
                         type="number"
                         min="0"
                         step="0.01"
@@ -464,9 +466,8 @@ const CourseCreatePage = () => {
                           updateForm("originalPrice", event.target.value)
                         }
                         placeholder={form.price}
-                        className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
                       />
-                    </label>
+                    </Label>
                   </div>
                 )}
               </div>
@@ -505,10 +506,10 @@ const CourseCreatePage = () => {
             )}
 
             <div className="flex flex-col gap-2">
-              <button
+              <Button
                 type="submit"
                 disabled={createCourseMutation.isPending}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold !text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                className="!text-white"
               >
                 {createCourseMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -516,13 +517,12 @@ const CourseCreatePage = () => {
                   <FilePlus2 className="h-4 w-4" />
                 )}
                 {t("actions.create")}
-              </button>
-              <Link
-                href={`/${locale}/instructor/courses`}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 px-4 text-sm font-semibold text-gray-600 hover:border-primary hover:text-primary dark:border-border dark:text-muted"
-              >
-                {t("actions.cancel")}
-              </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href={`/${locale}/instructor/courses`}>
+                  {t("actions.cancel")}
+                </Link>
+              </Button>
             </div>
           </aside>
         </form>

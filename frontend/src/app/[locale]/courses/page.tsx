@@ -28,6 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const PAGE_SIZE = 9;
 
@@ -252,7 +254,7 @@ const CoursesPage = () => {
                 icon={faSearch}
                 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
               />
-              <input
+              <Input
                 type="text"
                 value={filters.keyword}
                 onChange={(event) =>
@@ -265,15 +267,17 @@ const CoursesPage = () => {
                 className="w-full pl-10 pr-3.5 py-3 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-lg text-gray-900 dark:text-text placeholder-gray-400 dark:placeholder-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-sm"
               />
               {filters.keyword && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() =>
                     updateFilters((current) => ({ ...current, keyword: "" }))
                   }
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <FontAwesomeIcon icon={faTimes} className="w-3.5 h-3.5" />
-                </button>
+                </Button>
               )}
             </div>
 
@@ -321,13 +325,15 @@ const CoursesPage = () => {
                   )}
                 </div>
                 {activeFilterCount > 0 && (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={clearFilters}
-                    className="text-xs text-primary hover:text-primary/80 font-medium"
+                    className="h-7 px-2 text-primary hover:text-primary/80"
                   >
                     {t("filter.clear")}
-                  </button>
+                  </Button>
                 )}
               </div>
               <CourseSidebar
@@ -342,8 +348,10 @@ const CoursesPage = () => {
 
           <div className="flex-1 min-w-0">
             <div className="mb-5">
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden mb-3.5 flex items-center gap-1.5 px-3.5 py-1.5 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-md text-xs font-medium text-gray-700 dark:text-muted hover:border-primary transition-colors"
               >
@@ -354,7 +362,7 @@ const CoursesPage = () => {
                     {activeFilterCount}
                   </span>
                 )}
-              </button>
+              </Button>
 
               {activeFilterCount > 0 && (
                 <div className="flex flex-wrap gap-1.5">
@@ -366,36 +374,48 @@ const CoursesPage = () => {
                         className="flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary text-xs rounded-full"
                       >
                         {category.name}
-                        <button type="button" onClick={() => toggleCategory(id)}>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => toggleCategory(id)}
+                          className="h-4 w-4"
+                        >
                           <FontAwesomeIcon icon={faTimes} className="w-2.5 h-2.5" />
-                        </button>
+                        </Button>
                       </span>
                     ) : null;
                   })}
                   {filters.level && (
                     <span className="flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary text-xs rounded-full">
                       {getLevelLabel(filters.level)}
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() =>
                           updateFilters((current) => ({ ...current, level: null }))
                         }
+                        className="h-4 w-4"
                       >
                         <FontAwesomeIcon icon={faTimes} className="w-2.5 h-2.5" />
-                      </button>
+                      </Button>
                     </span>
                   )}
                   {filters.isFree !== null && (
                     <span className="flex items-center gap-1 px-2.5 py-1 bg-primary/10 text-primary text-xs rounded-full">
                       {filters.isFree ? t("filter.free") : t("filter.paid")}
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() =>
                           updateFilters((current) => ({ ...current, isFree: null }))
                         }
+                        className="h-4 w-4"
                       >
                         <FontAwesomeIcon icon={faTimes} className="w-2.5 h-2.5" />
-                      </button>
+                      </Button>
                     </span>
                   )}
                 </div>
@@ -418,13 +438,13 @@ const CoursesPage = () => {
                 <p className="mb-5 text-sm text-gray-600 dark:text-muted">
                   {courseErrorMessage}
                 </p>
-                <button
+                <Button
                   type="button"
                   onClick={() => coursesQuery.refetch()}
-                  className="px-5 py-2.5 bg-primary text-white rounded-md font-medium hover:bg-primary/90 transition-colors"
+                  className="!text-white"
                 >
                   Try again
-                </button>
+                </Button>
               </div>
             ) : courses.length > 0 ? (
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
@@ -443,13 +463,13 @@ const CoursesPage = () => {
                 <p className="text-gray-600 dark:text-muted mb-5">
                   {t("noResults.subtitle")}
                 </p>
-                <button
+                <Button
                   type="button"
                   onClick={clearFilters}
-                  className="px-5 py-2.5 bg-primary text-white rounded-md font-medium hover:bg-primary/90 transition-colors"
+                  className="!text-white"
                 >
                   {t("noResults.clear")}
-                </button>
+                </Button>
               </div>
             )}
 
@@ -480,12 +500,17 @@ const CoursesPage = () => {
                 <span className="font-bold text-gray-900 dark:text-text">
                   {t("filter.title")}
                 </span>
-                <button type="button" onClick={() => setSidebarOpen(false)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSidebarOpen(false)}
+                >
                   <FontAwesomeIcon
                     icon={faTimes}
                     className="w-4 h-4 text-gray-500"
                   />
-                </button>
+                </Button>
               </div>
               <CourseSidebar
                 filters={filters}

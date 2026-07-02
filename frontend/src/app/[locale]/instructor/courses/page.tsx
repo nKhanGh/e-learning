@@ -3,6 +3,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyCoursesQuery } from "@/hooks/queries/useCourseQueries";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { UserRole } from "@/types/enums/UserRole.enum";
 import {
   BookOpen,
@@ -145,13 +147,12 @@ const MyCoursesPage = () => {
               {t("subtitle")}
             </p>
           </div>
-          <Link
-            href={`/${locale}/instructor/courses/new`}
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-primary px-3.5 text-sm font-semibold !text-white transition-colors hover:bg-primary/90"
-          >
-            <FilePlus2 className="h-4 w-4" />
-            {t("createCourse")}
-          </Link>
+          <Button asChild size="sm" className="!text-white">
+            <Link href={`/${locale}/instructor/courses/new`}>
+              <FilePlus2 className="h-4 w-4" />
+              {t("createCourse")}
+            </Link>
+          </Button>
         </div>
 
         <div className="mb-4 grid gap-3 md:grid-cols-4">
@@ -205,37 +206,39 @@ const MyCoursesPage = () => {
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="relative w-full lg:max-w-sm">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
+                <Input
                   value={keyword}
                   onChange={(event) => {
                     setKeyword(event.target.value);
                     setPage(0);
                   }}
                   placeholder={t("searchPlaceholder")}
-                  className="h-9 w-full rounded-md border border-gray-200 bg-white pl-9 pr-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
+                  className="h-9 pl-9"
                 />
               </div>
               <div className="flex items-center gap-2 overflow-x-auto">
                 <SlidersHorizontal className="h-4 w-4 shrink-0 text-gray-400" />
                 {statusFilters.map((item) => (
-                  <button
+                  <Button
                     key={item}
                     type="button"
+                    variant={status === item ? "default" : "secondary"}
+                    size="sm"
                     onClick={() => {
                       setStatus(item);
                       setPage(0);
                     }}
-                    className={`h-8 shrink-0 rounded-md px-3 text-xs font-semibold transition-colors ${
+                    className={`shrink-0 ${
                       status === item
-                        ? "bg-primary !text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                        ? "!text-white"
+                        : "text-gray-600 dark:text-gray-300"
                     }`}
                   >
                     {statusT(item)}
                     <span className="ml-1 opacity-70">
                       {counts[item] ?? 0}
                     </span>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -258,13 +261,14 @@ const MyCoursesPage = () => {
               <p className="mt-2 text-sm text-gray-500 dark:text-muted">
                 {t("error.subtitle")}
               </p>
-              <button
+              <Button
                 type="button"
                 onClick={() => coursesQuery.refetch()}
-                className="mx-auto mt-4 h-9 rounded-md bg-primary px-4 text-sm font-semibold !text-white"
+                size="sm"
+                className="mx-auto mt-4 !text-white"
               >
                 {t("error.retry")}
-              </button>
+              </Button>
             </div>
           ) : courses.length ? (
             <div className="grid gap-3 p-3 xl:grid-cols-2">
@@ -337,27 +341,26 @@ const MyCoursesPage = () => {
                           t("labels.notUpdated"),
                         )}
                       </span>
-                      <Link
-                        href={`/${locale}/instructor/studio/${course.id}`}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-200 px-2.5 text-xs font-semibold hover:border-primary hover:text-primary dark:border-border"
-                      >
-                        <GraduationCap className="h-3.5 w-3.5" />
-                        {t("actions.studio")}
-                      </Link>
-                      <Link
-                        href={`/${locale}/instructor/courses/${course.id}/edit`}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-200 px-2.5 text-xs font-semibold hover:border-primary hover:text-primary dark:border-border"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                        {t("actions.edit")}
-                      </Link>
-                      <Link
-                        href={`/${locale}/courses/${course.id}?preview=teacher`}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-semibold !text-white hover:bg-primary/90"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        {t("actions.preview")}
-                      </Link>
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/${locale}/instructor/studio/${course.id}`}>
+                          <GraduationCap className="h-3.5 w-3.5" />
+                          {t("actions.studio")}
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm">
+                        <Link
+                          href={`/${locale}/instructor/courses/${course.id}/edit`}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          {t("actions.edit")}
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" className="!text-white">
+                        <Link href={`/${locale}/courses/${course.id}?preview=teacher`}>
+                          <Eye className="h-3.5 w-3.5" />
+                          {t("actions.preview")}
+                        </Link>
+                      </Button>
                     </div>
                   </div>
                 </article>
@@ -374,12 +377,11 @@ const MyCoursesPage = () => {
               <p className="mt-2 text-sm text-gray-500 dark:text-muted">
                 {t("empty.subtitle")}
               </p>
-              <Link
-                href={`/${locale}/instructor/courses/new`}
-                className="mt-4 inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold !text-white"
-              >
-                {t("createCourse")}
-              </Link>
+              <Button asChild size="sm" className="mt-4 !text-white">
+                <Link href={`/${locale}/instructor/courses/new`}>
+                  {t("createCourse")}
+                </Link>
+              </Button>
             </div>
           )}
 
@@ -391,22 +393,24 @@ const MyCoursesPage = () => {
               })}
             </p>
             <div className="flex gap-2">
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 disabled={page === 0}
                 onClick={() => setPage((current) => Math.max(current - 1, 0))}
-                className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 dark:border-border"
               >
                 {t("pagination.previous")}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage((current) => current + 1)}
-                className="h-8 rounded-md border border-gray-200 px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50 dark:border-border"
               >
                 {t("pagination.next")}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
