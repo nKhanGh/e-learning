@@ -16,6 +16,8 @@ Hien thi home featured courses, danh sach/search course, filter, course detail, 
 - `frontend/src/services/course.service.ts`
 - `frontend/src/services/courseCategory.service.ts`
 - `frontend/src/services/enrollment.service.ts`
+- `frontend/src/hooks/queries/useCourseQueries.ts`
+- `frontend/src/hooks/queries/useEnrollmentQueries.ts`
 - `frontend/src/types/course.d.ts`
 - `frontend/src/types/enrollment.d.ts`
 - `frontend/src/types/enums/CourseLevel.enum.ts`
@@ -31,13 +33,11 @@ Hien thi home featured courses, danh sach/search course, filter, course detail, 
 
 ## API service hien tai
 
-- `GET /courses/search?page={page}&size={size}` voi params filter.
+- `POST /courses/search?page={page}&size={size}` voi body filter.
 - `GET /courses/{courseId}`
 - `GET /course-categories`
-- `GET /course/{courseId}/enrollments/me`
+- `GET /courses/{courseId}/enrollments/me`
 
 ## Luu y tich hop
 
-- Backend search endpoint hien tai la `POST /courses/search`; frontend dang dung `GET /courses/search`.
-- Backend enrollment endpoint la `/courses/{courseId}/enrollments/me`; frontend dang dung `/course/{courseId}/enrollments/me`.
-- Course detail page dang fetch hardcoded `http://localhost:8080/api/courses/{id}` thay vi env.
+Home va course detail dung `NEXT_PUBLIC_APP_API_URL` thong qua shared API base URL.

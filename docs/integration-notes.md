@@ -1,26 +1,25 @@
 # Luu y tich hop Frontend/Backend
 
-Tai lieu nay ghi lai cac diem can dong bo giua frontend service va backend controller hien tai.
+Tai lieu nay ghi lai trang thai dong bo giua frontend service va backend controller hien tai.
 
-## Endpoint chua khop
+## Endpoint da dong bo o frontend
 
-| Chuc nang | Frontend dang goi | Backend hien expose | De xuat |
-| --- | --- | --- | --- |
-| Dang ky | `POST /auth/signup` | `POST /auth/register` | Doi FE sang `/auth/register` hoac them alias BE |
-| Refresh token | `POST /auth/refresh` | `POST /auth/refreshtToken` | Doi BE thanh `/auth/refresh-token`/`/auth/refresh` va giu alias cu neu can |
-| Course search | `GET /courses/search` | `POST /courses/search` | Doi FE sang POST body filter hoac them GET endpoint |
-| My enrollment | `GET /course/{id}/enrollments/me` | `GET /courses/{id}/enrollments/me` | Doi FE sang `/courses/...` |
-| Doi avatar conversation | `POST /conversations/{id}/avatar` | `PUT /conversations/{id}/avatar` | Doi FE sang PUT |
-| Doi description conversation | `PUT /conversations/{id}/description` | Chua co | Them BE endpoint hoac xoa method FE |
+| Chuc nang | Frontend hien goi | Backend hien expose |
+| --- | --- | --- |
+| Dang ky | `POST /auth/register` | `POST /auth/register` |
+| Refresh token | `POST /auth/refreshtToken` | `POST /auth/refreshtToken` |
+| Course search | `POST /courses/search` | `POST /courses/search` |
+| My enrollment | `GET /courses/{id}/enrollments/me` | `GET /courses/{id}/enrollments/me` |
+| Doi avatar conversation | `PUT /conversations/{id}/avatar` | `PUT /conversations/{id}/avatar` |
 
-## Hardcoded URL
+## URL backend
 
-Mot so page frontend fetch truc tiep `http://localhost:8080/api/...`:
+Frontend dung `NEXT_PUBLIC_APP_API_URL` thong qua `frontend/src/lib/apiClient.ts`.
+
+Nhung page da duoc chuyen khoi hardcoded `http://localhost:8080/api/...`:
 
 - `frontend/src/app/[locale]/page.tsx`
 - `frontend/src/app/[locale]/courses/[id]/page.tsx`
-
-Nen dung `NEXT_PUBLIC_APP_API_URL` hoac API helper chung de deploy duoc tren moi truong khac.
 
 ## WebSocket
 
@@ -43,6 +42,6 @@ Client va server dang khop cac STOMP destination chinh:
 - `/user/queue/user-status-init`
 - `/topic/user.online`
 
-## README cu bi encoding
+## Luu y backend nen lam dep sau
 
-`frontend/README.md` hien co dau hieu mojibake cho icon/Unicode. README root moi dung ASCII de tranh loi hien thi.
+`/auth/refreshtToken` dang la typo trong backend contract. Frontend hien da dong bo theo backend de chay dung, nhung nen them endpoint moi nhu `/auth/refresh` hoac `/auth/refresh-token` roi deprecate endpoint cu.

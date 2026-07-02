@@ -12,7 +12,7 @@ Tai lieu chi tiet da duoc gom vao thu muc [docs](docs/README.md).
 | Phan | Cong nghe |
 | --- | --- |
 | Backend | Java 17, Spring Boot 3.3.5, Spring Security, Spring Data JPA, PostgreSQL, Redis, Kafka, Elasticsearch, WebSocket/STOMP, LangChain4j, Maven |
-| Frontend | Next.js 16, React 19, TypeScript 5, Tailwind CSS 4, next-intl, Axios, SockJS/STOMP, Radix UI, lucide-react, Font Awesome |
+| Frontend | Next.js 16, React 19, TypeScript 5, Tailwind CSS 4, next-intl, TanStack Query, Axios, SockJS/STOMP, Radix UI, lucide-react, Font Awesome |
 | Ha tang dev | Docker Compose, PostgreSQL pgvector, Redis, Kafka, Elasticsearch, Kibana |
 
 ## Cau truc repo
@@ -94,7 +94,7 @@ Frontend gom cac nhom module:
 - API services: auth, user, course, category, enrollment, conversation, participant, message, AI.
 - Context/state: auth, auth modal, websocket, conversation.
 - UI/components: layout, auth form, course cards/sidebar, chat panels, pagination/loading/toast.
-- Utilities: Axios interceptor, WebSocket singleton, auth helper, time formatter.
+- Utilities: shared API client, TanStack Query hooks, WebSocket singleton, auth helper, time formatter.
 - i18n/theme: `en`, `vi`, route locale, dark/light theme trong localStorage.
 
 ## API va tai lieu phat trien

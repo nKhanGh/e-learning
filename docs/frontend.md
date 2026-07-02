@@ -9,6 +9,7 @@ Frontend nam trong `frontend`, la Next.js App Router client cua Learnio.
 - TypeScript 5
 - Tailwind CSS 4
 - next-intl
+- TanStack Query
 - Axios
 - SockJS + STOMP
 - Radix UI, shadcn, lucide-react
@@ -22,6 +23,7 @@ frontend/src/
 |-- app/
 |-- components/
 |-- contexts/
+|-- hooks/
 |-- i18n/
 |-- lib/
 |-- messages/

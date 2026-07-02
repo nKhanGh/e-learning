@@ -20,6 +20,9 @@ Hien thi chat sidebar, main chat, info panel, tao conversation, them user, leave
 - `frontend/src/services/conversationParticipant.service.ts`
 - `frontend/src/services/message.service.ts`
 - `frontend/src/services/ai.service.ts`
+- `frontend/src/hooks/queries/useConversationQueries.ts`
+- `frontend/src/hooks/queries/useMessageQueries.ts`
+- `frontend/src/hooks/queries/useUserQueries.ts`
 - `frontend/src/types/conversation.d.ts`
 - `frontend/src/types/message.d.ts`
 
@@ -29,14 +32,17 @@ Hien thi chat sidebar, main chat, info panel, tao conversation, them user, leave
 - `GET /conversations/search`
 - `POST /conversations`
 - `POST /conversations/ai`
-- `POST /conversations/{conversationId}/avatar`
+- `PUT /conversations/{conversationId}/avatar`
 - `PUT /conversations/{conversationId}/name`
-- `PUT /conversations/{conversationId}/description`
 - `DELETE /conversations/{conversationId}`
 - `POST /conversations/{conversationId}/participants`
 - `DELETE /conversations/{conversationId}/participants/me`
 - `GET /messages/conversations/{conversationId}`
 - `POST /ai/chat`
+
+## Server state
+
+Conversation list, user search, message pages va create conversation mutations duoc quan ly qua TanStack Query. WebSocket event van cap nhat context realtime de UI phan hoi ngay.
 
 ## WebSocket
 
@@ -64,8 +70,3 @@ Publish:
 - `userStatuses`: online/offline/lastSeen theo user id.
 - `unreadCount`: tong unread.
 - `wsConnected`: trang thai websocket.
-
-## Luu y tich hop
-
-- Backend doi avatar conversation bang `PUT /conversations/{conversationId}/avatar`; frontend dang goi `POST`.
-- Backend hien chua co route `/conversations/{conversationId}/description`; frontend service co method nay.
