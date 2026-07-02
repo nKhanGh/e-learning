@@ -18,6 +18,7 @@ import { authService } from "@/services/auth.service";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOpenAuth } from "@/contexts/OpenAuthContext";
+import { OAuthProvider, startOAuthLogin } from "@/lib/oauth";
 
 interface SignUpFormProps {
   onSwitchToLogin: () => void;
@@ -250,8 +251,8 @@ const SignUpForm = ({ onSwitchToLogin }: SignUpFormProps) => {
     }
   };
 
-  const handleSocialSignUp = (provider: "google" | "github") => {
-    console.log(`Sign up with ${provider}`);
+  const handleSocialSignUp = (provider: OAuthProvider) => {
+    startOAuthLogin(provider);
   };
 
   const passwordStrength = getPasswordStrength(formData.password);

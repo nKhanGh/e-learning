@@ -15,6 +15,7 @@ import { login } from "@/utils/auth";
 import { useOpenAuth } from "@/contexts/OpenAuthContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { OAuthProvider, startOAuthLogin } from "@/lib/oauth";
 
 interface LoginFormProps {
   onSwitchToSignUp: () => void;
@@ -99,9 +100,8 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
     }
   };
 
-  const handleSocialLogin = (provider: "google" | "github") => {
-    console.log(`Login with ${provider}`);
-    // TODO: Implement social login
+  const handleSocialLogin = (provider: OAuthProvider) => {
+    startOAuthLogin(provider);
   };
 
   return (
