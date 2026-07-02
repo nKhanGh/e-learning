@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyCoursesQuery } from "@/hooks/queries/useCourseQueries";
+import { useDebounce } from "@/hooks/useDebounce";
 import { UserRole } from "@/types/enums/UserRole.enum";
 import {
   BookOpen,
@@ -78,34 +79,31 @@ const MyCoursesPage = () => {
   const [page, setPage] = useState(0);
   const [status, setStatus] = useState<StatusFilter>("ALL");
   const [keyword, setKeyword] = useState("");
+  const debouncedKeyword = useDebounce(keyword, 400);
+  const statusParam = status === "ALL" ? undefined : status;
 
-  const coursesQuery = useMyCoursesQuery(page, PAGE_SIZE);
+  const coursesQuery = useMyCoursesQuery(
+    page,
+    PAGE_SIZE,
+    debouncedKeyword.trim(),
+    statusParam,
+  );
   const courses = coursesQuery.data?.items ?? [];
   const totalPages = coursesQuery.data?.totalPages ?? 0;
   const totalElements = coursesQuery.data?.totalElements ?? 0;
 
-  const visibleCourses = useMemo(() => {
-    const normalizedKeyword = keyword.trim().toLowerCase();
-
-    return courses.filter((course) => {
-      const matchesStatus = status === "ALL" || course.status === status;
-      const matchesKeyword =
-        !normalizedKeyword ||
-        course.title.toLowerCase().includes(normalizedKeyword) ||
-        course.description?.toLowerCase().includes(normalizedKeyword);
-
-      return matchesStatus && matchesKeyword;
-    });
-  }, [courses, keyword, status]);
-
   const counts = useMemo(() => {
+    if (coursesQuery.data?.statusCounts) {
+      return coursesQuery.data.statusCounts;
+    }
+
     return courses.reduce<Record<string, number>>(
       (acc, course) => {
         acc.ALL += 1;
         acc[course.status] = (acc[course.status] ?? 0) + 1;
         return acc;
       },
-      { ALL: courses.length },
+      { ALL: 0 },
     );
   }, [courses]);
 
@@ -163,7 +161,7 @@ const MyCoursesPage = () => {
               {t("metrics.totalCourses")}
             </div>
             <p className="mt-2 text-xl font-bold text-gray-950 dark:text-text">
-              {totalElements}
+              {counts.ALL ?? totalElements}
             </p>
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-border dark:bg-surface">
@@ -209,7 +207,10 @@ const MyCoursesPage = () => {
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <input
                   value={keyword}
-                  onChange={(event) => setKeyword(event.target.value)}
+                  onChange={(event) => {
+                    setKeyword(event.target.value);
+                    setPage(0);
+                  }}
                   placeholder={t("searchPlaceholder")}
                   className="h-9 w-full rounded-md border border-gray-200 bg-white pl-9 pr-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
                 />
@@ -220,10 +221,13 @@ const MyCoursesPage = () => {
                   <button
                     key={item}
                     type="button"
-                    onClick={() => setStatus(item)}
+                    onClick={() => {
+                      setStatus(item);
+                      setPage(0);
+                    }}
                     className={`h-8 shrink-0 rounded-md px-3 text-xs font-semibold transition-colors ${
                       status === item
-                        ? "bg-primary text-white!"
+                        ? "bg-primary !text-white"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     }`}
                   >
@@ -262,9 +266,9 @@ const MyCoursesPage = () => {
                 {t("error.retry")}
               </button>
             </div>
-          ) : visibleCourses.length ? (
+          ) : courses.length ? (
             <div className="grid gap-3 p-3 xl:grid-cols-2">
-              {visibleCourses.map((course) => (
+              {courses.map((course) => (
                 <article
                   key={course.id}
                   className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-border dark:bg-bg md:flex-row"

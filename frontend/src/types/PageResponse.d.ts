@@ -3,4 +3,5 @@ interface PageResponse<T> {
   totalElements: number;
   totalPages: number;
   currentPage: number;
+  statusCounts?: Record<string, number>;
 }
