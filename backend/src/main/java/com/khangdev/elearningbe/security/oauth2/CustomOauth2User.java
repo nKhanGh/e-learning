@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -18,7 +19,9 @@ public class CustomOauth2User implements OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return oAuth2User.getAttributes();
+        Map<String, Object> attributes = new HashMap<>(oAuth2User.getAttributes());
+        attributes.put("email", email);
+        return attributes;
     }
 
     @Override

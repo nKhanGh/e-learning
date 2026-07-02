@@ -5,6 +5,8 @@ import com.khangdev.elearningbe.security.oauth2.Oauth2LoginSuccessHandler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +18,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.util.UriUtils;
+
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 @EnableWebSecurity
@@ -29,18 +34,23 @@ public class SecurityConfig {
     CustomOauth2UserService customOauth2UserService;
     CustomAccessDeniedHandler customAccessDeniedHandler;
 
+    @NonFinal
+    @Value("${app.frontendUrl}")
+    String frontendBaseUrl;
+
     private static final String[] whiteListPost = {
             "/auth/login", "/auth/logout", "/auth/verify-email", "/auth/register",
             "/auth/introspect", "/auth/refresh-token", "/auth/refreshtToken",
             "/auth/resend-verification",
             "/auth/forgot-password",
             "/auth/reset-password",
-            "/oauth2/**",
             "/ws/**",
     };
 
     private static final String[] whiteListGet = {
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+            "/oauth2/**",
+            "/login/oauth2/**",
             "/courses/search/**",
             "/files/**",
             "/uploads/**",
@@ -69,7 +79,8 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOauth2UserService))
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            response.sendRedirect("http://localhost:5173/auth/error?error=" + exception.getMessage());
+                            String message = UriUtils.encode(exception.getMessage(), StandardCharsets.UTF_8);
+                            response.sendRedirect(frontendBaseUrl + "/auth/callback?status=error&message=" + message);
                         })
                 )
 
