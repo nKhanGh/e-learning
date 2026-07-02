@@ -94,6 +94,14 @@ interface CourseSearchRequest {
   sortBy: CourseSortOption;
 }
 
+type CourseStatus =
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "PUBLISHED"
+  | "UNPUBLISHED"
+  | "ARCHIVED"
+  | "REJECTED";
+
 type CourseSortOption =
   | "RELEVANCE"
   | "NEWEST"

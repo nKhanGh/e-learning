@@ -8,6 +8,11 @@ export const courseService = {
     ),
   getCourse: (courseId: string) =>
     publicApiClient.get<ApiResponse<CourseResponse>>(`/courses/${courseId}`),
+  getMyCourses: (page = 0, size = 9) =>
+    apiClient.get<ApiResponse<PageResponse<CourseResponse>>>(
+      "/courses/my-course",
+      { params: { page, size } },
+    ),
   getCurriculum: (courseId: string) =>
     apiClient.get<ApiResponse<CourseCurriculumResponse>>(
       `/courses/${courseId}/curriculum`,

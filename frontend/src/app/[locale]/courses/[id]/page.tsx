@@ -235,7 +235,7 @@ const CourseDetailPage = () => {
               </div>
 
               <div className="flex items-center gap-1.5 mb-5">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xs">
+                <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xs">
                   {instructorInitials}
                 </div>
                 <div>
@@ -280,7 +280,7 @@ const CourseDetailPage = () => {
               <span className="text-lg font-bold text-gray-900 dark:text-text">
                 ${course.price}
               </span>
-              {course.originalPrice && (
+              {!!(course.originalPrice) && (
                 <span className="text-xs text-gray-400 line-through">
                   ${course.originalPrice}
                 </span>
@@ -304,7 +304,7 @@ const CourseDetailPage = () => {
           />
         </div>
 
-        <div className="grid lg:grid-cols-[1fr_380px] gap-9">
+        <div className="grid lg:grid-cols-[1fr_340px] gap-9">
           <div className="space-y-9">
             <section>
               <h2 className="text-xl font-bold text-gray-900 dark:text-text mb-4 flex items-center gap-1.5">

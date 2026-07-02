@@ -83,6 +83,74 @@
     "search": "Tìm kiếm...",
     "viewProfile": "Xem Hồ Sơ"
   },
+  "CourseStatus": {
+    "ALL": "Tất cả",
+    "DRAFT": "Bản nháp",
+    "PENDING_REVIEW": "Chờ duyệt",
+    "PUBLISHED": "Đã xuất bản",
+    "REJECTED": "Bị từ chối",
+    "UNPUBLISHED": "Chưa xuất bản",
+    "ARCHIVED": "Đã lưu trữ"
+  },
+  "InstructorSidebar": {
+    "items": {
+      "home": "Trang chủ",
+      "dashboard": "Tổng quan",
+      "myCourses": "Khóa học của tôi",
+      "courseStudio": "Course Studio",
+      "students": "Học viên",
+      "discussions": "Hỏi đáp / Thảo luận",
+      "reviews": "Đánh giá",
+      "revenue": "Doanh thu",
+      "messages": "Tin nhắn",
+      "profile": "Hồ sơ"
+    }
+  },
+  "InstructorCoursesPage": {
+    "title": "Khóa học của tôi",
+    "subtitle": "Xem và quản lý các khóa học bạn sở hữu.",
+    "createCourse": "Tạo khóa học",
+    "searchPlaceholder": "Tìm khóa học của bạn...",
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản giảng viên để quản lý khóa học.",
+      "instructorOnlyTitle": "Chỉ dành cho giảng viên",
+      "instructorOnlySubtitle": "Không gian này chỉ khả dụng với tài khoản giảng viên."
+    },
+    "metrics": {
+      "totalCourses": "Tổng khóa học",
+      "students": "Học viên",
+      "avgRating": "Đánh giá TB",
+      "published": "Đã xuất bản"
+    },
+    "labels": {
+      "free": "Miễn phí",
+      "price": "Giá",
+      "students": "Học viên",
+      "rating": "Đánh giá",
+      "lectures": "Bài giảng",
+      "notUpdated": "Chưa cập nhật"
+    },
+    "actions": {
+      "studio": "Studio",
+      "edit": "Sửa",
+      "preview": "Xem trước"
+    },
+    "error": {
+      "title": "Không tải được khóa học",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    },
+    "empty": {
+      "title": "Không tìm thấy khóa học",
+      "subtitle": "Tạo khóa học đầu tiên hoặc điều chỉnh bộ lọc hiện tại."
+    },
+    "pagination": {
+      "pageOf": "Trang {page} / {total}",
+      "previous": "Trước",
+      "next": "Sau"
+    }
+  },
   "Footer": {
     "description": "Nền tảng học tập trực tuyến hàng đầu giúp bạn nâng cao kỹ năng và phát triển sự nghiệp với các khóa học từ các chuyên gia hàng đầu.",
     "aboutUs": "Về Chúng Tôi",

@@ -16,4 +16,5 @@ public interface CourseService {
     CourseResponse getCourseById(UUID courseId);
     void deleteCourse(UUID courseId);
     PageResponse<CourseResponse> getCourses(UUID instructorId, int page, int size);
+    PageResponse<CourseResponse> getCoursesByInstructorUserId(UUID userId, int page, int size);
 }

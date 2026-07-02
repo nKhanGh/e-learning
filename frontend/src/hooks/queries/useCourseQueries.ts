@@ -121,6 +121,17 @@ export function useCourseQuery(courseId: string) {
   });
 }
 
+export function useMyCoursesQuery(page: number, size: number) {
+  return useQuery({
+    queryKey: queryKeys.courses.my(page, size),
+    queryFn: async () => {
+      const response = await courseService.getMyCourses(page, size);
+      return response.data.result;
+    },
+    placeholderData: (previousData) => previousData,
+  });
+}
+
 export function useCourseCurriculumQuery(courseId: string) {
   return useQuery({
     queryKey: queryKeys.courses.curriculum(courseId),

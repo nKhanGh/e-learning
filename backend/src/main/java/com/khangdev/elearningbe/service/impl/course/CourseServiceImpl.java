@@ -260,4 +260,19 @@ public class CourseServiceImpl implements CourseService {
                 .build();
 
     }
+
+    @Override
+    public PageResponse<CourseResponse> getCoursesByInstructorUserId(UUID userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Course> coursePage = courseRepository.findByInstructorUserId(userId, pageable);
+
+        return PageResponse.<CourseResponse>builder()
+                .items(coursePage.getContent().stream().map(courseMapper::toResponse).toList())
+                .page(page)
+                .size(size)
+                .totalPages(coursePage.getTotalPages())
+                .totalElements(coursePage.getTotalElements())
+                .build();
+    }
 }

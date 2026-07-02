@@ -28,52 +28,52 @@ type InstructorSidebarProps = {
 
 const instructorItems = [
   {
-    title: "Home",
+    key: "home",
     icon: faHome,
     link: "/",
   },
   {
-    title: "Dashboard",
+    key: "dashboard",
     icon: faChartLine,
     link: "/instructor/dashboard",
   },
   {
-    title: "My Courses",
+    key: "myCourses",
     icon: faBookOpen,
     link: "/instructor/courses",
   },
   {
-    title: "Course Studio",
+    key: "courseStudio",
     icon: faPenToSquare,
     link: "/instructor/studio",
   },
   {
-    title: "Students",
+    key: "students",
     icon: faUsers,
     link: "/instructor/students",
   },
   {
-    title: "Q&A / Discussions",
+    key: "discussions",
     icon: faComments,
     link: "/instructor/discussions",
   },
   {
-    title: "Reviews",
+    key: "reviews",
     icon: faStar,
     link: "/instructor/reviews",
   },
   {
-    title: "Revenue",
+    key: "revenue",
     icon: faDollarSign,
     link: "/instructor/revenue",
   },
   {
-    title: "Messages",
+    key: "messages",
     icon: faMessage,
     link: "/chat",
   },
   {
-    title: "Profile",
+    key: "profile",
     icon: faUserCheck,
     link: "/profile",
   },
@@ -88,6 +88,7 @@ const InstructorSidebar = ({ open }: InstructorSidebarProps) => {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations("Common");
+  const instructorT = useTranslations("InstructorSidebar");
   const [openLogout, setOpenLogout] = useState(false);
   const settingsActive = isActivePath(pathname, locale, "/instructor/settings");
 
@@ -104,9 +105,9 @@ const InstructorSidebar = ({ open }: InstructorSidebarProps) => {
 
             return (
               <Link
-                key={item.title}
+                key={item.key}
                 href={`/${locale}${item.link}`}
-                title={open ? undefined : item.title}
+                title={open ? undefined : instructorT(`items.${item.key}`)}
                 className={`group flex min-h-9 items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors ${
                   active
                     ? "bg-primary/10 text-primary"
@@ -125,7 +126,7 @@ const InstructorSidebar = ({ open }: InstructorSidebarProps) => {
                   <>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-semibold leading-tight">
-                        {item.title}
+                        {instructorT(`items.${item.key}`)}
                       </p>
                     </div>
                     <FontAwesomeIcon

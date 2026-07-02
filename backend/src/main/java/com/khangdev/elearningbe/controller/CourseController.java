@@ -128,20 +128,20 @@ public class CourseController {
 
     @GetMapping("/my-course")
     ApiResponse<PageResponse<CourseResponse>> getMyCourse(
-            @RequestParam(defaultValue = "9", required = false) int page,
-            @RequestParam(defaultValue = "0", required = false) int size
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "9", required = false) int size
     ){
         UUID userId = userService.getMyInfo().getId();
         return ApiResponse.<PageResponse<CourseResponse>>builder()
-                .result(courseService.getCourses(userId, page, size))
+                .result(courseService.getCoursesByInstructorUserId(userId, page, size))
                 .build();
     }
 
     @GetMapping("/instructor/{instructorId}")
     ApiResponse<PageResponse<CourseResponse>> getInstructorCourse(
             @PathVariable UUID instructorId,
-            @RequestParam(defaultValue = "9", required = false) int page,
-            @RequestParam(defaultValue = "0", required = false) int size
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "9", required = false) int size
     ){
         return ApiResponse.<PageResponse<CourseResponse>>builder()
                 .result(courseService.getCourses(instructorId, page, size))

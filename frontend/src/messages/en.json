@@ -83,6 +83,74 @@
     "search": "Search...",
     "viewProfile": "View Profile"
   },
+  "CourseStatus": {
+    "ALL": "All",
+    "DRAFT": "Draft",
+    "PENDING_REVIEW": "Pending",
+    "PUBLISHED": "Published",
+    "REJECTED": "Rejected",
+    "UNPUBLISHED": "Unpublished",
+    "ARCHIVED": "Archived"
+  },
+  "InstructorSidebar": {
+    "items": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "myCourses": "My Courses",
+      "courseStudio": "Course Studio",
+      "students": "Students",
+      "discussions": "Q&A / Discussions",
+      "reviews": "Reviews",
+      "revenue": "Revenue",
+      "messages": "Messages",
+      "profile": "Profile"
+    }
+  },
+  "InstructorCoursesPage": {
+    "title": "My Courses",
+    "subtitle": "View and manage the courses you own.",
+    "createCourse": "Create course",
+    "searchPlaceholder": "Search your courses...",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in as an instructor to manage your courses.",
+      "instructorOnlyTitle": "Instructor access only",
+      "instructorOnlySubtitle": "This workspace is available for instructor accounts."
+    },
+    "metrics": {
+      "totalCourses": "Total courses",
+      "students": "Students",
+      "avgRating": "Avg rating",
+      "published": "Published"
+    },
+    "labels": {
+      "free": "Free",
+      "price": "Price",
+      "students": "Students",
+      "rating": "Rating",
+      "lectures": "Lectures",
+      "notUpdated": "Not updated"
+    },
+    "actions": {
+      "studio": "Studio",
+      "edit": "Edit",
+      "preview": "Preview"
+    },
+    "error": {
+      "title": "Failed to load courses",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "empty": {
+      "title": "No courses found",
+      "subtitle": "Create your first course or adjust the current filters."
+    },
+    "pagination": {
+      "pageOf": "Page {page} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
   "Footer": {
     "description": "Learnio is your go-to platform for online learning, offering a wide range of courses to help you achieve your personal and professional goals.",
     "aboutUs": "About Us",

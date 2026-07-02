@@ -10,6 +10,7 @@ export const queryKeys = {
     search: (request: CourseSearchRequest) =>
       ["courses", "search", request] as const,
     detail: (courseId: string) => ["courses", "detail", courseId] as const,
+    my: (page: number, size: number) => ["courses", "my", page, size] as const,
     curriculum: (courseId: string) => ["courses", "curriculum", courseId] as const,
     enrollmentStatus: (courseId: string) =>
       ["courses", "enrollment-status", courseId] as const,
