@@ -11,6 +11,7 @@ const Pagination = ({
     page,
     setPage,
     name = 'items',
+    disabled = false,
 }: {
   items: unknown[];
   totalItems: number;
@@ -18,6 +19,7 @@ const Pagination = ({
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   name?: string;
+  disabled?: boolean;
 }) => {
     const scrollToTop = () => {
         window.scrollTo({
@@ -27,7 +29,7 @@ const Pagination = ({
     };
 
     return (
-        items.length > 0 && (
+        totalItems > 0 && (
             <div className='flex items-center justify-between w-full'>
                 <p className='text-xs text-primary'>
                     Showing <span className='font-medium'>{items.length}</span>{' '}
@@ -41,7 +43,7 @@ const Pagination = ({
                                 scrollToTop();
                                 setPage((prev) => Math.max(prev - 1, 0));
                             }}
-                            disabled={page === 0}
+                            disabled={disabled || page === 0}
                             className='cursor-pointer px-2.5 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white rounded-md disabled:opacity-50 focus:outline-none'
                         >
                             <FontAwesomeIcon
@@ -56,7 +58,8 @@ const Pagination = ({
                             scrollToTop();
                             setPage(0);
                         }}
-                        className={`px-3.5 py-1.5 rounded-md font-medium border text-primary  ${
+                        disabled={disabled}
+                        className={`px-3.5 py-1.5 rounded-md font-medium border text-primary disabled:opacity-50 ${
                             page === 0
                                 ? 'bg-primary text-white border-primary focus:outline-none'
                                 : 'border-primary hover:bg-primary hover:text-white focus:outline-none'
@@ -82,7 +85,8 @@ const Pagination = ({
                                     scrollToTop();
                                     setPage(i);
                                 }}
-                                className={`px-3.5 py-1.5 rounded-md font-medium border text-primary ${
+                                disabled={disabled}
+                                className={`px-3.5 py-1.5 rounded-md font-medium border text-primary disabled:opacity-50 ${
                                     page === i
                                         ? 'bg-primary text-white border-primary focus:outline-none'
                                         : 'border-primary hover:bg-primary hover:text-white focus:outline-none'
@@ -101,7 +105,8 @@ const Pagination = ({
                                 scrollToTop();
                                 setPage(totalPages - 1);
                             }}
-                            className={`px-3.5 py-1.5 rounded-md font-medium border text-primary ${
+                            disabled={disabled}
+                            className={`px-3.5 py-1.5 rounded-md font-medium border text-primary disabled:opacity-50 ${
                                 page === totalPages - 1
                                     ? 'bg-primary text-white border-primary focus:outline-none dark:hover:bg-gray-300 dark:hover:text-gray-300'
                                     : 'border-primary hover:bg-primary hover:text-white focus:outline-none'
@@ -120,7 +125,7 @@ const Pagination = ({
                                     Math.min(prev + 1, totalPages - 1),
                                 );
                             }}
-                            disabled={page >= totalPages - 1}
+                            disabled={disabled || page >= totalPages - 1}
                             className=' cursor-pointer px-2.5 py-1.5 border border-primary text-primary hover:bg-primary hover:text-white rounded-md  disabled:opacity-50 focus:outline-none'
                         >
                             <FontAwesomeIcon

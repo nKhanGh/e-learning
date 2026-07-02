@@ -20,10 +20,16 @@ export const getServerApiBaseUrl = () => {
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
+  headers: {
+    Accept: "application/json",
+  },
 });
 
 const publicApiClient = axios.create({
   baseURL: API_BASE_URL,
+  headers: {
+    Accept: "application/json",
+  },
 });
 
 apiClient.interceptors.request.use((config) => {

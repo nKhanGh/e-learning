@@ -4,23 +4,110 @@ import { courseCategoryService } from "@/services/courseCategory.service";
 import { courseService } from "@/services/course.service";
 import { useQuery } from "@tanstack/react-query";
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const toSearchCourseItem = (
+  item: CourseResponse | CourseSearchCourseItem,
+): CourseSearchCourseItem => {
+  if ("instructorName" in item) {
+    return item;
+  }
+
+  return {
+    id: item.id,
+    title: item.title,
+    slug: item.slug,
+    description: item.description,
+    thumbnailUrl: item.thumbnailUrl,
+    categoryId: item.category?.id,
+    categoryName: item.category?.name,
+    level: item.level,
+    language: item.language,
+    price: item.price,
+    originalPrice: item.originalPrice,
+    isFree: item.isFree,
+    hasQuizzes: item.hasQuizzes,
+    hasCertificate: item.hasCertificate,
+    isFeatured: item.isFeatured,
+    isBestseller: item.isBestseller,
+    averageRating: item.averageRating,
+    totalReviews: item.totalReviews,
+    totalEnrollments: item.totalEnrollments,
+    durationMinutes: item.durationMinutes,
+    totalLectures: item.totalLectures,
+    instructorId: item.instructor?.id,
+    instructorName: `${item.instructor?.firstName ?? ""} ${item.instructor?.lastName ?? ""}`.trim(),
+    tagNames: item.tags?.map((tag) => tag.name) ?? [],
+  };
+};
+
+const normalizeCourseSearchPage = (
+  response: unknown,
+): CourseSearchPage => {
+  if (!isRecord(response)) {
+    const responsePreview =
+      typeof response === "string" ? response.slice(0, 120).trim() : "";
+    const isHtml = responsePreview.toLowerCase().startsWith("<!doctype html");
+
+    throw new Error(
+      isHtml
+        ? "Course search returned the backend login HTML page instead of JSON. Check backend security whitelist for POST /courses/search."
+        : "Course search returned an invalid response format.",
+    );
+  }
+
+  const payload = ("result" in response && response.result
+    ? response.result
+    : response) as CourseSearchPage | LegacyCourseSearchPage;
+
+  if (!isRecord(payload)) {
+    throw new Error("Course search returned an invalid payload format.");
+  }
+
+  if ("courses" in payload) {
+    return payload as CourseSearchPage;
+  }
+
+  const legacyPayload = payload as LegacyCourseSearchPage;
+  const items = legacyPayload.items ?? [];
+  const page =
+    "page" in legacyPayload && typeof legacyPayload.page === "number"
+      ? legacyPayload.page
+      : legacyPayload.currentPage ?? 0;
+  const size =
+    "size" in legacyPayload && typeof legacyPayload.size === "number"
+      ? legacyPayload.size
+      : items.length;
+
+  return {
+    courses: items.map(toSearchCourseItem),
+    meta: {
+      page,
+      size,
+      totalElements: legacyPayload.totalElements,
+      totalPages: legacyPayload.totalPages,
+      hasNext: page < legacyPayload.totalPages - 1,
+      hasPrevious: page > 0,
+    },
+  };
+};
+
 export function useCourseSearchQuery(
   request: CourseSearchRequest,
-  page: number,
-  size: number,
 ) {
   return useQuery({
-    queryKey: queryKeys.courses.search(request, page, size),
+    queryKey: queryKeys.courses.search(request),
     queryFn: async () => {
-      const response = await courseService.searchCourses({ request, page, size });
-      return response.data.result;
+      const response = await courseService.searchCourses(request);
+      return normalizeCourseSearchPage(response.data);
     },
     placeholderData: (previousData) => previousData,
   });
 }
 
 export function useFeaturedCoursesQuery(size = 6) {
-  return useCourseSearchQuery(defaultCourseSearchRequest, 0, size);
+  return useCourseSearchQuery({ ...defaultCourseSearchRequest, page: 0, size });
 }
 
 export function useCourseQuery(courseId: string) {
@@ -31,6 +118,29 @@ export function useCourseQuery(courseId: string) {
       return response.data.result;
     },
     enabled: Boolean(courseId),
+  });
+}
+
+export function useCourseCurriculumQuery(courseId: string) {
+  return useQuery({
+    queryKey: queryKeys.courses.curriculum(courseId),
+    queryFn: async () => {
+      const response = await courseService.getCurriculum(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId),
+  });
+}
+
+export function useCourseEnrollmentStatusQuery(courseId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.courses.enrollmentStatus(courseId),
+    queryFn: async () => {
+      const response = await courseService.getEnrollmentStatus(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
+    retry: false,
   });
 }
 

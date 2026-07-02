@@ -1,19 +1,19 @@
-import apiClient from "@/lib/apiClient";
+import apiClient, { publicApiClient } from "@/lib/apiClient";
 
 export const courseService = {
-  searchCourses: ({
-    request,
-    page,
-    size,
-  }: {
-    request: CourseSearchRequest;
-    page: number;
-    size: number;
-  }) =>
-    apiClient.post<ApiResponse<PageResponse<CourseResponse>>>(
-      `/courses/search?page=${page}&size=${size}`,
+  searchCourses: (request: CourseSearchRequest) =>
+    publicApiClient.post<CourseSearchApiResponse>(
+      "/courses/search",
       request,
     ),
   getCourse: (courseId: string) =>
-    apiClient.get<ApiResponse<CourseResponse>>(`/courses/${courseId}`),
+    publicApiClient.get<ApiResponse<CourseResponse>>(`/courses/${courseId}`),
+  getCurriculum: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseCurriculumResponse>>(
+      `/courses/${courseId}/curriculum`,
+    ),
+  getEnrollmentStatus: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseEnrollmentStatusResponse>>(
+      `/courses/${courseId}/enrollment-status`,
+    ),
 };

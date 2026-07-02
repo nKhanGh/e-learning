@@ -8,7 +8,7 @@ import Link from "next/link";
 type CourseLevel = "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL_LEVELS";
 type CourseStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
-
+type CourseCardCourse = CourseResponse | CourseSearchCourseItem;
 
 interface CourseTagResponse {
   id: string;
@@ -88,7 +88,7 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 }
 
-const CourseCard = ({ course }: { course: CourseResponse }) => {
+const CourseCard = ({ course }: { course: CourseCardCourse }) => {
   const locale = useLocale();
 
   const COURSE_EMOJIS: Record<string, string> = {
@@ -123,7 +123,15 @@ const getLevelColor = (level: CourseLevel): string => {
   const getCategoryEmoji = (categoryId: string): string => {
   return COURSE_EMOJIS[categoryId] ?? "📚";
 };
-  const emoji = getCategoryEmoji(course.category.id);
+  const categoryId = "category" in course ? course.category.id : course.categoryId;
+  const instructorName =
+    "instructor" in course
+      ? `${course.instructor.firstName} ${course.instructor.lastName}`
+      : course.instructorName;
+  const totalStudents =
+    "totalStudents" in course ? course.totalStudents : course.totalEnrollments;
+  const isNew = "isNew" in course ? course.isNew : false;
+  const emoji = getCategoryEmoji(categoryId);
   
   return (
     <Link
@@ -139,7 +147,7 @@ const getLevelColor = (level: CourseLevel): string => {
               <FontAwesomeIcon icon={faMedal} className="w-2 h-2" /> Bestseller
             </span>
           )}
-          {course.isNew && (
+          {isNew && (
             <span className="px-1.5 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full flex items-center gap-1">
               <FontAwesomeIcon icon={faBolt} className="w-2 h-2" /> New
             </span>
@@ -172,7 +180,7 @@ const getLevelColor = (level: CourseLevel): string => {
         </h3>
 
         <p className="text-xs text-gray-500 dark:text-muted mb-2.5">
-          {course.instructor.firstName} {course.instructor.lastName}
+          {instructorName}
         </p>
 
         <div className="flex items-center gap-1.5 mb-2.5">
@@ -183,7 +191,7 @@ const getLevelColor = (level: CourseLevel): string => {
 
         <div className="flex items-center gap-1.5 mb-3.5 text-xs text-gray-500 dark:text-muted">
           <FontAwesomeIcon icon={faUsers} className="w-2.5 h-2.5" />
-          <span>{course.totalStudents.toLocaleString()} students</span>
+          <span>{totalStudents.toLocaleString()} students</span>
         </div>
 
         <div className="mt-auto flex items-center justify-between pt-3.5 border-t border-gray-100 dark:border-border">
@@ -193,7 +201,11 @@ const getLevelColor = (level: CourseLevel): string => {
             ) : (
               <>
                 <span className="text-lg font-bold text-gray-900 dark:text-text">${course.price}</span>
-                <span className="text-xs text-gray-400 dark:text-muted line-through ml-1.5">${course.originalPrice}</span>
+                {course.originalPrice && (
+                  <span className="text-xs text-gray-400 dark:text-muted line-through ml-1.5">
+                    ${course.originalPrice}
+                  </span>
+                )}
               </>
             )}
           </div>

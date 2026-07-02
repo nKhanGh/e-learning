@@ -7,9 +7,12 @@ export const queryKeys = {
   },
   courses: {
     lists: ["courses"] as const,
-    search: (request: CourseSearchRequest, page: number, size: number) =>
-      ["courses", "search", request, page, size] as const,
+    search: (request: CourseSearchRequest) =>
+      ["courses", "search", request] as const,
     detail: (courseId: string) => ["courses", "detail", courseId] as const,
+    curriculum: (courseId: string) => ["courses", "curriculum", courseId] as const,
+    enrollmentStatus: (courseId: string) =>
+      ["courses", "enrollment-status", courseId] as const,
     featured: (size: number) => ["courses", "featured", size] as const,
   },
   courseCategories: {

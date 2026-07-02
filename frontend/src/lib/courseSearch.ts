@@ -9,4 +9,7 @@ export const defaultCourseSearchRequest: CourseSearchRequest = {
   isFree: null,
   hasQuiz: null,
   tagNames: [],
+  page: 0,
+  size: 9,
+  sortBy: "RELEVANCE",
 };

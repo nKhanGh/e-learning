@@ -21,18 +21,18 @@ import { defaultCourseSearchRequest } from "@/lib/courseSearch";
 export default async function HomePage() {
   const t = await getTranslations('HomePage');
 
-  const res = await fetch(`${getServerApiBaseUrl()}/courses/search?page=0&size=6`, {
+  const res = await fetch(`${getServerApiBaseUrl()}/courses/search`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(defaultCourseSearchRequest),
+    body: JSON.stringify({ ...defaultCourseSearchRequest, page: 0, size: 6 }),
     next: { revalidate: 60 },
   });
   const data = await res.json();
   const locale = await getLocale();
-  const courses = data.result?.items as CourseResponse[];
-  console.log(courses);
+  const searchPage = data.result ?? data;
+  const courses = (searchPage.courses ?? []) as CourseSearchCourseItem[];
 
   const features = [
     {
@@ -259,7 +259,7 @@ export default async function HomePage() {
               </p>
             </div>
             <Link
-              href="/courses"
+              href={`/${locale}/courses`}
               className="mt-3.5 md:mt-0 text-primary hover:text-primary/80 font-semibold flex items-center gap-1.5 group"
             >
               {t('courses.viewAll')}
@@ -275,7 +275,7 @@ export default async function HomePage() {
             {courses?.map((course) => (
               <Link
                 key={course.id}
-                href={`/courses/${course.id}`}
+                href={`/${locale}/courses/${course.id}`}
                 className="group bg-white dark:bg-bg rounded-xl border border-gray-200 dark:border-border overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
               >
                 {/* Course Image */}
@@ -307,7 +307,7 @@ export default async function HomePage() {
                   </h3>
 
                   <p className="text-xs text-gray-600 dark:text-muted mb-3.5">
-                    {course.instructor.firstName} {" "} {course.instructor.lastName}
+                    {course.instructorName}
                   </p>
 
                   <div className="flex items-center gap-3.5 mb-3.5">
@@ -331,7 +331,7 @@ export default async function HomePage() {
                         {course.price}
                       </span>
                       <span className="text-xs text-gray-400 dark:text-muted line-through ml-1.5">
-                        {course.originalPrice}
+                        {course.originalPrice ?? ""}
                       </span>
                     </div>
                     <FontAwesomeIcon
