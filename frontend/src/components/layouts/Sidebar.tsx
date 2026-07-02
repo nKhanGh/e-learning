@@ -1,4 +1,6 @@
 "use client";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from "@/types/enums/UserRole.enum";
 import {
   faBook,
   faChartBar,
@@ -9,15 +11,20 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { div } from "framer-motion/m";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import InstructorSidebar from "./InstructorSidebar";
 
 const Sidebar = ({ open }: { open: boolean }) => {
   const pathname = usePathname();
   const locale = useLocale();
   const t = useTranslations('Common');
+  const { user } = useAuth();
+
+  if (user?.role === UserRole.INSTRUCTOR) {
+    return <InstructorSidebar open={open} />;
+  }
 
   const sidebarItems = [
   {
