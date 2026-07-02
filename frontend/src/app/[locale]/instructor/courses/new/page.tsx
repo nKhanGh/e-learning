@@ -24,6 +24,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type CourseCreateForm = {
   title: string;
@@ -308,62 +315,73 @@ const CourseCreatePage = () => {
                   <span className="text-xs font-semibold text-gray-700 dark:text-text">
                     {t("fields.category")}
                   </span>
-                  <select
+                  <Select
                     value={form.categoryId}
-                    onChange={(event) =>
-                      updateForm("categoryId", event.target.value)
-                    }
+                    onValueChange={(value) => updateForm("categoryId", value)}
                     disabled={categoriesQuery.isLoading}
-                    className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60 dark:border-border dark:bg-bg dark:text-text"
                   >
-                    <option value="">
-                      {categoriesQuery.isLoading
-                        ? t("placeholders.categoryLoading")
-                        : t("placeholders.category")}
-                    </option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {"- ".repeat(category.depth)}
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          categoriesQuery.isLoading
+                            ? t("placeholders.categoryLoading")
+                            : t("placeholders.category")
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {"- ".repeat(category.depth)}
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </label>
 
                 <label className="grid gap-1.5">
                   <span className="text-xs font-semibold text-gray-700 dark:text-text">
                     {t("fields.level")}
                   </span>
-                  <select
+                  <Select
                     value={form.level}
-                    onChange={(event) =>
-                      updateForm("level", event.target.value as CourseLevel)
+                    onValueChange={(value) =>
+                      updateForm("level", value as CourseLevel)
                     }
-                    className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
                   >
-                    {courseLevels.map((level) => (
-                      <option key={level} value={level}>
-                        {t(`levels.${level}`)}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {courseLevels.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {t(`levels.${level}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </label>
 
                 <label className="grid gap-1.5">
                   <span className="text-xs font-semibold text-gray-700 dark:text-text">
                     {t("fields.language")}
                   </span>
-                  <select
+                  <Select
                     value={form.language}
-                    onChange={(event) => updateForm("language", event.target.value)}
-                    className="h-10 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-border dark:bg-bg dark:text-text"
+                    onValueChange={(value) => updateForm("language", value)}
                   >
-                    {languages.map((language) => (
-                      <option key={language.value} value={language.value}>
-                        {t(language.labelKey)}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languages.map((language) => (
+                        <SelectItem key={language.value} value={language.value}>
+                          {t(language.labelKey)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </label>
 
                 <label className="grid gap-1.5">

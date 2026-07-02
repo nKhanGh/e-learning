@@ -21,6 +21,13 @@ import {
 import { defaultCourseSearchRequest } from "@/lib/courseSearch";
 import { useDebounce } from "@/hooks/useDebounce";
 import { isAxiosError } from "axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const PAGE_SIZE = 9;
 
@@ -270,22 +277,26 @@ const CoursesPage = () => {
               )}
             </div>
 
-            <select
+            <Select
               value={filters.sortBy}
-              onChange={(event) =>
+              onValueChange={(value) =>
                 updateFilters((current) => ({
                   ...current,
-                  sortBy: event.target.value as CourseSortOption,
+                  sortBy: value as CourseSortOption,
                 }))
               }
-              className="w-full md:w-52 rounded-lg border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-800 shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50 dark:border-border dark:bg-surface dark:text-text"
             >
-              {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="h-12 w-full rounded-lg md:w-52">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
