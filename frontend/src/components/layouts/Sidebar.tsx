@@ -51,7 +51,7 @@ const Sidebar = ({ open }: { open: boolean }) => {
           key={item.title}
           href={`/${locale}${item.link}`}
           className={`flex items-center gap-2.5 mb-2.5 p-2 rounded-md cursor-pointer group text-sm
-                ${pathname === item.link ? "bg-blue-50 dark:bg-gray-700 text-primary" : "text-gray-600 dark:text-gray-300"}
+                ${pathname.endsWith(item.link) || (item.link === "/" && pathname === `/${locale}`) ? "bg-blue-50 dark:bg-gray-700 text-primary" : "text-gray-600 dark:text-gray-300"}
                 `}
         >
           <i>

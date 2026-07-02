@@ -4,7 +4,7 @@ import "@/app/globals.css";
 import LayoutClient from "@/components/layouts/LayoutComponent";
 import { OpenAuthProvider } from "@/contexts/OpenAuthContext";
 import { locales } from "../../i18n/request";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -40,7 +40,7 @@ export default async function RootLayout({
 }>) {
   const { locale } = await params;
   if (!locales.includes(locale as (typeof locales)[number])) {
-    notFound();
+    redirect("/en/errors/404");
   }
 
   const messages = await getMessages({ locale });

@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { redirectToErrorPage } from "./errorRedirect";
 
 type RetriableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -45,7 +46,13 @@ apiClient.interceptors.response.use(
 
     const originalRequest = error.config as RetriableRequestConfig | undefined;
 
-    if (error.response?.status !== 401 || !originalRequest || originalRequest._retry) {
+    if (error.response?.status !== 401) {
+      redirectToErrorPage(error.response?.status);
+      throw error;
+    }
+
+    if (!originalRequest || originalRequest._retry) {
+      redirectToErrorPage(401);
       throw error;
     }
 
@@ -72,6 +79,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem("learnioAccessToken");
       localStorage.removeItem("learnioRefreshToken");
       globalThis.dispatchEvent(new Event("logout"));
+      redirectToErrorPage(401);
       return Promise.reject(refreshError);
     }
   },
