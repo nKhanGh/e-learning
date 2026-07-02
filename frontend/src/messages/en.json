@@ -151,6 +151,77 @@
       "next": "Next"
     }
   },
+  "InstructorCourseCreatePage": {
+    "title": "Create Course",
+    "subtitle": "Start with the essentials. The course will be saved as a draft.",
+    "back": "Back to My Courses",
+    "draftBadge": "Draft by default",
+    "sections": {
+      "basic": "Basic information",
+      "classification": "Category and audience",
+      "pricing": "Pricing"
+    },
+    "fields": {
+      "title": "Course title",
+      "slug": "Slug",
+      "description": "Description",
+      "category": "Category",
+      "level": "Level",
+      "language": "Language",
+      "thumbnailUrl": "Thumbnail URL",
+      "price": "Price",
+      "originalPrice": "Original price"
+    },
+    "placeholders": {
+      "title": "Example: React from zero to production",
+      "slug": "Generated from title",
+      "description": "Tell students what this course helps them achieve.",
+      "category": "Choose a category",
+      "categoryLoading": "Loading categories...",
+      "thumbnailUrl": "https://..."
+    },
+    "levels": {
+      "BEGINNER": "Beginner",
+      "INTERMEDIATE": "Intermediate",
+      "ADVANCED": "Advanced",
+      "ALL_LEVELS": "All levels"
+    },
+    "languages": {
+      "en": "English",
+      "vi": "Vietnamese"
+    },
+    "pricing": {
+      "free": "Free",
+      "paid": "Paid"
+    },
+    "summary": {
+      "title": "Draft summary",
+      "status": "Saved as draft",
+      "thumbnailReady": "Thumbnail added",
+      "thumbnailLater": "Thumbnail can be added later"
+    },
+    "actions": {
+      "create": "Create draft",
+      "cancel": "Cancel"
+    },
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in as an instructor to create a course.",
+      "instructorOnlyTitle": "Instructor access only",
+      "instructorOnlySubtitle": "Only instructor accounts can create courses."
+    },
+    "errors": {
+      "title": "Course title must be at least 3 characters.",
+      "slug": "Course title must generate a valid slug.",
+      "category": "Please choose a category.",
+      "description": "Description must be at least 10 characters.",
+      "price": "Paid courses must have a price greater than 0."
+    },
+    "toast": {
+      "created": "Course draft created.",
+      "failed": "Could not create course."
+    }
+  },
   "Footer": {
     "description": "Learnio is your go-to platform for online learning, offering a wide range of courses to help you achieve your personal and professional goals.",
     "aboutUs": "About Us",

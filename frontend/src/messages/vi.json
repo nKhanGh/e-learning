@@ -151,6 +151,77 @@
       "next": "Sau"
     }
   },
+  "InstructorCourseCreatePage": {
+    "title": "Tạo khóa học",
+    "subtitle": "Bắt đầu với thông tin cốt lõi. Khóa học sẽ được lưu dưới dạng bản nháp.",
+    "back": "Quay lại khóa học của tôi",
+    "draftBadge": "Mặc định là bản nháp",
+    "sections": {
+      "basic": "Thông tin cơ bản",
+      "classification": "Danh mục và đối tượng",
+      "pricing": "Giá khóa học"
+    },
+    "fields": {
+      "title": "Tên khóa học",
+      "slug": "Slug",
+      "description": "Mô tả",
+      "category": "Danh mục",
+      "level": "Cấp độ",
+      "language": "Ngôn ngữ",
+      "thumbnailUrl": "URL ảnh bìa",
+      "price": "Giá",
+      "originalPrice": "Giá gốc"
+    },
+    "placeholders": {
+      "title": "Ví dụ: React từ cơ bản đến production",
+      "slug": "Tự tạo từ tên khóa học",
+      "description": "Cho học viên biết khóa học này giúp họ đạt được điều gì.",
+      "category": "Chọn danh mục",
+      "categoryLoading": "Đang tải danh mục...",
+      "thumbnailUrl": "https://..."
+    },
+    "levels": {
+      "BEGINNER": "Cơ bản",
+      "INTERMEDIATE": "Trung cấp",
+      "ADVANCED": "Nâng cao",
+      "ALL_LEVELS": "Mọi cấp độ"
+    },
+    "languages": {
+      "en": "Tiếng Anh",
+      "vi": "Tiếng Việt"
+    },
+    "pricing": {
+      "free": "Miễn phí",
+      "paid": "Có phí"
+    },
+    "summary": {
+      "title": "Tóm tắt bản nháp",
+      "status": "Lưu dưới dạng bản nháp",
+      "thumbnailReady": "Đã thêm ảnh bìa",
+      "thumbnailLater": "Có thể thêm ảnh bìa sau"
+    },
+    "actions": {
+      "create": "Tạo bản nháp",
+      "cancel": "Hủy"
+    },
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản giảng viên để tạo khóa học.",
+      "instructorOnlyTitle": "Chỉ dành cho giảng viên",
+      "instructorOnlySubtitle": "Chỉ tài khoản giảng viên mới có thể tạo khóa học."
+    },
+    "errors": {
+      "title": "Tên khóa học phải có ít nhất 3 ký tự.",
+      "slug": "Tên khóa học phải tạo được slug hợp lệ.",
+      "category": "Vui lòng chọn danh mục.",
+      "description": "Mô tả phải có ít nhất 10 ký tự.",
+      "price": "Khóa học có phí phải có giá lớn hơn 0."
+    },
+    "toast": {
+      "created": "Đã tạo bản nháp khóa học.",
+      "failed": "Không thể tạo khóa học."
+    }
+  },
   "Footer": {
     "description": "Nền tảng học tập trực tuyến hàng đầu giúp bạn nâng cao kỹ năng và phát triển sự nghiệp với các khóa học từ các chuyên gia hàng đầu.",
     "aboutUs": "Về Chúng Tôi",

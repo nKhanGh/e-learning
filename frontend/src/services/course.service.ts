@@ -18,6 +18,8 @@ export const courseService = {
       "/courses/my-course",
       { params: { page, size, keyword: keyword || undefined, status } },
     ),
+  createCourse: (request: CourseCreationRequest) =>
+    apiClient.post<ApiResponse<CourseResponse>>("/courses", request),
   getCurriculum: (courseId: string) =>
     apiClient.get<ApiResponse<CourseCurriculumResponse>>(
       `/courses/${courseId}/curriculum`,

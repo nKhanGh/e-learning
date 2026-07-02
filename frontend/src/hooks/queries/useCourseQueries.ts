@@ -2,7 +2,7 @@ import { defaultCourseSearchRequest } from "@/lib/courseSearch";
 import { queryKeys } from "@/lib/queryKeys";
 import { courseCategoryService } from "@/services/courseCategory.service";
 import { courseService } from "@/services/course.service";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -134,6 +134,21 @@ export function useMyCoursesQuery(
       return response.data.result;
     },
     placeholderData: (previousData) => previousData,
+  });
+}
+
+export function useCreateCourseMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: CourseCreationRequest) => {
+      const response = await courseService.createCourse(request);
+      return response.data.result;
+    },
+    onSuccess: (course) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
+      queryClient.setQueryData(queryKeys.courses.detail(course.id), course);
+    },
   });
 }
 
