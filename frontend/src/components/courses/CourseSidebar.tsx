@@ -4,6 +4,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import Loading from "../ui/Loading";
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 const getLevelLabel = (level: CourseLevel): string => {
   const map: Record<CourseLevel, string> = {
@@ -28,9 +32,11 @@ const FilterSection = ({
 
   return (
     <div className="border-b border-gray-200 dark:border-border pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
-      <button
+      <Button
+        type="button"
+        variant="ghost"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full text-left mb-2.5 group"
+        className="mb-2.5 flex h-auto w-full items-center justify-between p-0 text-left hover:bg-transparent"
       >
         <span className="font-semibold text-gray-900 dark:text-text text-xs">
           {title}
@@ -42,7 +48,7 @@ const FilterSection = ({
             open ? "rotate-180" : ""
           }`}
         />
-      </button>
+      </Button>
       <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
           open ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
@@ -84,20 +90,22 @@ const CourseSidebar = ({
       <FilterSection title={t("filter.category")}>
         <div className="space-y-1.5 max-h-36 overflow-y-auto">
           {courseCategories?.map((cat) => (
-            <label
+            <div
               key={cat.id}
               className="flex items-center gap-2 cursor-pointer group"
             >
-              <input
-                type="checkbox"
+              <Checkbox
+                id={`category-${cat.id}`}
                 checked={filters.categoryId.includes(cat.id)}
-                onChange={() => toggleCategory(cat.id)}
-                className="w-3.5 h-3.5 rounded border-gray-300 text-primary focus:ring-primary"
+                onCheckedChange={() => toggleCategory(cat.id)}
               />
-              <span className="text-xs text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
+              <Label
+                htmlFor={`category-${cat.id}`}
+                className="cursor-pointer text-xs font-normal text-gray-700 transition-colors group-hover:text-gray-900 dark:text-muted dark:group-hover:text-text"
+              >
                 {cat.iconUrl} {cat.name}
-              </span>
-            </label>
+              </Label>
+            </div>
           ))}
         </div>
       </FilterSection>
@@ -156,7 +164,7 @@ const CourseSidebar = ({
           {filters.isFree === false && (
             <div className="mt-3.5 grid grid-cols-2 gap-2.5">
               {/* MIN */}
-              <input
+              <Input
                 type="number"
                 placeholder="Min"
                 value={filters.minPrice || ""}
@@ -166,12 +174,12 @@ const CourseSidebar = ({
                     minPrice: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="h-8 border-primary bg-transparent px-2.5 py-1 text-xs hover:border-primary"
                 min={0}
               />
 
               {/* MAX */}
-              <input
+              <Input
                 type="number"
                 placeholder="Max"
                 value={filters.maxPrice || ""}
@@ -181,7 +189,7 @@ const CourseSidebar = ({
                     maxPrice: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="h-8 border-primary bg-transparent px-2.5 py-1 text-xs hover:border-primary"
                 min={filters.maxPrice || 0}
               />
             </div>
@@ -191,7 +199,7 @@ const CourseSidebar = ({
       <FilterSection title={t("filter.rating")} defaultOpen={false}>
         <div className="mt-3.5 grid grid-cols-2 gap-2.5">
               {/* MIN */}
-              <input
+              <Input
                 type="number"
                 placeholder="Min"
                 value={filters.minAverageRating || ""}
@@ -201,12 +209,12 @@ const CourseSidebar = ({
                     minAverageRating: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="h-8 border-primary bg-transparent px-2.5 py-1 text-xs hover:border-primary"
                 min={0}
               />
 
               {/* MAX */}
-              <input
+              <Input
                 type="number"
                 placeholder="Max"
                 value={filters.maxAverageRating || ""}
@@ -216,7 +224,7 @@ const CourseSidebar = ({
                     maxAverageRating: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="h-8 border-primary bg-transparent px-2.5 py-1 text-xs hover:border-primary"
                 min={filters.maxAverageRating || 0}
               />
             </div>
@@ -225,32 +233,35 @@ const CourseSidebar = ({
       {/* Features */}
       <FilterSection title={t("filter.features")} defaultOpen={false}>
         <div className="space-y-1.5">
-          <label className="flex items-center gap-2 cursor-pointer group">
-            <input
-              type="checkbox"
+          <div className="flex items-center gap-2 cursor-pointer group">
+            <Checkbox
+              id="course-filter-has-quiz"
               checked={filters.hasQuiz === true}
-              onChange={() =>
+              onCheckedChange={() =>
                 setFilters((f) => ({
                   ...f,
                   hasQuiz: f.hasQuiz === true ? null : true,
                 }))
               }
-              className="w-3.5 h-3.5 rounded border-gray-300 text-primary focus:ring-primary"
             />
-            <span className="text-xs text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
+            <Label
+              htmlFor="course-filter-has-quiz"
+              className="cursor-pointer text-xs font-normal text-gray-700 transition-colors group-hover:text-gray-900 dark:text-muted dark:group-hover:text-text"
+            >
               {t("filter.hasQuiz")}
-            </span>
-          </label>
+            </Label>
+          </div>
         </div>
       </FilterSection>
-      <button
+      <Button
+        type="button"
         onClick={onApplyFilters}
-        className="w-full mt-5 py-2.5 bg-primary text-white rounded-lg font-semibold flex items-center justify-center hover:bg-primary/90 transition-colors"
+        className="mt-5 w-full !text-white"
       >
         {loading ? <Loading size="smd" color="blue" /> :
           t("filter.search")
         }
-      </button>
+      </Button>
     </div>
   );
 };

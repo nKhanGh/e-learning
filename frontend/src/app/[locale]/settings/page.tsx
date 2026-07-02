@@ -1,14 +1,14 @@
 "use client";
 import { faCircleHalfStroke, faLanguage, faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SettingPage = () => {
-  const [openTheme, setOpenTheme] = useState<boolean>(true);
   const [theme, setTheme] = useState<string>("light");
   const t = useTranslations('Settings');
-  const locale = useLocale();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -18,8 +18,7 @@ const SettingPage = () => {
     }
   }, []);
 
-  const toggleTheme = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
+  const setThemeMode = (newTheme: string) => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
     document.documentElement.classList.toggle("dark", newTheme === "dark");
@@ -36,46 +35,37 @@ const SettingPage = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[25%_73%] gap-5">
+        <Tabs defaultValue="appearance" className="grid grid-cols-1 gap-5 lg:grid-cols-[25%_73%]">
           {/* Sidebar */}
           <nav className="bg-white dark:bg-gray-900 rounded-md shadow-sm p-3.5 h-fit">
-            <div className="space-y-1.5">
-              <button
-                onClick={() => setOpenTheme(true)}
-                className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-md text-left transition-all duration-200 ${
-                  openTheme
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
+            <TabsList className="flex h-auto w-full flex-col items-stretch gap-1.5 bg-transparent p-0">
+              <TabsTrigger
+                value="appearance"
+                className="h-10 w-full justify-start rounded-md px-3.5 text-left data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none"
               >
                 <FontAwesomeIcon
                   icon={faCircleHalfStroke}
                   className="w-4 h-4"
                 />
                 <span>{t('appearance')}</span>
-              </button>
+              </TabsTrigger>
 
-              <button
-                onClick={() => setOpenTheme(false)}
-                className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-md text-left transition-all duration-200 ${
-                  !openTheme
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
+              <TabsTrigger
+                value="language"
+                className="h-10 w-full justify-start rounded-md px-3.5 text-left data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none"
               >
                 <FontAwesomeIcon 
                   icon={faLanguage} 
                   className="w-4 h-4" 
                 />
                 <span>{t('language')}</span>
-              </button>
-            </div>
+              </TabsTrigger>
+            </TabsList>
           </nav>
 
           {/* Content Area */}
           <div className="bg-white dark:bg-gray-900 rounded-md shadow-sm p-5">
-            {openTheme ? (
-              <div className="space-y-5">
+            <TabsContent value="appearance" className="mt-0 space-y-5">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1.5">
                     {t('appearance')}
@@ -97,24 +87,22 @@ const SettingPage = () => {
                       </p>
                     </div>
 
-                    <button
-                      onClick={toggleTheme}
-                      className="relative inline-flex h-10 w-16 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors duration-300 focus:outline-none"
-                    >
-                      <span
-                        className={`h-8 w-8 transform rounded-full bg-white dark:bg-gray-900 shadow-lg transition-transform duration-300 flex items-center justify-center ${
-                          theme === "dark" ? "translate-x-10" : "translate-x-1"
-                        }`}
-                      >
-                        {theme === "dark" ? <FontAwesomeIcon icon={faMoon} className="text-yellow-300" /> : <FontAwesomeIcon className="text-yellow-300" icon={faSun} />}
-                      </span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon className="text-yellow-300" icon={faSun} />
+                      <Switch
+                        checked={theme === "dark"}
+                        onCheckedChange={(checked) =>
+                          setThemeMode(checked ? "dark" : "light")
+                        }
+                      />
+                      <FontAwesomeIcon icon={faMoon} className="text-yellow-300" />
+                    </div>
                   </div>
 
                   <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div
                       onClick={() => {
-                        if (theme === "dark") toggleTheme();
+                        if (theme === "dark") setThemeMode("light");
                       }}
                       className={`cursor-pointer border-2 rounded-md p-3.5 transition-all ${
                         theme === "light"
@@ -138,7 +126,7 @@ const SettingPage = () => {
 
                     <div
                       onClick={() => {
-                        if (theme === "light") toggleTheme();
+                        if (theme === "light") setThemeMode("dark");
                       }}
                       className={`cursor-pointer border-2 rounded-md p-3.5 transition-all ${
                         theme === "dark"
@@ -161,9 +149,8 @@ const SettingPage = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-5">
+            </TabsContent>
+            <TabsContent value="language" className="mt-0 space-y-5">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1.5">
                     {t('language')}
@@ -193,10 +180,9 @@ const SettingPage = () => {
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
+            </TabsContent>
           </div>
-        </div>
+        </Tabs>
     </div>
   );
 };
