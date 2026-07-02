@@ -410,7 +410,7 @@ const CourseCreatePage = () => {
               </div>
 
               <div className="grid gap-4">
-                <div className="grid w-85 grid-cols-2 gap-2 rounded-md bg-gray-100 p-1 dark:bg-bg">
+                <div className="grid w-full max-w-sm grid-cols-2 gap-2 rounded-md bg-gray-100 p-1 dark:bg-bg">
                   <Button
                     type="button"
                     variant="ghost"

@@ -222,6 +222,93 @@
       "failed": "Không thể tạo khóa học."
     }
   },
+  "InstructorCourseEditPage": {
+    "title": "Sửa nhanh",
+    "subtitle": "Cập nhật thông tin cơ bản mà không cần vào toàn bộ studio.",
+    "back": "Quay lại khóa học của tôi",
+    "openStudio": "Mở Studio",
+    "summary": {
+      "title": "Phạm vi chỉnh sửa",
+      "quickEdit": "Chỉ sửa thông tin cơ bản của khóa học",
+      "studioHint": "Dùng Studio cho curriculum, quiz, tài nguyên và checklist xuất bản"
+    },
+    "actions": {
+      "save": "Lưu thay đổi",
+      "cancel": "Hủy"
+    },
+    "auth": {
+      "ownerOnlyTitle": "Chỉ chủ khóa học",
+      "ownerOnlySubtitle": "Chỉ giảng viên sở hữu hoặc admin mới có thể sửa khóa học này."
+    },
+    "error": {
+      "title": "Không tải được khóa học",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    },
+    "toast": {
+      "updated": "Đã cập nhật khóa học.",
+      "failed": "Không thể cập nhật khóa học."
+    }
+  },
+  "InstructorCourseStudioPage": {
+    "title": "Course Studio",
+    "back": "Quay lại khóa học của tôi",
+    "quickEdit": "Sửa nhanh",
+    "submitReview": "Gửi duyệt",
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản giảng viên để mở Course Studio.",
+      "ownerOnlyTitle": "Chỉ chủ khóa học",
+      "ownerOnlySubtitle": "Chỉ giảng viên sở hữu hoặc admin mới có thể xây dựng khóa học này."
+    },
+    "error": {
+      "title": "Không tải được studio",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    },
+    "metrics": {
+      "sections": "Sections",
+      "lectures": "Bài giảng",
+      "duration": "Thời lượng",
+      "checklist": "Checklist"
+    },
+    "tabs": {
+      "sections": "Sections",
+      "lectures": "Lectures",
+      "quiz": "Quiz",
+      "resources": "Tài nguyên",
+      "checklist": "Checklist xuất bản"
+    },
+    "sections": {
+      "title": "Sections của khóa học",
+      "add": "Thêm section",
+      "lectures": "bài giảng",
+      "emptyTitle": "Chưa có section",
+      "emptySubtitle": "Tạo section đầu tiên trước khi thêm bài giảng và quiz."
+    },
+    "lectures": {
+      "title": "Lecture builder",
+      "subtitle": "Bài giảng sẽ được quản lý ở đây: video, preview, thời lượng và thứ tự."
+    },
+    "quiz": {
+      "title": "Quiz builder",
+      "subtitle": "Tạo quiz cho bài giảng hoặc section, sau đó thêm câu hỏi và quy tắc chấm điểm."
+    },
+    "resources": {
+      "title": "Tài nguyên khóa học",
+      "subtitle": "Tải lên file, link, slide và tài liệu hỗ trợ cho học viên."
+    },
+    "checklist": {
+      "basicInfo": "Thông tin cơ bản đã hoàn tất",
+      "thumbnail": "Đã thêm ảnh bìa",
+      "sections": "Có ít nhất một section",
+      "lectures": "Có ít nhất một bài giảng",
+      "pricing": "Đã cấu hình giá"
+    },
+    "actions": {
+      "manage": "Quản lý"
+    }
+  },
   "Footer": {
     "description": "Nền tảng học tập trực tuyến hàng đầu giúp bạn nâng cao kỹ năng và phát triển sự nghiệp với các khóa học từ các chuyên gia hàng đầu.",
     "aboutUs": "Về Chúng Tôi",

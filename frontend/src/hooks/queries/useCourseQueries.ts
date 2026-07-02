@@ -152,6 +152,21 @@ export function useCreateCourseMutation() {
   });
 }
 
+export function useUpdateCourseMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: CourseUpdateRequest) => {
+      const response = await courseService.updateCourse(courseId, request);
+      return response.data.result;
+    },
+    onSuccess: (course) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
+      queryClient.setQueryData(queryKeys.courses.detail(course.id), course);
+    },
+  });
+}
+
 export function useCourseCurriculumQuery(courseId: string) {
   return useQuery({
     queryKey: queryKeys.courses.curriculum(courseId),

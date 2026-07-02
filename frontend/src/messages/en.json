@@ -222,6 +222,93 @@
       "failed": "Could not create course."
     }
   },
+  "InstructorCourseEditPage": {
+    "title": "Quick Edit",
+    "subtitle": "Update the basic course information without entering the full studio.",
+    "back": "Back to My Courses",
+    "openStudio": "Open Studio",
+    "summary": {
+      "title": "Edit scope",
+      "quickEdit": "Basic course details only",
+      "studioHint": "Use Studio for curriculum, quiz, resources, and publish checklist"
+    },
+    "actions": {
+      "save": "Save changes",
+      "cancel": "Cancel"
+    },
+    "auth": {
+      "ownerOnlyTitle": "Course owner only",
+      "ownerOnlySubtitle": "Only the owner instructor or an admin can edit this course."
+    },
+    "error": {
+      "title": "Failed to load course",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "toast": {
+      "updated": "Course updated.",
+      "failed": "Could not update course."
+    }
+  },
+  "InstructorCourseStudioPage": {
+    "title": "Course Studio",
+    "back": "Back to My Courses",
+    "quickEdit": "Quick edit",
+    "submitReview": "Submit for review",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in as an instructor to open Course Studio.",
+      "ownerOnlyTitle": "Course owner only",
+      "ownerOnlySubtitle": "Only the owner instructor or an admin can build this course."
+    },
+    "error": {
+      "title": "Failed to load studio",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "metrics": {
+      "sections": "Sections",
+      "lectures": "Lectures",
+      "duration": "Duration",
+      "checklist": "Checklist"
+    },
+    "tabs": {
+      "sections": "Sections",
+      "lectures": "Lectures",
+      "quiz": "Quiz",
+      "resources": "Resources",
+      "checklist": "Publish checklist"
+    },
+    "sections": {
+      "title": "Course sections",
+      "add": "Add section",
+      "lectures": "lectures",
+      "emptyTitle": "No sections yet",
+      "emptySubtitle": "Create the first section before adding lectures and quizzes."
+    },
+    "lectures": {
+      "title": "Lecture builder",
+      "subtitle": "Lectures will be managed here: video, preview status, duration, and ordering."
+    },
+    "quiz": {
+      "title": "Quiz builder",
+      "subtitle": "Create quizzes for lectures or sections, then attach questions and scoring rules."
+    },
+    "resources": {
+      "title": "Course resources",
+      "subtitle": "Upload downloadable files, links, slides, and support material for students."
+    },
+    "checklist": {
+      "basicInfo": "Basic information is complete",
+      "thumbnail": "Thumbnail is added",
+      "sections": "At least one section exists",
+      "lectures": "At least one lecture exists",
+      "pricing": "Pricing is configured"
+    },
+    "actions": {
+      "manage": "Manage"
+    }
+  },
   "Footer": {
     "description": "Learnio is your go-to platform for online learning, offering a wide range of courses to help you achieve your personal and professional goals.",
     "aboutUs": "About Us",
