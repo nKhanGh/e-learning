@@ -45,7 +45,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -262,10 +264,44 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PageResponse<CourseResponse> getCoursesByInstructorUserId(UUID userId, int page, int size) {
+    public PageResponse<CourseResponse> getCoursesByInstructorUserId(
+            UUID userId,
+            int page,
+            int size,
+            String keyword,
+            CourseStatus status
+    ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<Course> coursePage = courseRepository.findByInstructorUserId(userId, pageable);
+        Specification<Course> baseSpecification = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("instructor").get("user").get("id"), userId));
+
+            if (keyword != null && !keyword.isBlank()) {
+                String pattern = "%" + keyword.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        Specification<Course> specification = status == null
+                ? baseSpecification
+                : baseSpecification.and((root, query, cb) -> cb.equal(root.get("status"), status));
+
+        Page<Course> coursePage = courseRepository.findAll(specification, pageable);
+        Map<String, Long> statusCounts = new LinkedHashMap<>();
+        statusCounts.put("ALL", courseRepository.count(baseSpecification));
+        for (CourseStatus courseStatus : CourseStatus.values()) {
+            statusCounts.put(
+                    courseStatus.name(),
+                    courseRepository.count(baseSpecification.and(
+                            (root, query, cb) -> cb.equal(root.get("status"), courseStatus)
+                    ))
+            );
+        }
 
         return PageResponse.<CourseResponse>builder()
                 .items(coursePage.getContent().stream().map(courseMapper::toResponse).toList())
@@ -273,6 +309,7 @@ public class CourseServiceImpl implements CourseService {
                 .size(size)
                 .totalPages(coursePage.getTotalPages())
                 .totalElements(coursePage.getTotalElements())
+                .statusCounts(statusCounts)
                 .build();
     }
 }

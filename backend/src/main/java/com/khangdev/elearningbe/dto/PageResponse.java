@@ -3,6 +3,7 @@ package com.khangdev.elearningbe.dto;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -15,4 +16,5 @@ public class PageResponse<T> {
     private int size;
     private long totalElements;
     private int totalPages;
+    private Map<String, Long> statusCounts;
 }

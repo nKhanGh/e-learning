@@ -10,6 +10,7 @@ import com.khangdev.elearningbe.dto.response.course.CourseCurriculumResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseEnrollmentStatusResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSearchResponse;
+import com.khangdev.elearningbe.enums.CourseStatus;
 import com.khangdev.elearningbe.service.course.CourseIndex;
 import com.khangdev.elearningbe.service.course.CourseLearningService;
 import com.khangdev.elearningbe.service.course.CourseSearchService;
@@ -129,11 +130,13 @@ public class CourseController {
     @GetMapping("/my-course")
     ApiResponse<PageResponse<CourseResponse>> getMyCourse(
             @RequestParam(defaultValue = "0", required = false) int page,
-            @RequestParam(defaultValue = "9", required = false) int size
+            @RequestParam(defaultValue = "9", required = false) int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) CourseStatus status
     ){
         UUID userId = userService.getMyInfo().getId();
         return ApiResponse.<PageResponse<CourseResponse>>builder()
-                .result(courseService.getCoursesByInstructorUserId(userId, page, size))
+                .result(courseService.getCoursesByInstructorUserId(userId, page, size, keyword, status))
                 .build();
     }
 
