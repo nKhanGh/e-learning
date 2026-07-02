@@ -40,7 +40,7 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException{
         if(authentication.getPrincipal() instanceof OAuth2User oAuth2User) {
-            String email = oAuth2User.getAttribute("email");
+            String email = oAuth2User.getName();
             userRepository.findByEmail(email).ifPresentOrElse(
                     user -> {
                         try {
@@ -67,11 +67,6 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         switch(user.getStatus()) {
             case ACTIVE -> {
                 params.put("status", "ACTIVE");
-                params.put("accessToken", jwtService.generateToken(user, true));
-                params.put("refreshToken", jwtService.generateToken(user, false));
-            }
-            case VERIFIED -> {
-                params.put("status", "VERIFIED");
                 params.put("accessToken", jwtService.generateToken(user, true));
                 params.put("refreshToken", jwtService.generateToken(user, false));
             }

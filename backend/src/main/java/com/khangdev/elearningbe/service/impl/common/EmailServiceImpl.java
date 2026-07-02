@@ -15,6 +15,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +27,10 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class EmailServiceImpl implements EmailService {
     EmailClient emailClient;
+    Environment environment;
 
     @NonFinal
     @Value("${email.apiKey}")
@@ -91,8 +95,21 @@ public class EmailServiceImpl implements EmailService {
             sendEmail(request);
 
         } catch (Exception e){
-            throw new RuntimeException(e);
+            if (isLocalProfile()) {
+                log.warn("Email provider failed while sending OTP to {}. Local fallback verification code: {}", email, code);
+                return;
+            }
+            throw e;
         }
+    }
+
+    private boolean isLocalProfile() {
+        for (String profile : environment.getActiveProfiles()) {
+            if ("local".equalsIgnoreCase(profile)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

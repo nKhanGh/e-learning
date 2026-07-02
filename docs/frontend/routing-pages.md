@@ -49,4 +49,4 @@ Quan ly route tree cua Next.js App Router, layout theo locale, page rendering va
 ## Luu y
 
 - Layout co import `WebSocketProvider` nhung hien tai provider nay chi duoc dung trong chat page.
-- Home va course detail hien dang fetch truc tiep `http://localhost:8080/api/...`, nen nen dong bo voi env `NEXT_PUBLIC_APP_API_URL` khi deploy.
+- Home va course detail dung `NEXT_PUBLIC_APP_API_URL` thong qua shared API helper.

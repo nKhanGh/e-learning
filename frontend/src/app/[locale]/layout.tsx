@@ -4,13 +4,13 @@ import "@/app/globals.css";
 import LayoutClient from "@/components/layouts/LayoutComponent";
 import { OpenAuthProvider } from "@/contexts/OpenAuthContext";
 import { locales } from "../../i18n/request";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { WebSocketProvider } from "@/contexts/WebSocketContext";
 import Footer from "@/components/layouts/Footer";
 import { Toaster } from "@/components/ui/sonner";
+import QueryProvider from "@/providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,11 +36,11 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }>) {
   const { locale } = await params;
-  if (!locales.includes(locale as any)) {
-    notFound();
+  if (!locales.includes(locale as (typeof locales)[number])) {
+    redirect("/en/errors/404");
   }
 
   const messages = await getMessages({ locale });
@@ -62,21 +62,23 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased mt-20`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased mt-14`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
               <OpenAuthProvider>
                   <LayoutClient />
                   <main
-                    className={` p-4 dark:bg-bg bg-white content`}
+                    className={` p-3 dark:bg-bg bg-white content`}
                   >
                     {children}
                   </main>
                   <Toaster />
                   <Footer />
               </OpenAuthProvider>
-          </AuthProvider>
+            </AuthProvider>
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

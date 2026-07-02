@@ -37,8 +37,8 @@ spring:
             client-name: Google
 
           github:
-            client-id: ${KGITHUB_CLIENT_ID}
-            client-secret: ${KGITHUB_CLIENT_SECRET}
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
             scope:
               - read:user
               - user:email

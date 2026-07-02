@@ -15,6 +15,7 @@ import { login } from "@/utils/auth";
 import { useOpenAuth } from "@/contexts/OpenAuthContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { OAuthProvider, startOAuthLogin } from "@/lib/oauth";
 
 interface LoginFormProps {
   onSwitchToSignUp: () => void;
@@ -82,7 +83,9 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         password: formData.password,
       });
       setAccessToken(result.accessToken);
+      await fetchUserInfo();
       toast.success(t("loginSuccess"));
+      setOpenLogin(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : t("loginFailed");
 
@@ -93,71 +96,68 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         password: message,
       }));
     } finally {
-      fetchUserInfo();
       setIsLoading(false);
-      setOpenLogin(false);
     }
   };
 
-  const handleSocialLogin = (provider: "google" | "github") => {
-    console.log(`Login with ${provider}`);
-    // TODO: Implement social login
+  const handleSocialLogin = (provider: OAuthProvider) => {
+    startOAuthLogin(provider);
   };
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-sm mx-auto">
       {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="text-center mb-7">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1.5">
           {t("title")}
         </h2>
         <p className="text-gray-600 dark:text-gray-400">{t("subtitle")}</p>
       </div>
 
       {/* Social Login Buttons */}
-      <div className="space-y-3 mb-6">
+      <div className="space-y-2.5 mb-5">
         <button
           type="button"
           onClick={() => handleSocialLogin("google")}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200 font-medium"
+          className="w-full flex items-center justify-center gap-2.5 px-3.5 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200 font-medium"
         >
-          <FontAwesomeIcon icon={faGoogle} className="w-5 h-5 text-red-500" />
+          <FontAwesomeIcon icon={faGoogle} className="w-4 h-4 text-red-500" />
           {t("loginWithGoogle")}
         </button>
 
         <button
           type="button"
           onClick={() => handleSocialLogin("github")}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200 font-medium"
+          className="w-full flex items-center justify-center gap-2.5 px-3.5 py-2.5 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-700 dark:text-gray-200 font-medium"
         >
-          <FontAwesomeIcon icon={faGithub} className="w-5 h-5" />
+          <FontAwesomeIcon icon={faGithub} className="w-4 h-4" />
           {t("loginWithGithub")}
         </button>
       </div>
 
-      <div className="relative mb-6">
+      <div className="relative mb-5">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
         </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+        <div className="relative flex justify-center text-xs">
+          <span className="px-1.5 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
             {t("or")}
           </span>
         </div>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3.5">
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5"
           >
             {t("email")}
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
               <FontAwesomeIcon
                 icon={faEnvelope}
-                className="text-gray-400 w-5 h-5"
+                className="text-gray-400 w-4 h-4"
               />
             </div>
             <input
@@ -166,7 +166,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
+              className={`w-full pl-9 pr-3.5 py-2.5 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
                 errors.email
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 dark:border-gray-600 focus:border-primary"
@@ -175,7 +175,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
             />
           </div>
           {errors.email && (
-            <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+            <p className="mt-1 text-xs text-red-500">{errors.email}</p>
           )}
         </div>
 
@@ -183,15 +183,15 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5"
           >
             {t("password")}
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
               <FontAwesomeIcon
                 icon={faLock}
-                className="text-gray-400 w-5 h-5"
+                className="text-gray-400 w-4 h-4"
               />
             </div>
             <input
@@ -200,7 +200,7 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className={`w-full pl-10 pr-12 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
+              className={`w-full pl-9 pr-10 py-2.5 border-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
                 errors.password
                   ? "border-red-500 focus:border-red-500 focus:ring-red-500"
                   : "border-gray-300 dark:border-gray-600 focus:border-primary"
@@ -210,16 +210,16 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
             >
               <FontAwesomeIcon
                 icon={showPassword ? faEyeSlash : faEye}
-                className="w-5 h-5"
+                className="w-4 h-4"
               />
             </button>
           </div>
           {errors.password && (
-            <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+            <p className="mt-1 text-xs text-red-500">{errors.password}</p>
           )}
         </div>
 
@@ -231,15 +231,15 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
               name="rememberMe"
               checked={formData.rememberMe}
               onChange={handleChange}
-              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+              className="w-3.5 h-3.5 text-primary border-gray-300 rounded focus:ring-primary"
             />
-            <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+            <span className="ml-1.5 text-xs text-gray-600 dark:text-gray-400">
               {t("rememberMe")}
             </span>
           </label>
           <button
             type="button"
-            className="text-sm text-primary hover:text-primary/80 font-medium"
+            className="text-xs text-primary hover:text-primary/80 font-medium"
           >
             {t("forgotPassword")}
           </button>
@@ -249,10 +249,10 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full py-2.5 px-3.5 bg-primary hover:bg-primary/90 text-white font-semibold rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {isLoading ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <Loading size="sm" color="gray" />
               {t("loggingIn")}
             </div>
@@ -262,9 +262,9 @@ const LoginForm = ({ onSwitchToSignUp }: LoginFormProps) => {
         </button>
       </form>
 
-      <div className="mt-6 flex items-center flex-col text-sm text-gray-600 dark:text-gray-400">
+      <div className="mt-5 flex items-center flex-col text-xs text-gray-600 dark:text-gray-400">
         {t("noAccount")}{" "}
-        <div className="w-[50%] h-px dark:bg-gray-500 my-2"></div>
+        <div className="w-[50%] h-px dark:bg-gray-500 my-1.5"></div>
         <button
           onClick={onSwitchToSignUp}
           className="text-primary hover:text-primary/80 font-semibold hover:underline transition-all"

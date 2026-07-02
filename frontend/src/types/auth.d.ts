@@ -24,3 +24,18 @@ interface RegisterRequest {
   lastName: string;
   phone: string;
 }
+
+interface EmailVerifyRequest {
+  email: string;
+  verifyCode: string;
+}
+
+interface EmailVerifyResponse {
+  valid: boolean;
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+interface ResendVerificationRequest {
+  email: string;
+}

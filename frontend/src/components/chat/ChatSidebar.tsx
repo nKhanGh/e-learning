@@ -63,27 +63,27 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
 
   return (
     <>
-      <div className="w-80 bg-white dark:bg-gray-900 rounded-2xl border-r border-gray-200 dark:border-border flex flex-col">
+      <div className="w-72 bg-white dark:bg-gray-900 rounded-xl border-r border-gray-200 dark:border-border flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-border">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-text">
+        <div className="p-3.5 border-b border-gray-200 dark:border-border">
+          <div className="flex items-center justify-between mb-3.5">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-text">
               Messages
             </h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setOpenCreation(true)}
-                className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors"
               >
                 <FontAwesomeIcon
                   icon={faPlus}
-                  className="w-5 h-5 text-gray-600 dark:text-muted"
+                  className="w-4 h-4 text-gray-600 dark:text-muted"
                 />
               </button>
-              <button className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors">
+              <button className="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors">
                 <FontAwesomeIcon
                   icon={faEllipsisV}
-                  className="w-5 h-5 text-gray-600 dark:text-muted"
+                  className="w-4 h-4 text-gray-600 dark:text-muted"
                 />
               </button>
             </div>
@@ -93,14 +93,14 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
           <div className="relative">
             <FontAwesomeIcon
               icon={faSearch}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400"
             />
             <input
               type="text"
               placeholder="Search messages..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-border border border-transparent focus:border-primary rounded-lg text-sm focus:outline-none text-gray-900 dark:text-text placeholder-gray-500 dark:placeholder-muted"
+              className="w-full pl-9 pr-3.5 py-1.5 bg-gray-100 dark:bg-border border border-transparent focus:border-primary rounded-md text-xs focus:outline-none text-gray-900 dark:text-text placeholder-gray-500 dark:placeholder-muted"
             />
           </div>
         </div>
@@ -111,7 +111,7 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
             <button
               key={conversation.id}
               onClick={() => handleChooseChat(conversation)}
-              className={`w-full p-4 flex items-start gap-3 hover:bg-gray-50 dark:hover:bg-border transition-colors border-l-4 ${
+              className={`w-full p-3.5 flex items-start gap-2.5 hover:bg-gray-50 dark:hover:bg-border transition-colors border-l-4 ${
                 selectedChat === conversation
                   ? "bg-blue-50 dark:bg-primary/10 border-primary"
                   : "border-transparent"
@@ -127,7 +127,7 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
                   className="rounded-full object-cover"
                 />
                 {isOnline(conversation) && (
-                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
+                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
                 )}
               </div>
 
@@ -137,7 +137,7 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
                   <h3 className="font-semibold text-gray-900 dark:text-text truncate">
                     {conversation.name}
                   </h3>
-                  <span className="text-xs text-gray-500 dark:text-muted shrink-0 ml-2">
+                  <span className="text-xs text-gray-500 dark:text-muted shrink-0 ml-1.5">
                     {conversation.lastMessageAt
                       ? timeAgo(conversation.lastMessageAt)
                       : ""}
@@ -150,12 +150,12 @@ const ChatSidebar = ({ selectedChat, onSelectChat }: ChatSidebarProps) => {
                       size="sm"
                     />
                   ) : (
-                    <p className="text-sm text-gray-600 dark:text-muted truncate">
+                    <p className="text-xs text-gray-600 dark:text-muted truncate">
                       {conversation.lastMessage?.content || "No messages yet"}
                     </p>
                   )}
                   {conversation.myParticipant?.unreadCount > 0 && (
-                    <span className="shrink-0 ml-2 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    <span className="shrink-0 ml-1.5 w-4 h-4 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center">
                       {conversation.myParticipant?.unreadCount}
                     </span>
                   )}

@@ -1,7 +1,6 @@
-import useAxios from "@/utils/useAxios";
-
-const axiosInstance = useAxios();
+import apiClient from "@/lib/apiClient";
 
 export const aiService = {
-  chat: (payload: MessageSendRequest) => axiosInstance.post<ApiResponse<MessageResponse>>("/ai/chat", payload),
-}
+  chat: (payload: MessageSendRequest) =>
+    apiClient.post<ApiResponse<MessageResponse>>("/ai/chat", payload),
+};

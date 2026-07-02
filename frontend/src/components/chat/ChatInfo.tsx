@@ -89,20 +89,20 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
-            className="w-80 bg-white dark:bg-surface border-l border-gray-200 dark:border-border flex flex-col overflow-hidden ml-4"
+            className="w-72 bg-white dark:bg-surface border-l border-gray-200 dark:border-border flex flex-col overflow-hidden ml-3.5"
           >
             {/* Header */}
-            <div className="p-4 border-b border-gray-200 dark:border-border flex items-center justify-between">
+            <div className="p-3.5 border-b border-gray-200 dark:border-border flex items-center justify-between">
               <h2 className="font-semibold text-gray-900 dark:text-text">
                 Conversation Info
               </h2>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors"
               >
                 <FontAwesomeIcon
                   icon={faXmark}
-                  className="w-5 h-5 text-gray-600 dark:text-muted"
+                  className="w-4 h-4 text-gray-600 dark:text-muted"
                 />
               </button>
             </div>
@@ -110,29 +110,29 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
             {/* Content */}
             <div className="flex-1 overflow-y-auto">
               {/* User Info */}
-              <div className="p-6 text-center border-b border-gray-200 dark:border-border">
+              <div className="p-5 text-center border-b border-gray-200 dark:border-border">
                 <img
                   src={selectedChat.avatarUrl || "/default-avatar.jpg"}
                   alt=""
-                  className="w-20 h-20 mx-auto mb-3 rounded-full"
+                  className="w-16 h-16 mx-auto mb-2.5 rounded-full"
                 />
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-text mb-1">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-text mb-1">
                   {selectedChat.name ||
                     selectedChat.participants
                       .map((p) => p?.user?.firstName)
                       .join(", ")}
                 </h3>
-                <div className="flex items-center justify-center gap-2 text-xs text-green-600 dark:text-green-400">
+                <div className="flex items-center justify-center gap-1.5 text-xs text-green-600 dark:text-green-400">
                   {isOnline && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
+                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
                   )}
                   {isOnline ? (
                     <div className="flex gap-1 items-center">
-                      <p className="w-2 h-2 bg-green-400 rounded-full"></p>
-                      <p className="text-sm text-green-400 ">Online </p>
+                      <p className="w-1.5 h-1.5 bg-green-400 rounded-full"></p>
+                      <p className="text-xs text-green-400 ">Online </p>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 dark:text-muted">
+                    <p className="text-xs text-gray-500 dark:text-muted">
                       Offline
                     </p>
                   )}
@@ -140,12 +140,12 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
               </div>
 
               {/* Quick Actions */}
-              <div className="p-4 grid grid-cols-3 gap-3 border-b border-gray-200 dark:border-border">
-                <button className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-border transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+              <div className="p-3.5 grid grid-cols-3 gap-2.5 border-b border-gray-200 dark:border-border">
+                <button className="flex flex-col items-center gap-1.5 p-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-border transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
                     <FontAwesomeIcon
                       icon={faBell}
-                      className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                      className="w-4 h-4 text-blue-600 dark:text-blue-400"
                     />
                   </div>
                   <span className="text-xs text-gray-700 dark:text-text">
@@ -153,11 +153,11 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                   </span>
                 </button>
 
-                <button className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-border transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center">
+                <button className="flex flex-col items-center gap-1.5 p-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-border transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-yellow-100 dark:bg-yellow-900/20 flex items-center justify-center">
                     <FontAwesomeIcon
                       icon={faFlag}
-                      className="w-5 h-5 text-yellow-600 dark:text-yellow-400"
+                      className="w-4 h-4 text-yellow-600 dark:text-yellow-400"
                     />
                   </div>
                   <span className="text-xs text-gray-700 dark:text-text">
@@ -168,11 +168,11 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                 <button
 
                 onClick={() => setOpenLeaving(true)}
-                className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-border transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                className="flex flex-col items-center gap-1.5 p-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-border transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
                     <FontAwesomeIcon
                       icon={faRightFromBracket}
-                      className="w-5 h-5 text-red-600 dark:text-red-400"
+                      className="w-4 h-4 text-red-600 dark:text-red-400"
                     />
                   </div>
                   <span className="text-xs text-gray-700 dark:text-text">
@@ -185,23 +185,23 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
               <div className="border-b border-gray-200 dark:border-border">
                 <button
                   onClick={() => setShowUsers(!showUsers)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-border transition-colors"
+                  className="w-full p-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-border transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <FontAwesomeIcon
                       icon={faUser}
-                      className="w-5 h-5 text-gray-600 dark:text-muted"
+                      className="w-4 h-4 text-gray-600 dark:text-muted"
                     />
                     <span className="font-medium text-gray-900 dark:text-text">
                       Users
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-muted">
+                    <span className="text-xs text-gray-500 dark:text-muted">
                       {selectedChat.participants.length}
                     </span>
                   </div>
                   <FontAwesomeIcon
                     icon={showUsers ? faChevronUp : faChevronDown}
-                    className="w-4 h-4 text-gray-400"
+                    className="w-3.5 h-3.5 text-gray-400"
                   />
                 </button>
 
@@ -214,11 +214,11 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="flex flex-col gap-2 p-4">
+                      <div className="flex flex-col gap-1.5 p-3.5">
                         {selectedChat.participants.map((user) => (
                           <div
                             key={user.id.userId}
-                            className="rounded-lg bg-gray-100 dark:bg-border hover:opacity-80 transition-opacity flex gap-2 p-2 w-full items-center"
+                            className="rounded-md bg-gray-100 dark:bg-border hover:opacity-80 transition-opacity flex gap-1.5 p-1.5 w-full items-center"
                           >
                             <img
                               src={
@@ -228,9 +228,9 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                               alt={
                                 user?.user?.firstName + " " + user?.user?.lastName
                               }
-                              className="w-12 h-12 object-cover rounded-full"
+                              className="w-10 h-10 object-cover rounded-full"
                             />
-                            <div className="text-sm font-medium text-gray-900 dark:text-text max-w-[70%] truncate">
+                            <div className="text-xs font-medium text-gray-900 dark:text-text max-w-[70%] truncate">
                               <div>
                                 {user?.user?.firstName} {user?.user?.lastName}
                               </div>
@@ -238,24 +238,24 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                                 {user?.user?.email}
                               </div>
                             </div>
-                            <button className="ml-auto w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 p-1 transition-colors">
+                            <button className="ml-auto w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 p-1 transition-colors">
                               <FontAwesomeIcon
                                 icon={faEllipsisVertical}
-                                className="w-4 h-4 text-gray-600 dark:text-muted"
+                                className="w-3.5 h-3.5 text-gray-600 dark:text-muted"
                               />
                             </button>
                           </div>
                         ))}
                         <button 
                         onClick={() => setOpenAddUsers(true)}
-                        className="w-full flex items-center justify-center gap-4 p-4 rounded-2xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                        className="w-full flex items-center justify-center gap-3.5 p-3.5 rounded-xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                           <div>
                             <FontAwesomeIcon
                               icon={faUserPlus}
-                              className="w-5 h-5 text-gray-600 dark:text-muted"
+                              className="w-4 h-4 text-gray-600 dark:text-muted"
                             />
                           </div>
-                          <span className="text-sm text-gray-900 dark:text-text">
+                          <span className="text-xs text-gray-900 dark:text-text">
                             Add User
                           </span>
                         </button>
@@ -269,23 +269,23 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
               <div className="border-b border-gray-200 dark:border-border">
                 <button
                   onClick={() => setShowMedia(!showMedia)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-border transition-colors"
+                  className="w-full p-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-border transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <FontAwesomeIcon
                       icon={faImage}
-                      className="w-5 h-5 text-gray-600 dark:text-muted"
+                      className="w-4 h-4 text-gray-600 dark:text-muted"
                     />
                     <span className="font-medium text-gray-900 dark:text-text">
                       Media & Links
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-muted">
+                    <span className="text-xs text-gray-500 dark:text-muted">
                       {mediaFiles.length}
                     </span>
                   </div>
                   <FontAwesomeIcon
                     icon={showMedia ? faChevronUp : faChevronDown}
-                    className="w-4 h-4 text-gray-400"
+                    className="w-3.5 h-3.5 text-gray-400"
                   />
                 </button>
 
@@ -298,11 +298,11 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="grid grid-cols-3 gap-1 p-4">
+                      <div className="grid grid-cols-3 gap-1 p-3.5">
                         {mediaFiles.map((media) => (
                           <button
                             key={media.id}
-                            className="aspect-square rounded-lg bg-gray-100 dark:bg-border hover:opacity-80 transition-opacity flex items-center justify-center text-4xl"
+                            className="aspect-square rounded-md bg-gray-100 dark:bg-border hover:opacity-80 transition-opacity flex items-center justify-center text-3xl"
                           >
                             {media.url}
                           </button>
@@ -317,23 +317,23 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
               <div className="border-b border-gray-200 dark:border-border">
                 <button
                   onClick={() => setShowFiles(!showFiles)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-border transition-colors"
+                  className="w-full p-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-border transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     <FontAwesomeIcon
                       icon={faFile}
-                      className="w-5 h-5 text-gray-600 dark:text-muted"
+                      className="w-4 h-4 text-gray-600 dark:text-muted"
                     />
                     <span className="font-medium text-gray-900 dark:text-text">
                       Files
                     </span>
-                    <span className="text-sm text-gray-500 dark:text-muted">
+                    <span className="text-xs text-gray-500 dark:text-muted">
                       {files.length}
                     </span>
                   </div>
                   <FontAwesomeIcon
                     icon={showFiles ? faChevronUp : faChevronDown}
-                    className="w-4 h-4 text-gray-400"
+                    className="w-3.5 h-3.5 text-gray-400"
                   />
                 </button>
 
@@ -346,20 +346,20 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 pb-4 space-y-2">
+                      <div className="px-3.5 pb-3.5 space-y-1.5">
                         {files.map((file) => (
                           <button
                             key={file.id}
-                            className="w-full p-3 rounded-lg bg-gray-50 dark:bg-border hover:bg-gray-100 dark:hover:bg-muted transition-colors flex items-center gap-3"
+                            className="w-full p-2.5 rounded-md bg-gray-50 dark:bg-border hover:bg-gray-100 dark:hover:bg-muted transition-colors flex items-center gap-2.5"
                           >
-                            <div className="w-10 h-10 rounded bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0">
+                            <div className="w-9 h-9 rounded bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center flex-shrink-0">
                               <FontAwesomeIcon
                                 icon={faFile}
-                                className="w-5 h-5 text-blue-600 dark:text-blue-400"
+                                className="w-4 h-4 text-blue-600 dark:text-blue-400"
                               />
                             </div>
                             <div className="flex-1 min-w-0 text-left">
-                              <p className="text-sm font-medium text-gray-900 dark:text-text truncate">
+                              <p className="text-xs font-medium text-gray-900 dark:text-text truncate">
                                 {file.name}
                               </p>
                               <p className="text-xs text-gray-500 dark:text-muted">
@@ -375,12 +375,12 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
               </div>
 
               {/* Info */}
-              <div className="p-4 space-y-3">
+              <div className="p-3.5 space-y-2.5">
                 <div>
                   <p className="text-xs text-gray-500 dark:text-muted mb-1">
                     Member since
                   </p>
-                  <p className="text-sm text-gray-900 dark:text-text">
+                  <p className="text-xs text-gray-900 dark:text-text">
                     January 15, 2024
                   </p>
                 </div>
@@ -388,7 +388,7 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                   <p className="text-xs text-gray-500 dark:text-muted mb-1">
                     Time zone
                   </p>
-                  <p className="text-sm text-gray-900 dark:text-text">
+                  <p className="text-xs text-gray-900 dark:text-text">
                     PST (GMT-8)
                   </p>
                 </div>
@@ -396,7 +396,7 @@ const ChatInfo = ({ isOpen, onClose, selectedChat }: ChatInfoProps) => {
                   <p className="text-xs text-gray-500 dark:text-muted mb-1">
                     Local time
                   </p>
-                  <p className="text-sm text-gray-900 dark:text-text">2:30 PM</p>
+                  <p className="text-xs text-gray-900 dark:text-text">2:30 PM</p>
                 </div>
               </div>
             </div>

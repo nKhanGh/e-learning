@@ -15,7 +15,8 @@ Quan ly login/register/logout UI, auth modal, token localStorage va thong tin us
 - `frontend/src/services/auth.service.ts`
 - `frontend/src/services/user.service.ts`
 - `frontend/src/utils/auth.ts`
-- `frontend/src/utils/useAxios.ts`
+- `frontend/src/lib/apiClient.ts`
+- `frontend/src/hooks/queries/useAuthQueries.ts`
 - `frontend/src/types/auth.d.ts`
 - `frontend/src/types/user.d.ts`
 
@@ -32,17 +33,12 @@ Quan ly login/register/logout UI, auth modal, token localStorage va thong tin us
 ## API service hien tai
 
 - `POST /auth/login`
-- `POST /auth/signup`
+- `POST /auth/register`
 - `POST /auth/logout`
-- `POST /auth/refresh`
+- `POST /auth/refreshtToken`
 - `GET /users/my-info`
 - `GET /users/search`
 
 ## Luu y tich hop
 
-Backend controller hien expose:
-
-- `POST /auth/register`, khong phai `/auth/signup`.
-- `POST /auth/refreshtToken`, khong phai `/auth/refresh`.
-
-Can dong bo frontend service hoac backend route de login/register/refresh khong bi lech contract.
+Frontend da dong bo theo backend hien tai. `refreshtToken` van la typo o contract backend; nen doi backend sang endpoint chuan hon trong mot migration rieng neu muon lam dep API.

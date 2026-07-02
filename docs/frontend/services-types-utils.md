@@ -2,7 +2,7 @@
 
 ## Muc dich
 
-Gom cac API client, type declaration va helper dung chung cho frontend.
+Gom cac API client, query hooks, type declaration va helper dung chung cho frontend.
 
 ## Services
 
@@ -18,11 +18,15 @@ Gom cac API client, type declaration va helper dung chung cho frontend.
 | `services/message.service.ts` | Get messages |
 | `services/ai.service.ts` | AI chat |
 
-## Utils
+## Utils va client state
 
 | File | Vai tro |
 | --- | --- |
-| `utils/useAxios.ts` | Tao Axios instance, attach token, refresh token khi 401 |
+| `lib/apiClient.ts` | Axios singleton, attach token, refresh token khi 401 |
+| `lib/queryKeys.ts` | Query key factory dung chung |
+| `lib/courseSearch.ts` | Default course search filter |
+| `providers/QueryProvider.tsx` | TanStack Query provider va default cache options |
+| `hooks/queries/*` | TanStack Query hooks cho auth, course, enrollment, conversation, message, user search |
 | `utils/WebSocketService.ts` | Singleton STOMP client, reconnect, subscribe/publish chat events |
 | `utils/auth.ts` | Login/logout helper thao tac localStorage va auth service |
 | `utils/time.ts` | Format relative time |
@@ -44,12 +48,15 @@ Gom cac API client, type declaration va helper dung chung cho frontend.
 
 ## Axios flow
 
-1. Service import `useAxios`.
+1. Service import shared `apiClient`.
 2. Request interceptor doc `learnioAccessToken` tu localStorage.
 3. Token duoc gan vao `Authorization`.
-4. Response interceptor bat 401 va thu refresh token.
+4. Response interceptor bat 401 va thu refresh token qua `/auth/refreshtToken`.
 5. Neu refresh fail, token bi xoa va app dispatch event logout.
 
-## Luu y
+## TanStack Query
 
-`useAxios` hien la factory function dat ten nhu hook nhung duoc goi o module scope trong services. Neu can dung React hooks thuc su trong tuong lai, nen doi ten thanh `createAxiosClient` hoac tao singleton ro rang hon.
+- `QueryProvider` boc app trong route locale layout.
+- Query keys nam trong `lib/queryKeys.ts`.
+- Default stale time la 60 giay va `refetchOnWindowFocus` tat de tranh request lap lai qua nhieu.
+- Course search, categories, enrollment, conversations, messages va user search deu co query hook rieng.

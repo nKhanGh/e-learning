@@ -52,18 +52,23 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse register(RegisterRequest request) {
         Optional<User> oldUser = userRepository.findByEmail(request.getEmail());
+        Optional<User> userWithSamePhone = findUserWithSamePhone(request.getPhone());
         User user;
         if(oldUser.isPresent()){
             if (oldUser.get().getStatus() != UserStatus.PENDING)
                 throw new AppException(ErrorCode.USER_EXISTED);
             user = oldUser.get();
+            throwIfPhoneBelongsToAnotherUser(userWithSamePhone, user);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setStatus(UserStatus.PENDING);
+            user.setStatus(request.getStatus() != null ? request.getStatus() : UserStatus.PENDING);
             user.setPhoneNumber(request.getPhone());
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
         }
         else {
+            if (userWithSamePhone.isPresent()) {
+                throw new AppException(ErrorCode.PHONE_NUMBER_EXISTED);
+            }
             user = User.builder()
                     .firstName(request.getFirstName())
                     .lastName(request.getLastName())
@@ -77,6 +82,25 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
         return userMapper.toResponse(user);
+    }
+
+    private Optional<User> findUserWithSamePhone(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.isBlank()) {
+            return Optional.empty();
+        }
+        return userRepository.findByPhoneNumber(phoneNumber);
+    }
+
+    private void throwIfPhoneBelongsToAnotherUser(Optional<User> userWithSamePhone, User currentUser) {
+        if (userWithSamePhone.isEmpty()) {
+            return;
+        }
+
+        UUID phoneOwnerId = userWithSamePhone.get().getId();
+        UUID currentUserId = currentUser.getId();
+        if (currentUserId == null || !currentUserId.equals(phoneOwnerId)) {
+            throw new AppException(ErrorCode.PHONE_NUMBER_EXISTED);
+        }
     }
 
     private UserProfile createProfile(User user) {

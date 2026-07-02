@@ -54,10 +54,23 @@ public class AuthenticationController {
                 .build();
     }
 
+    @PostMapping("/refresh-token")
+    public ApiResponse<AuthenticationResponse> refreshTokenV2(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
+        return refreshToken(request);
+    }
+
     @PostMapping("/verify-email")
     public ApiResponse<EmailVerifyResponse> verifyEmail(@RequestBody EmailVerifyRequest request) throws JOSEException {
         return ApiResponse.<EmailVerifyResponse>builder()
                 .result(authenticationService.verifyEmail(request))
+                .build();
+    }
+
+    @PostMapping("/resend-verification")
+    public ApiResponse<Void> resendVerificationEmail(@RequestBody PasswordForgotRequest request) {
+        authenticationService.resendVerificationEmail(request);
+        return ApiResponse.<Void>builder()
+                .message("Verification email has been sent")
                 .build();
     }
 

@@ -1,8 +1,6 @@
-import useAxios from "@/utils/useAxios";
-
-const axiosInstance = useAxios();
+import apiClient from "@/lib/apiClient";
 
 export const courseCategoryService = {
-  getAllCategories: () => axiosInstance.get<ApiResponse<CourseCategoryResponse[]>>("/course-categories"),
-}
-
+  getAllCategories: () =>
+    apiClient.get<ApiResponse<CourseCategoryResponse[]>>("/course-categories"),
+};

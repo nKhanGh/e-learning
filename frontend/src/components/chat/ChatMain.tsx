@@ -12,13 +12,14 @@ import { useState, useRef, useEffect } from "react";
 import webSocketService from "@/utils/WebSocketService";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversation } from "@/contexts/ConversationContext";
-import { messageService } from "@/services/message.service";
 import { timeAgo } from "@/utils/time";
 import { aiService } from "@/services/ai.service";
 import Typing from "../ui/Typing";
 import Loading from "../ui/Loading";
 import { useLocale } from "next-intl";
 import Link from "next/link";
+import { useMessageQueryClient } from "@/hooks/queries/useMessageQueries";
+import { useMutation } from "@tanstack/react-query";
 
 interface ChatMainProps {
   selectedChat: ConversationResponse | null;
@@ -59,6 +60,10 @@ const ChatMain = ({
 
   const { user } = useAuth();
   const { conversations, setConversations, userStatuses } = useConversation();
+  const { fetchConversationMessages } = useMessageQueryClient();
+  const aiChatMutation = useMutation({
+    mutationFn: aiService.chat,
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
@@ -73,13 +78,13 @@ const ChatMain = ({
     if (!selectedChat || isLoadingMoreRef.current) return;
     isLoadingMoreRef.current = true;
     try {
-      const response = await messageService.getMessagesByConversationId(
+      const result = await fetchConversationMessages(
         conversationId,
         page,
         size,
       );
      
-      const hasMore = response.data.result.totalPages > page + 1;
+      const hasMore = result.totalPages > page + 1;
 
       setConversations((prev) => {
         if (!prev) return prev;
@@ -91,7 +96,7 @@ const ChatMain = ({
           const existingIds = new Set(
             conversation.messages?.map((m) => m.id) || [],
           );
-          const uniqueNewItems = response.data.result.items.filter(
+          const uniqueNewItems = result.items.filter(
             (item: MessageResponse) => !existingIds.has(item.id),
           );
           conversation.messages = [
@@ -119,7 +124,7 @@ const ChatMain = ({
       });
 
     } catch (error) {
-      console.error("Error fetching messages:", (error as any).response);
+      console.error("Error fetching messages:", error);
     } finally {
       isLoadingMoreRef.current = false;
     }
@@ -209,7 +214,7 @@ const ChatMain = ({
           return updated;
         });
         scrollToBottom();
-        const response = await aiService.chat({
+        const response = await aiChatMutation.mutateAsync({
           conversationId: selectedChat.id,
           content: messageToSend,
           parentId: parentMessage?.id || null,
@@ -231,7 +236,7 @@ const ChatMain = ({
           return updated;
         });
       } catch (error) {
-        console.error("Error sending AI message:", (error as any).response);
+        console.error("Error sending AI message:", error);
       } finally {
         setSending(false);
         setConversations((prev) => {
@@ -404,15 +409,15 @@ const ChatMain = ({
 
   if (!selectedChat) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 ml-4">
+      <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900 ml-3.5">
         <div className="text-center">
-          <div className="w-24 h-24 bg-gray-200 dark:bg-border rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-20 h-20 bg-gray-200 dark:bg-border rounded-full flex items-center justify-center mx-auto mb-3.5">
             <FontAwesomeIcon
               icon={faCircleInfo}
-              className="text-3xl text-gray-400 dark:text-muted"
+              className="text-2xl text-gray-400 dark:text-muted"
             />
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-text mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-text mb-1.5">
             Select a conversation
           </h3>
           <p className="text-gray-600 dark:text-muted">
@@ -424,10 +429,10 @@ const ChatMain = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 ml-4 rounded-t-2xl">
+    <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 ml-3.5 rounded-t-2xl">
       {/* Header */}
-      <div className="h-16 px-6 border-b border-gray-200 dark:border-border flex items-center justify-between bg-white dark:bg-gray-900 rounded-t-2xl">
-        <div className="flex items-center gap-3">
+      <div className="h-14 px-5 border-b border-gray-200 dark:border-border flex items-center justify-between bg-white dark:bg-gray-900 rounded-t-2xl">
+        <div className="flex items-center gap-2.5">
           {/* Avatar */}
           <div className="relative">
             <img
@@ -437,10 +442,10 @@ const ChatMain = ({
                   : selectedChat.avatarUrl || "/default-avatar.jpg"
               }
               alt="User Avatar"
-              className="w-10 h-10 rounded-full object-cover"
+              className="w-9 h-9 rounded-full object-cover"
             />
             {isOnline && (
-              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
+              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-surface rounded-full"></div>
             )}
           </div>
 
@@ -455,7 +460,7 @@ const ChatMain = ({
               </p>
             )}
             {!isOnline && isDirect && (
-              <p className="text-sm text-gray-500 dark:text-muted">
+              <p className="text-xs text-gray-500 dark:text-muted">
                 Online{" "}
                 {(() => {
                   const participantId = getOtherParticipantId();
@@ -470,22 +475,22 @@ const ChatMain = ({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={onToggleInfo}
-            className={`w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors ${
+            className={`w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors ${
               showInfo ? "bg-gray-100 dark:bg-border" : ""
             }`}
           >
             <FontAwesomeIcon
               icon={faCircleInfo}
-              className="w-5 h-5 text-gray-600 dark:text-muted"
+              className="w-4 h-4 text-gray-600 dark:text-muted"
             />
           </button>
-          <button className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors">
+          <button className="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors">
             <FontAwesomeIcon
               icon={faEllipsisV}
-              className="w-5 h-5 text-gray-600 dark:text-muted"
+              className="w-4 h-4 text-gray-600 dark:text-muted"
             />
           </button>
         </div>
@@ -494,17 +499,17 @@ const ChatMain = ({
       {/* Messages */}
 
       <div
-        className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900"
+        className="flex-1 overflow-y-auto p-5 bg-gray-50 dark:bg-gray-900"
         ref={containerRef}
       >
         <div ref={topSentinelRef} className="h-px"></div>{" "}
         {conversations?.get(selectedChat?.id)?.messages === null ||
         conversations?.get(selectedChat?.id)?.messages?.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-muted mt-36">
+          <div className="text-center text-gray-500 dark:text-muted mt-32">
             <div>
               <FontAwesomeIcon
                 icon={faCircleInfo}
-                className="text-3xl text-gray-400 dark:text-muted mb-4"
+                className="text-2xl text-gray-400 dark:text-muted mb-3.5"
               />
             </div>
             No messages yet. Start the conversation now!
@@ -514,7 +519,7 @@ const ChatMain = ({
             (msg, index) => (
               <div key={msg.id} className={`w-full`}>
                 {isFirstMessageInGroup(index) && (
-                  <div className="text-xs w-full flex justify-center text-gray-500 dark:text-muted mb-2">
+                  <div className="text-xs w-full flex justify-center text-gray-500 dark:text-muted mb-1.5">
                     {new Date(msg.createdAt).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -528,8 +533,8 @@ const ChatMain = ({
                   className={`w-full flex ${isMyMessage(msg) ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-md flex ${isMyMessage(msg) ? "order-2" : "order-1"}
-                    ${isUserLastMessageInGroup(index) ? "mb-2" : "mb-[2px]"} 
+                    className={`max-w-sm flex ${isMyMessage(msg) ? "order-2" : "order-1"}
+                    ${isUserLastMessageInGroup(index) ? "mb-1.5" : "mb-[2px]"} 
                     `}
                   >
                     {!isMyMessage(msg) && isUserFirstMessageInGroup(index) && (
@@ -541,7 +546,7 @@ const ChatMain = ({
                               "/default-avatar.jpg"
                         }
                         alt="Sender Avatar"
-                        className={`w-8 h-8 rounded-full object-cover mr-3 mt-auto mb-1 ${isUserLastMessageInGroup(index) ? "mb-6" : ""}`}
+                        className={`w-7 h-7 rounded-full object-cover mr-2.5 mt-auto mb-1 ${isUserLastMessageInGroup(index) ? "mb-5" : ""}`}
                       />
                     )}
                     <div>
@@ -552,13 +557,13 @@ const ChatMain = ({
                           </p>
                         )}
                       <div
-                        className={`px-4 py-2 group rounded-sm relative ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-11"} ${
+                        className={`px-3.5 py-1.5 group rounded-sm relative ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-10"} ${
                           isMyMessage(msg)
                             ? `bg-linear-to-tr from-primary to-secondary rounded-l-2xl text-white ${isUserLastMessageInGroup(index) && "rounded-br-2xl"} ${isUserFirstMessageInGroup(index) && "rounded-tr-2xl"}`
                             : `bg-white dark:bg-surface text-gray-900 dark:text-text rounded-r-2xl ${isUserLastMessageInGroup(index) && "rounded-bl-2xl"} ${isUserFirstMessageInGroup(index) && "rounded-tl-2xl"}`
                         }`}
                       >
-                        <p className="text-sm whitespace-pre-wrap wrap-break-words">
+                        <p className="text-xs whitespace-pre-wrap wrap-break-words">
                           {msg.content}
                         </p>
                         <div
@@ -568,7 +573,7 @@ const ChatMain = ({
                               : "-right-2 translate-x-full"
                           } top-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10`}
                         >
-                          <div className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap shadow-lg">
+                          <div className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-white text-xs px-2.5 py-1 rounded-md whitespace-nowrap shadow-lg">
                             {new Date(msg.createdAt).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -597,14 +602,14 @@ const ChatMain = ({
                       </div>
                       {msg.courseRecommendations &&
                         msg.courseRecommendations.length > 0 && (
-                          <div className="flex flex-col gap-3 mt-3">
+                          <div className="flex flex-col gap-2.5 mt-2.5">
                             {msg.courseRecommendations.map((course) => (
                               <Link
                                 href={`/${locale}/courses/${course.courseId}`}
                                 key={course.courseId}
-                                className="group block bg-white dark:bg-surface rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-white/5"
+                                className="group block bg-white dark:bg-surface rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 dark:border-white/5"
                               >
-                                <div className="relative w-full h-28 overflow-hidden">
+                                <div className="relative w-full h-24 overflow-hidden">
                                   <img
                                     src={
                                       course.thumbnailUrl ||
@@ -613,7 +618,7 @@ const ChatMain = ({
                                     alt={course.title}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                   />
-                                  <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-1 rounded-full">
+                                  <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-1 rounded-full">
                                     ✦{" "}
                                     {(course.similarityScore * 100).toFixed(0)}%
                                     match
@@ -621,19 +626,19 @@ const ChatMain = ({
                                 </div>
 
                                 {/* Content */}
-                                <div className="p-3 flex flex-col gap-2">
+                                <div className="p-2.5 flex flex-col gap-1.5">
                                   {/* Title */}
-                                  <p className="font-semibold text-sm text-gray-800 dark:text-white leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                                  <p className="font-semibold text-xs text-gray-800 dark:text-white leading-snug group-hover:text-primary transition-colors line-clamp-2">
                                     {course.title}
                                   </p>
 
                                   {/* Tags row */}
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
                                       {course.category}
                                     </span>
                                     <span
-                                      className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${getLevelClassName(course.level)}`}
+                                      className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${getLevelClassName(course.level)}`}
                                     >
                                       {course.level}
                                     </span>
@@ -646,7 +651,7 @@ const ChatMain = ({
 
                                   {/* Footer */}
                                   <div className="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-white/5">
-                                    <span className="text-sm font-bold text-primary">
+                                    <span className="text-xs font-bold text-primary">
                                       ${course.originalPrice}
                                     </span>
                                     <span className="text-[10px] text-gray-400 dark:text-muted group-hover:text-primary transition-colors">
@@ -659,7 +664,7 @@ const ChatMain = ({
                           </div>
                         )}
                       {/* <div
-                        className={`flex items-center gap-1 mt-1 ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-11"} text-xs text-gray-500 dark:text-muted ${
+                        className={`flex items-center gap-1 mt-1 ${!isUserFirstMessageInGroup(index) && !isMyMessage(msg) && "ml-10"} text-xs text-gray-500 dark:text-muted ${
                           isMyMessage(msg) ? "justify-end" : "justify-start"
                         }`}
                       >
@@ -686,12 +691,12 @@ const ChatMain = ({
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-200 dark:border-border bg-white dark:bg-surface">
-        <div className="flex items-center gap-3">
-          <button className="w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors shrink-0">
+      <div className="p-3.5 border-t border-gray-200 dark:border-border bg-white dark:bg-surface">
+        <div className="flex items-center gap-2.5">
+          <button className="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-border flex items-center justify-center transition-colors shrink-0">
             <FontAwesomeIcon
               icon={faImage}
-              className="w-5 h-5 text-gray-600 dark:text-muted"
+              className="w-4 h-4 text-gray-600 dark:text-muted"
             />
           </button>
 
@@ -701,17 +706,17 @@ const ChatMain = ({
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyPress}
               placeholder="Type a message..."
-              className="w-full h-full px-4 py-3 pr-12 bg-gray-100 dark:bg-border rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-text placeholder-gray-500 dark:placeholder-muted"
+              className="w-full h-full px-3.5 py-2.5 pr-10 bg-gray-100 dark:bg-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-text placeholder-gray-500 dark:placeholder-muted"
             />
-            <button className="absolute right-2 bottom-[50%] transform translate-y-1/2 w-10 h-10 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors">
+            <button className="absolute right-1.5 bottom-[50%] transform translate-y-1/2 w-9 h-9 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors">
               <FontAwesomeIcon
                 icon={faFaceSmile}
-                className="text-2xl text-primary hover:text-primary/80"
+                className="text-xl text-primary hover:text-primary/80"
               />
             </button>
           </div>
           {sending && (
-            <div className="w-10">
+            <div className="w-9">
               <Loading size="sm" color="blue" />
             </div>
           )}
@@ -719,22 +724,22 @@ const ChatMain = ({
             (message.trim().length === 0 ? (
               <button
                 disabled={sending}
-                className="w-10 h-10 rounded-full flex items-center justify-center transition-colors shrink-0"
+                className="w-9 h-9 rounded-full flex items-center justify-center transition-colors shrink-0"
               >
                 <FontAwesomeIcon
                   icon={faThumbsUp}
-                  className="text-2xl text-primary hover:text-primary/80"
+                  className="text-xl text-primary hover:text-primary/80"
                 />
               </button>
             ) : (
               <button
                 onClick={handleSend}
                 disabled={!message.trim() || sending}
-                className="w-10 h-10 rounded-full  disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
+                className="w-9 h-9 rounded-full  disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors shrink-0"
               >
                 <FontAwesomeIcon
                   icon={faPaperPlane}
-                  className="text-2xl text-primary hover:text-primary/80"
+                  className="text-xl text-primary hover:text-primary/80"
                 />
               </button>
             ))}

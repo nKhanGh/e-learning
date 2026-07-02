@@ -1,6 +1,17 @@
 "use client";
+
+import { useCurrentUserQuery } from "@/hooks/queries/useAuthQueries";
+import { queryKeys } from "@/lib/queryKeys";
 import { userService } from "@/services/user.service";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -22,45 +33,88 @@ const AuthContext = createContext<AuthContextType>({
   setAccessToken: () => {},
 });
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [user, setUser] = useState<UserResponse | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+const getStoredAccessToken = () => {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("learnioAccessToken");
+};
 
-  const fetchUserInfo = async () => {
-    console.log("Checking for access token in localStorage...");
-    const accessToken = localStorage.getItem("learnioAccessToken");
-    if (accessToken) {
-      setIsLoggedIn(true);
-      setAccessToken(accessToken);
-      try {
-        const response = await userService.getMyInfo();
-        setUser(response.data.result);
-      } catch (error) {
-        console.error("Failed to fetch user info:", error);
-        setIsLoggedIn(false);
-      }
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = useQueryClient();
+  const [accessToken, setAccessTokenState] = useState<string | null>(
+    getStoredAccessToken,
+  );
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
+    () => Boolean(getStoredAccessToken()),
+  );
+  const [manualUser, setManualUser] = useState<UserResponse | null>(null);
+  const currentUserQuery = useCurrentUserQuery(Boolean(accessToken));
+
+  const setAccessToken = useCallback((token: string | null) => {
+    setAccessTokenState(token);
+    setIsLoggedIn(Boolean(token));
+
+    if (typeof window === "undefined") return;
+
+    if (token) {
+      localStorage.setItem("learnioAccessToken", token);
+    } else {
+      localStorage.removeItem("learnioAccessToken");
     }
-  };
+  }, []);
+
+  const setUser = useCallback((nextUser: UserResponse | null) => {
+    setManualUser(nextUser);
+  }, []);
+
+  const fetchUserInfo = useCallback(async () => {
+    const storedAccessToken = localStorage.getItem("learnioAccessToken");
+    if (!storedAccessToken) {
+      setAccessToken(null);
+      setManualUser(null);
+      return;
+    }
+
+    setAccessToken(storedAccessToken);
+
+    try {
+      const currentUser = await queryClient.fetchQuery({
+        queryKey: queryKeys.auth.me,
+        queryFn: async () => {
+          const response = await userService.getMyInfo();
+          return response.data.result;
+        },
+      });
+      setManualUser(currentUser);
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error("Failed to fetch user info:", error);
+      setAccessToken(null);
+      setManualUser(null);
+    }
+  }, [queryClient, setAccessToken]);
+
   useEffect(() => {
     const handleLogout = () => {
-      setIsLoggedIn(false);
       setAccessToken(null);
-      setUser(null);
+      setManualUser(null);
+      localStorage.removeItem("learnioRefreshToken");
+      queryClient.removeQueries({ queryKey: queryKeys.auth.me });
     };
-
-    fetchUserInfo();
 
     window.addEventListener("logout", handleLogout);
 
     return () => {
       window.removeEventListener("logout", handleLogout);
     };
-  }, []);
+  }, [queryClient, setAccessToken]);
+
+  const user = manualUser ?? currentUserQuery.data ?? null;
+  const effectiveIsLoggedIn =
+    isLoggedIn && Boolean(accessToken) && !currentUserQuery.isError;
 
   const value = useMemo(
     () => ({
-      isLoggedIn,
+      isLoggedIn: effectiveIsLoggedIn,
       setIsLoggedIn,
       user,
       setUser,
@@ -68,7 +122,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       accessToken,
       setAccessToken,
     }),
-    [isLoggedIn, user, accessToken],
+    [
+      accessToken,
+      effectiveIsLoggedIn,
+      fetchUserInfo,
+      setAccessToken,
+      setUser,
+      user,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

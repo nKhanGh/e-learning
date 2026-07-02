@@ -27,28 +27,28 @@ const FilterSection = ({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-gray-200 dark:border-border pb-5 mb-5 last:border-0 last:mb-0 last:pb-0">
+    <div className="border-b border-gray-200 dark:border-border pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full text-left mb-3 group"
+        className="flex items-center justify-between w-full text-left mb-2.5 group"
       >
-        <span className="font-semibold text-gray-900 dark:text-text text-sm">
+        <span className="font-semibold text-gray-900 dark:text-text text-xs">
           {title}
         </span>
 
         <FontAwesomeIcon
           icon={faChevronDown}
-          className={`w-3 h-3 text-gray-400 transition-transform duration-300 ${
+          className={`w-2.5 h-2.5 text-gray-400 transition-transform duration-300 ${
             open ? "rotate-180" : ""
           }`}
         />
       </button>
       <div
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          open ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="pt-2">{children}</div>
+        <div className="pt-1.5">{children}</div>
       </div>
     </div>
   );
@@ -58,13 +58,13 @@ const CourseSidebar = ({
   filters,
   setFilters,
   courseCategories,
-  setApplyFilters,
+  onApplyFilters,
   loading,
 }: {
   filters: CourseSearchRequest;
   setFilters: React.Dispatch<React.SetStateAction<CourseSearchRequest>>;
   courseCategories: CourseCategoryResponse[];
-  setApplyFilters: React.Dispatch<React.SetStateAction<boolean>>;
+  onApplyFilters: () => void;
   loading: boolean;
 }) => {
   const t = useTranslations("CoursesPage");
@@ -82,19 +82,19 @@ const CourseSidebar = ({
     <div className="space-y-0">
       {/* Category */}
       <FilterSection title={t("filter.category")}>
-        <div className="space-y-2 max-h-40 overflow-y-auto">
+        <div className="space-y-1.5 max-h-36 overflow-y-auto">
           {courseCategories?.map((cat) => (
             <label
               key={cat.id}
-              className="flex items-center gap-2.5 cursor-pointer group"
+              className="flex items-center gap-2 cursor-pointer group"
             >
               <input
                 type="checkbox"
                 checked={filters.categoryId.includes(cat.id)}
                 onChange={() => toggleCategory(cat.id)}
-                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                className="w-3.5 h-3.5 rounded border-gray-300 text-primary focus:ring-primary"
               />
-              <span className="text-sm text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
+              <span className="text-xs text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
                 {cat.iconUrl} {cat.name}
               </span>
             </label>
@@ -104,23 +104,23 @@ const CourseSidebar = ({
 
       {/* Level */}
       <FilterSection title={t("filter.level")}>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {(
-            ["", "BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL_LEVELS"] as const
+            [null, "BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL_LEVELS"] as const
           )?.map((lvl) => (
             <label
-              key={lvl}
-              className="flex items-center gap-2.5 cursor-pointer group"
+              key={lvl ?? "all"}
+              className="flex items-center gap-2 cursor-pointer group"
             >
               <input
                 type="radio"
                 name="level"
                 checked={filters.level === lvl}
                 onChange={() => setFilters((f) => ({ ...f, level: lvl }))}
-                className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
+                className="w-3.5 h-3.5 border-gray-300 text-primary focus:ring-primary"
               />
-              <span className="text-sm text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
-                {lvl === ""
+              <span className="text-xs text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
+                {lvl === null
                   ? t("filter.allLevels")
                   : getLevelLabel(lvl as CourseLevel)}
               </span>
@@ -131,20 +131,20 @@ const CourseSidebar = ({
 
       {/* Price */}
       <FilterSection title={t("filter.price")}>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {([null, true, false] as const).map((val) => (
             <label
               key={String(val)}
-              className="flex items-center gap-2.5 cursor-pointer group"
+              className="flex items-center gap-2 cursor-pointer group"
             >
               <input
                 type="radio"
                 name="isFree"
                 checked={filters.isFree === val}
                 onChange={() => setFilters((f) => ({ ...f, isFree: val }))}
-                className="w-4 h-4 border-gray-300 text-primary focus:ring-primary"
+                className="w-3.5 h-3.5 border-gray-300 text-primary focus:ring-primary"
               />
-              <span className="text-sm text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
+              <span className="text-xs text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
                 {val === null
                   ? t("filter.allPrices")
                   : val
@@ -154,7 +154,7 @@ const CourseSidebar = ({
             </label>
           ))}
           {filters.isFree === false && (
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="mt-3.5 grid grid-cols-2 gap-2.5">
               {/* MIN */}
               <input
                 type="number"
@@ -166,7 +166,7 @@ const CourseSidebar = ({
                     minPrice: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-xl px-3 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
                 min={0}
               />
 
@@ -181,7 +181,7 @@ const CourseSidebar = ({
                     maxPrice: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-xl px-3 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
                 min={filters.maxPrice || 0}
               />
             </div>
@@ -189,7 +189,7 @@ const CourseSidebar = ({
         </div>
       </FilterSection>
       <FilterSection title={t("filter.rating")} defaultOpen={false}>
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-3.5 grid grid-cols-2 gap-2.5">
               {/* MIN */}
               <input
                 type="number"
@@ -201,7 +201,7 @@ const CourseSidebar = ({
                     minAverageRating: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-xl px-3 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
                 min={0}
               />
 
@@ -216,7 +216,7 @@ const CourseSidebar = ({
                     maxAverageRating: e.target.value ? Number(e.target.value) : null,
                   }))
                 }
-                className="w-full bg-transparent border border-primary rounded-xl px-3 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
+                className="w-full bg-transparent border border-primary rounded-lg px-2.5 py-1 focus:outline-none focus:border-green-primary hover:border-green-primary"
                 min={filters.maxAverageRating || 0}
               />
             </div>
@@ -224,8 +224,8 @@ const CourseSidebar = ({
 
       {/* Features */}
       <FilterSection title={t("filter.features")} defaultOpen={false}>
-        <div className="space-y-2">
-          <label className="flex items-center gap-2.5 cursor-pointer group">
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-2 cursor-pointer group">
             <input
               type="checkbox"
               checked={filters.hasQuiz === true}
@@ -235,17 +235,17 @@ const CourseSidebar = ({
                   hasQuiz: f.hasQuiz === true ? null : true,
                 }))
               }
-              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              className="w-3.5 h-3.5 rounded border-gray-300 text-primary focus:ring-primary"
             />
-            <span className="text-sm text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
+            <span className="text-xs text-gray-700 dark:text-muted group-hover:text-gray-900 dark:group-hover:text-text transition-colors">
               {t("filter.hasQuiz")}
             </span>
           </label>
         </div>
       </FilterSection>
       <button
-        onClick={() => setApplyFilters(true)}
-        className="w-full mt-6 py-3 bg-primary text-white rounded-xl font-semibold flex items-center justify-center hover:bg-primary/90 transition-colors"
+        onClick={onApplyFilters}
+        className="w-full mt-5 py-2.5 bg-primary text-white rounded-lg font-semibold flex items-center justify-center hover:bg-primary/90 transition-colors"
       >
         {loading ? <Loading size="smd" color="blue" /> :
           t("filter.search")

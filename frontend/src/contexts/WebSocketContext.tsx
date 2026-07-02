@@ -3,7 +3,7 @@ import { createContext, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
 import webSocketService from "@/utils/WebSocketService";
 
-type WebSocketContextType = {};
+type WebSocketContextType = Record<string, never>;
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(
   undefined,

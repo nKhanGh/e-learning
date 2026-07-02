@@ -46,7 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(!authenticated)
             throw new AppException(ErrorCode.PASSWORD_INCORRECT);
         if(user.getStatus() == UserStatus.PENDING)
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.USER_NOT_VERIFIED);
         String accessToken = jwtService.generateToken(user, true);
         String refreshToken = jwtService.generateToken(user, false);
         return AuthenticationResponse.builder()
@@ -87,6 +87,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public UserResponse register(RegisterRequest request) {
+        request.setStatus(UserStatus.PENDING);
         UserResponse userResponse = userService.register(request);
         emailService.sendOtpEmail(request.getEmail());
         return userResponse;
@@ -99,10 +100,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         EmailVerifyResponse response = emailService.verifyEmail(request);
         if(response.isValid()){
             userService.setStatus(request.getEmail(), UserStatus.ACTIVE);
+            user.setStatus(UserStatus.ACTIVE);
             response.setAccessToken(jwtService.generateToken(user, true));
             response.setRefreshToken(jwtService.generateToken(user, false));
         }
         return response;
+    }
+
+    @Override
+    public void resendVerificationEmail(PasswordForgotRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if(user.getStatus() != UserStatus.PENDING) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+        emailService.sendOtpEmail(request.getEmail());
     }
 
     @Override
