@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -21,6 +22,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Enrollme
     Page<User> findUsersByCourseId(UUID courseId, Pageable pageable);
 
     boolean existsByUserIdAndCourseId(UUID userId, UUID courseId);
+    Optional<Enrollment> findByUserIdAndCourseId(UUID userId, UUID courseId);
 
     List<Enrollment> findByCourseId(UUID courseId);
     List<Enrollment> findByUserId(UUID userId);

@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface LectureRepository extends JpaRepository<Lecture, UUID> {
     List<Lecture> findBySectionId(UUID courseId);
     List<Lecture> findBySectionIdAndIsPublishedTrue(UUID courseId);
+    List<Lecture> findBySectionIdAndIsPublishedTrueOrderByDisplayOrderAsc(UUID courseId);
 
     @Query("""
         select count(l) from Lecture l

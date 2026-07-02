@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface QuizRepository extends JpaRepository<Quiz, UUID> {
     Optional<Quiz> findByLectureId(UUID lectureId);
+    Optional<Quiz> findByLectureIdAndIsPublishedTrue(UUID lectureId);
 }

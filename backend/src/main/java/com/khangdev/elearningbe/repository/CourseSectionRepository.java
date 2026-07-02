@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface CourseSectionRepository extends JpaRepository<CourseSection, UUID> {
     List<CourseSection> findByCourseId(UUID courseId);
+    List<CourseSection> findByCourseIdAndIsPublishedTrueOrderByDisplayOrderAsc(UUID courseId);
 }

@@ -6,9 +6,12 @@ import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.CourseCurriculumResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseEnrollmentStatusResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSearchResponse;
 import com.khangdev.elearningbe.service.course.CourseIndex;
+import com.khangdev.elearningbe.service.course.CourseLearningService;
 import com.khangdev.elearningbe.service.course.CourseSearchService;
 import com.khangdev.elearningbe.service.course.CourseService;
 import com.khangdev.elearningbe.service.user.UserService;
@@ -29,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/courses")
 public class CourseController {
     CourseService courseService;
+    CourseLearningService courseLearningService;
     CourseIndex indexer;
     CourseSearchService searchService;
     UserService userService;
@@ -97,6 +101,20 @@ public class CourseController {
     ApiResponse<CourseResponse> getCourse(@PathVariable UUID courseId){
         return ApiResponse.<CourseResponse>builder()
                 .result(courseService.getCourseById(courseId))
+                .build();
+    }
+
+    @GetMapping("/{courseId}/curriculum")
+    ApiResponse<CourseCurriculumResponse> getCurriculum(@PathVariable UUID courseId){
+        return ApiResponse.<CourseCurriculumResponse>builder()
+                .result(courseLearningService.getCurriculum(courseId))
+                .build();
+    }
+
+    @GetMapping("/{courseId}/enrollment-status")
+    ApiResponse<CourseEnrollmentStatusResponse> getEnrollmentStatus(@PathVariable UUID courseId){
+        return ApiResponse.<CourseEnrollmentStatusResponse>builder()
+                .result(courseLearningService.getEnrollmentStatus(courseId))
                 .build();
     }
 
