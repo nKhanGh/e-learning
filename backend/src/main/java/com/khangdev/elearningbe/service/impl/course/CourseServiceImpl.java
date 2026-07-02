@@ -113,10 +113,15 @@ public class CourseServiceImpl implements CourseService {
         User user =  userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         CourseStatus lastStatus = course.getStatus();
-        if(user.getRole() != UserRole.ADMIN && user.getId() != course.getInstructor().getId())
+        if(user.getRole() != UserRole.ADMIN && !user.getId().equals(course.getInstructor().getId()))
             throw new AppException(ErrorCode.UNAUTHORIZED);
 
         courseMapper.updateCourse(course, request);
+        if (request.getCategoryId() != null) {
+            CourseCategory category = courseCategoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new AppException(ErrorCode.COURSE_CATEGORY_NOT_FOUND));
+            course.setCategory(category);
+        }
         courseRepository.save(course);
 
         if (course.getStatus().equals(CourseStatus.PUBLISHED)){
@@ -189,6 +194,7 @@ public class CourseServiceImpl implements CourseService {
             if (request.getTagNames() != null && !request.getTagNames().isEmpty()){
                 Join<Course, CourseTag> join = root.join("tags", JoinType.INNER);
                 predicates.add(join.get("name").in(request.getTagNames()));
+                assert query != null;
                 query.distinct(true);
             }
             return cb.and(predicates.toArray(new Predicate[0]));
@@ -198,6 +204,7 @@ public class CourseServiceImpl implements CourseService {
         if (request.getKeyword() != null && !request.getKeyword().isBlank()){
             String keyword = "%" + request.getKeyword().trim().toLowerCase() + "%";
             keywordSpec = (root, query, cb) -> {
+                assert query != null;
                 query.distinct(true);
                 List<Predicate> predicates = new ArrayList<>();
 
