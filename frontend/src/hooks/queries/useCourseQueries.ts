@@ -259,6 +259,83 @@ export function useDeleteCourseSectionMutation(courseId: string) {
   });
 }
 
+export function useLecturesBySectionQuery(sectionId: string) {
+  return useQuery({
+    queryKey: queryKeys.lectures.bySection(sectionId),
+    queryFn: async () => {
+      const response = await courseService.getLecturesBySection(sectionId);
+      return response.data.result;
+    },
+    enabled: Boolean(sectionId),
+  });
+}
+
+const invalidateLectureStructure = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+  sectionId: string,
+) => {
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.lectures.bySection(sectionId),
+  });
+  invalidateCourseStructure(queryClient, courseId);
+};
+
+export function useCreateLectureMutation(courseId: string, sectionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: Omit<LectureRequest, "sectionId">) => {
+      const response = await courseService.createLecture({
+        ...request,
+        sectionId,
+      });
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateLectureStructure(queryClient, courseId, sectionId);
+    },
+  });
+}
+
+export function useUpdateLectureMutation(courseId: string, sectionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      lectureId,
+      request,
+    }: {
+      lectureId: string;
+      request: LectureUpdateRequest;
+    }) => {
+      const response = await courseService.updateLecture(lectureId, request);
+      return response.data.result;
+    },
+    onSuccess: (lecture) => {
+      queryClient.setQueryData(queryKeys.lectures.detail(lecture.id), lecture);
+      invalidateLectureStructure(queryClient, courseId, sectionId);
+    },
+  });
+}
+
+export function useDeleteLectureMutation(courseId: string, sectionId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (lectureId: string) => {
+      await courseService.deleteLecture(lectureId);
+      return lectureId;
+    },
+    onSuccess: (lectureId) => {
+      queryClient.removeQueries({
+        queryKey: queryKeys.lectures.detail(lectureId),
+      });
+      invalidateLectureStructure(queryClient, courseId, sectionId);
+    },
+  });
+}
+
 export function useCourseEnrollmentStatusQuery(courseId: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.courses.enrollmentStatus(courseId),

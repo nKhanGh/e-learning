@@ -178,6 +178,7 @@ type LegacyCourseSearchPage = PageResponse<CourseResponse | CourseSearchCourseIt
 
 type LearningItemStatus = "FREE_PREVIEW" | "AVAILABLE" | "LOCKED" | "COMPLETED";
 type CourseAccessStatus = "FREE" | "ENROLLED" | "LOCKED" | "COMPLETED" | "AVAILABLE";
+type LectureContentType = "VIDEO" | "ARTICLE" | "QUIZ" | "FILE" | "EXTERNAL_LINK";
 
 interface CourseCurriculumQuiz {
   id: string;
@@ -193,7 +194,7 @@ interface CourseCurriculumLecture {
   id: string;
   title: string;
   description: string | null;
-  contentType: string;
+  contentType: LectureContentType;
   displayOrder: number;
   durationMinutes: number;
   videoDurationSeconds: number | null;
@@ -230,6 +231,50 @@ interface CourseSectionResponse {
   displayOrder: number;
   durationMinutes: number;
   isPublished: boolean;
+}
+
+interface LectureRequest {
+  sectionId: string;
+  title: string;
+  description: string;
+  contentType: LectureContentType;
+  textContent: string;
+  videoUrl: string;
+  videoDurationSeconds: number;
+  videoThumbnailUrl: string;
+  videoQuality: string;
+  hasCaptions: boolean;
+  captionUrl: string;
+  attachments: string[];
+  externalUrl: string;
+  isPreview: boolean;
+  isDownloadable: boolean;
+  isPublished: boolean;
+}
+
+interface LectureUpdateRequest {
+  title: string;
+  description: string;
+  contentType: LectureContentType;
+  textContent: string;
+  videoUrl: string;
+  videoDurationSeconds: number;
+  videoThumbnailUrl: string;
+  videoQuality: string;
+  hasCaptions: boolean;
+  captionUrl: string;
+  attachments: string[];
+  externalUrl: string;
+  isPreview: boolean;
+  isDownloadable: boolean;
+  displayOrder: number;
+  isPublished: boolean;
+}
+
+interface LectureResponse extends LectureUpdateRequest {
+  id: string;
+  section: CourseSectionResponse;
+  quiz: CourseCurriculumQuiz | null;
 }
 
 interface CourseCurriculumResponse {
