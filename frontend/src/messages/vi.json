@@ -282,7 +282,37 @@
     "sections": {
       "title": "Sections của khóa học",
       "add": "Thêm section",
+      "create": "Tạo section",
+      "save": "Lưu section",
+      "cancel": "Hủy",
+      "edit": "Sửa",
+      "delete": "Xóa",
+      "published": "Đã publish",
+      "unpublished": "Chưa publish",
+      "createTitle": "Tạo section",
+      "editTitle": "Sửa section",
+      "dialogDescription": "Sắp xếp bài học thành các section trước khi thêm lecture.",
       "lectures": "bài giảng",
+      "order": "Section {order}",
+      "publishedHint": "Section đã publish có thể hiển thị trong curriculum của học viên.",
+      "created": "Đã tạo section.",
+      "updated": "Đã cập nhật section.",
+      "deleted": "Đã xóa section.",
+      "failed": "Không thể lưu section.",
+      "deleteFailed": "Không thể xóa section.",
+      "deleteConfirm": "Xóa section này?",
+      "validationTitle": "Vui lòng nhập tên section.",
+      "fields": {
+        "title": "Tên section",
+        "description": "Mô tả",
+        "displayOrder": "Thứ tự hiển thị",
+        "duration": "Thời lượng (phút)",
+        "published": "Published"
+      },
+      "placeholders": {
+        "title": "Ví dụ: Bắt đầu",
+        "description": "Mô tả ngắn nội dung của section."
+      },
       "emptyTitle": "Chưa có section",
       "emptySubtitle": "Tạo section đầu tiên trước khi thêm bài giảng và quiz."
     },

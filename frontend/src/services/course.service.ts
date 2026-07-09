@@ -26,6 +26,22 @@ export const courseService = {
     apiClient.get<ApiResponse<CourseCurriculumResponse>>(
       `/courses/${courseId}/curriculum`,
     ),
+  getCourseSections: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseSectionResponse[]>>(
+      `/course-sections/course/${courseId}`,
+    ),
+  createCourseSection: (request: CourseSectionRequest) =>
+    apiClient.post<ApiResponse<CourseSectionResponse>>(
+      "/course-sections",
+      request,
+    ),
+  updateCourseSection: (sectionId: string, request: CourseSectionRequest) =>
+    apiClient.put<ApiResponse<CourseSectionResponse>>(
+      `/course-sections/${sectionId}`,
+      request,
+    ),
+  deleteCourseSection: (sectionId: string) =>
+    apiClient.delete<ApiResponse<void>>(`/course-sections/${sectionId}`),
   getEnrollmentStatus: (courseId: string) =>
     apiClient.get<ApiResponse<CourseEnrollmentStatusResponse>>(
       `/courses/${courseId}/enrollment-status`,

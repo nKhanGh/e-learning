@@ -210,7 +210,26 @@ interface CourseCurriculumSection {
   description: string | null;
   displayOrder: number;
   durationMinutes: number;
+  isPublished?: boolean;
   lectures: CourseCurriculumLecture[];
+}
+
+interface CourseSectionRequest {
+  courseId: string;
+  title: string;
+  description: string;
+  displayOrder: number;
+  durationMinutes: number;
+  isPublished: boolean;
+}
+
+interface CourseSectionResponse {
+  id: string;
+  title: string;
+  description: string | null;
+  displayOrder: number;
+  durationMinutes: number;
+  isPublished: boolean;
 }
 
 interface CourseCurriculumResponse {

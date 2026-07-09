@@ -282,7 +282,37 @@
     "sections": {
       "title": "Course sections",
       "add": "Add section",
+      "create": "Create section",
+      "save": "Save section",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "published": "Published",
+      "unpublished": "Unpublished",
+      "createTitle": "Create section",
+      "editTitle": "Edit section",
+      "dialogDescription": "Organize lessons into sections before adding lectures.",
       "lectures": "lectures",
+      "order": "Section {order}",
+      "publishedHint": "Published sections can appear in the student curriculum.",
+      "created": "Section created.",
+      "updated": "Section updated.",
+      "deleted": "Section deleted.",
+      "failed": "Could not save section.",
+      "deleteFailed": "Could not delete section.",
+      "deleteConfirm": "Delete this section?",
+      "validationTitle": "Section title is required.",
+      "fields": {
+        "title": "Title",
+        "description": "Description",
+        "displayOrder": "Display order",
+        "duration": "Duration (minutes)",
+        "published": "Published"
+      },
+      "placeholders": {
+        "title": "Example: Getting started",
+        "description": "Briefly describe what this section covers."
+      },
       "emptyTitle": "No sections yet",
       "emptySubtitle": "Create the first section before adding lectures and quizzes."
     },

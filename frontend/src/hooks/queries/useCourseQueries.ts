@@ -167,6 +167,22 @@ export function useUpdateCourseMutation(courseId: string) {
   });
 }
 
+const invalidateCourseStructure = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+) => {
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.curriculum(courseId),
+  });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.detail(courseId),
+  });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courseSections.byCourse(courseId),
+  });
+  queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
+};
+
 export function useCourseCurriculumQuery(courseId: string) {
   return useQuery({
     queryKey: queryKeys.courses.curriculum(courseId),
@@ -175,6 +191,71 @@ export function useCourseCurriculumQuery(courseId: string) {
       return response.data.result;
     },
     enabled: Boolean(courseId),
+  });
+}
+
+export function useCourseSectionsQuery(courseId: string) {
+  return useQuery({
+    queryKey: queryKeys.courseSections.byCourse(courseId),
+    queryFn: async () => {
+      const response = await courseService.getCourseSections(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId),
+  });
+}
+
+export function useCreateCourseSectionMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: Omit<CourseSectionRequest, "courseId">) => {
+      const response = await courseService.createCourseSection({
+        ...request,
+        courseId,
+      });
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateCourseStructure(queryClient, courseId);
+    },
+  });
+}
+
+export function useUpdateCourseSectionMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      sectionId,
+      request,
+    }: {
+      sectionId: string;
+      request: Omit<CourseSectionRequest, "courseId">;
+    }) => {
+      const response = await courseService.updateCourseSection(sectionId, {
+        ...request,
+        courseId,
+      });
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateCourseStructure(queryClient, courseId);
+    },
+  });
+}
+
+export function useDeleteCourseSectionMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (sectionId: string) => {
+      await courseService.deleteCourseSection(sectionId);
+      return sectionId;
+    },
+    onSuccess: () => {
+      invalidateCourseStructure(queryClient, courseId);
+    },
   });
 }
 
