@@ -20,6 +20,8 @@ export const courseService = {
     ),
   createCourse: (request: CourseCreationRequest) =>
     apiClient.post<ApiResponse<CourseResponse>>("/courses", request),
+  updateCourse: (courseId: string, request: CourseUpdateRequest) =>
+    apiClient.put<ApiResponse<CourseResponse>>(`/courses/${courseId}`, request),
   getCurriculum: (courseId: string) =>
     apiClient.get<ApiResponse<CourseCurriculumResponse>>(
       `/courses/${courseId}/curriculum`,
