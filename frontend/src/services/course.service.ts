@@ -76,6 +76,11 @@ export const courseService = {
       "/quiz-questions",
       request,
     ),
+  importQuizQuestions: (request: QuizQuestionImportRequest) =>
+    apiClient.post<ApiResponse<QuizQuestionImportResponse>>(
+      "/quiz-questions/import",
+      request,
+    ),
   updateQuizQuestion: (
     questionId: string,
     request: QuizQuestionUpdateRequest,

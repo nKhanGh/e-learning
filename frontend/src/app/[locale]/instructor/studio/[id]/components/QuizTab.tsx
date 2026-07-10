@@ -25,12 +25,14 @@ import {
   useCreateQuizMutation,
   useDeleteQuizQuestionMutation,
   useDeleteQuizMutation,
+  useImportQuizQuestionsMutation,
   useQuizByLectureQuery,
   useQuizQuestionsQuery,
   useUpdateQuizQuestionMutation,
   useUpdateQuizMutation,
 } from "@/hooks/queries/useCourseQueries";
 import {
+  FileJson,
   FileQuestion,
   Loader2,
   Pencil,
@@ -43,6 +45,10 @@ import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EmptyStudioState } from "./EmptyStudioState";
+import {
+  QuizQuestionImportDialog,
+  type QuizQuestionImportPayload,
+} from "./QuizQuestionImportDialog";
 import { getErrorMessage } from "./studioUtils";
 import { ToggleRow } from "./ToggleRow";
 import type { StudioSection } from "./types";
@@ -215,7 +221,14 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
     quizId,
     selectedSectionId,
   );
+  const importQuestionsMutation = useImportQuizQuestionsMutation(
+    courseId,
+    selectedLectureId,
+    quizId,
+    selectedSectionId,
+  );
   const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] =
     useState<QuizQuestionResponse | null>(null);
   const [questionForm, setQuestionForm] = useState<QuestionForm>(
@@ -347,6 +360,18 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
     setQuestionForm(toQuestionForm(null, nextQuestionOrder));
     setQuestionDialogOpen(true);
   };
+
+  const openImportQuestionDialog = () => {
+    if (!quiz) {
+      toast.error(t("quiz.questions.selectQuizFirst"));
+      return;
+    }
+
+    setImportDialogOpen(true);
+  };
+
+  const handleImportQuestions = (payload: QuizQuestionImportPayload) =>
+    importQuestionsMutation.mutateAsync(payload);
 
   const openEditQuestionDialog = (question: QuizQuestionResponse) => {
     setEditingQuestion(question);
@@ -635,15 +660,29 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
                     {t("quiz.questions.subtitle")}
                   </p>
                 </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="!text-white"
-                  onClick={openCreateQuestionDialog}
-                >
-                  <Plus className="h-4 w-4" />
-                  {t("quiz.questions.add")}
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="!text-white"
+                    onClick={openCreateQuestionDialog}
+                  >
+                    <Plus className="h-4 w-4" />
+                    {t("quiz.questions.add")}
+                  </Button>
+                  <span className="text-xs text-gray-400">
+                    {t("quiz.questions.or")}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={openImportQuestionDialog}
+                  >
+                    <FileJson className="h-4 w-4" />
+                    {t("quiz.questions.importJson")}
+                  </Button>
+                </div>
               </div>
 
               {questionsQuery.isLoading ? (
@@ -1132,6 +1171,13 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <QuizQuestionImportDialog
+        open={importDialogOpen}
+        isImporting={importQuestionsMutation.isPending}
+        onOpenChange={setImportDialogOpen}
+        onImport={handleImportQuestions}
+      />
     </>
   );
 };

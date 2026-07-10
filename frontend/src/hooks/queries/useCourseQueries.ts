@@ -530,6 +530,34 @@ export function useCreateQuizQuestionMutation(
   });
 }
 
+export function useImportQuizQuestionsMutation(
+  courseId: string,
+  lectureId: string,
+  quizId: string,
+  sectionId?: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: Omit<QuizQuestionImportRequest, "quizId">) => {
+      const response = await courseService.importQuizQuestions({
+        ...request,
+        quizId,
+      });
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateQuizQuestionStructure(
+        queryClient,
+        courseId,
+        lectureId,
+        quizId,
+        sectionId,
+      );
+    },
+  });
+}
+
 export function useUpdateQuizQuestionMutation(
   courseId: string,
   lectureId: string,

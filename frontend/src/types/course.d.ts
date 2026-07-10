@@ -224,6 +224,34 @@ interface QuizQuestionUpdateRequest {
   videoUrl: string;
 }
 
+type QuizQuestionImportMode = "APPEND" | "REPLACE";
+
+interface QuizQuestionImportItem {
+  questionText: string;
+  explanation?: string;
+  points?: number;
+  options: string[];
+  correctAnswers: string[];
+}
+
+interface QuizQuestionImportRequest {
+  quizId: string;
+  mode: QuizQuestionImportMode;
+  questions: QuizQuestionImportItem[];
+}
+
+interface QuizQuestionImportError {
+  index: number | null;
+  message: string;
+}
+
+interface QuizQuestionImportResponse {
+  importedCount: number;
+  skippedCount: number;
+  errors: QuizQuestionImportError[];
+  questions: QuizQuestionResponse[];
+}
+
 interface QuizRequest {
   lectureId: string;
   title: string;
