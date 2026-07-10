@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { RichMarkdownEditor } from "@/components/markdown/RichMarkdownEditor";
 import {
   Dialog,
   DialogContent,
@@ -93,6 +94,15 @@ const initialLectureForm: LectureForm = {
   isPublished: true,
 };
 
+const missingTextContentPlaceholderKey =
+  "InstructorCourseStudioPage.lectures.placeholders.textContent";
+
+const fallbackTextContentPlaceholder =
+  "# Lesson title\n\nWrite the article content here.\n\n- Use lists for steps\n- Use **bold** for key terms\n\n<u>Underline important notes</u>";
+
+const normalizeTextContent = (value: string | null | undefined) =>
+  value === missingTextContentPlaceholderKey ? "" : (value ?? "");
+
 const parseAttachments = (value: string) =>
   value
     .split(/\r?\n|,/)
@@ -117,7 +127,7 @@ const toLectureForm = (
     title: lecture.title ?? "",
     description: lecture.description ?? "",
     contentType: lecture.contentType ?? "VIDEO",
-    textContent: lecture.textContent ?? "",
+    textContent: normalizeTextContent(lecture.textContent),
     videoUrl: lecture.videoUrl ?? "",
     videoDurationSeconds: String(lecture.videoDurationSeconds ?? 0),
     videoThumbnailUrl: lecture.videoThumbnailUrl ?? "",
@@ -135,6 +145,11 @@ const toLectureForm = (
 
 export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
   const t = useTranslations("InstructorCourseStudioPage");
+  const textContentPlaceholder = t("lectures.placeholders.textContent");
+  const safeTextContentPlaceholder =
+    textContentPlaceholder === missingTextContentPlaceholderKey
+      ? fallbackTextContentPlaceholder
+      : textContentPlaceholder;
   const [selectedSectionId, setSelectedSectionId] = useState("");
   const selectedSection = sections.find(
     (section) => section.id === selectedSectionId,
@@ -227,7 +242,7 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
     title: lectureForm.title.trim(),
     description: lectureForm.description.trim(),
     contentType: lectureForm.contentType,
-    textContent: lectureForm.textContent.trim(),
+    textContent: normalizeTextContent(lectureForm.textContent).trim(),
     videoUrl: lectureForm.videoUrl.trim(),
     videoDurationSeconds: Math.max(
       0,
@@ -608,23 +623,44 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
             ) : null}
 
             {lectureForm.contentType === "ARTICLE" ? (
-              <div className="space-y-2">
-                <Label htmlFor="lecture-text">
-                  {t("lectures.fields.textContent")}
-                </Label>
-                <Textarea
-                  id="lecture-text"
-                  className="min-h-32"
-                  value={lectureForm.textContent}
-                  placeholder={t("lectures.placeholders.textContent")}
-                  onChange={(event) =>
+              <RichMarkdownEditor
+                id="lecture-text"
+                label={t("lectures.fields.textContent")}
+                value={lectureForm.textContent}
+                placeholder={safeTextContentPlaceholder}
+                labels={{
+                  write: t("lectures.editor.write"),
+                  preview: t("lectures.editor.preview"),
+                  split: t("lectures.editor.split"),
+                  paragraph: t("lectures.editor.paragraph"),
+                  heading1: t("lectures.editor.heading1"),
+                  heading2: t("lectures.editor.heading2"),
+                  heading3: t("lectures.editor.heading3"),
+                  bold: t("lectures.editor.bold"),
+                  italic: t("lectures.editor.italic"),
+                  underline: t("lectures.editor.underline"),
+                  strike: t("lectures.editor.strike"),
+                  inlineCode: t("lectures.editor.inlineCode"),
+                  codeBlock: t("lectures.editor.codeBlock"),
+                  bulletList: t("lectures.editor.bulletList"),
+                  numberedList: t("lectures.editor.numberedList"),
+                  quote: t("lectures.editor.quote"),
+                  link: t("lectures.editor.link"),
+                  divider: t("lectures.editor.divider"),
+                  writingGuide: t("lectures.editor.writingGuide"),
+                  guideHeading: t("lectures.editor.guideHeading"),
+                  guideList: t("lectures.editor.guideList"),
+                  guideEmphasis: t("lectures.editor.guideEmphasis"),
+                  guideCode: t("lectures.editor.guideCode"),
+                  emptyPreview: t("lectures.editor.emptyPreview"),
+                }}
+                onChange={(nextValue) =>
                     setLectureForm((current) => ({
                       ...current,
-                      textContent: event.target.value,
+                      textContent: nextValue,
                     }))
-                  }
-                />
-              </div>
+                }
+              />
             ) : null}
 
             {lectureForm.contentType === "FILE" ? (
