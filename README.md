@@ -1,31 +1,31 @@
 # Learnio
 
-Learnio la nen tang e-learning gom hai ung dung chinh:
+Learnio is an e-learning platform consisting of two main applications:
 
-- `backend`: Spring Boot API phu trach xac thuc, quan ly khoa hoc, bai giang, quiz, enrollment, chat realtime, AI recommendation, file va email.
-- `frontend`: Next.js App Router UI phu trach trai nghiem nguoi hoc, tim kiem khoa hoc, chi tiet khoa hoc, chat realtime, theme va ngon ngu.
+* `backend`: A Spring Boot API responsible for authentication, course management, lectures, quizzes, enrollment, real-time chat, AI recommendation, files, and email.
+* `frontend`: A Next.js App Router UI responsible for the learner experience, course search, course details, real-time chat, theme, and language support.
 
-Tai lieu chi tiet da duoc gom vao thu muc [docs](docs/README.md).
+Detailed documentation is organized in the [docs](docs/README.md) directory.
 
-## Cong nghe chinh
+## Main Technologies
 
-| Phan | Cong nghe |
-| --- | --- |
-| Backend | Java 17, Spring Boot 3.3.5, Spring Security, Spring Data JPA, PostgreSQL, Redis, Kafka, Elasticsearch, WebSocket/STOMP, LangChain4j, Maven |
-| Frontend | Next.js 16, React 19, TypeScript 5, Tailwind CSS 4, next-intl, TanStack Query, Axios, SockJS/STOMP, Radix UI, lucide-react, Font Awesome |
-| Ha tang dev | Docker Compose, PostgreSQL pgvector, Redis, Kafka, Elasticsearch, Kibana |
+| Part                       | Technologies                                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Backend                    | Java 17, Spring Boot 3.3.5, Spring Security, Spring Data JPA, PostgreSQL, Redis, Kafka, Elasticsearch, WebSocket/STOMP, LangChain4j, Maven |
+| Frontend                   | Next.js 16, React 19, TypeScript 5, Tailwind CSS 4, next-intl, TanStack Query, Axios, SockJS/STOMP, Radix UI, lucide-react, Font Awesome   |
+| Development Infrastructure | Docker Compose, PostgreSQL pgvector, Redis, Kafka, Elasticsearch, Kibana                                                                   |
 
-## Cau truc repo
+## Repository Structure
 
 ```text
 e-learning/
-|-- backend/       # Spring Boot REST API va realtime gateway
+|-- backend/       # Spring Boot REST API and real-time gateway
 |-- frontend/      # Next.js web client
-|-- docs/          # Tai lieu tong hop va tai lieu tung module
-`-- README.md      # README chung cua monorepo
+|-- docs/          # General documentation and module-specific documentation
+`-- README.md      # Main README for the monorepo
 ```
 
-## Chay local
+## Running Locally
 
 ### Backend
 
@@ -35,7 +35,7 @@ docker-compose up -d
 mvn spring-boot:run
 ```
 
-Backend mac dinh chay tai `http://localhost:8080/api`.
+By default, the backend runs at `http://localhost:8080/api`.
 
 ### Frontend
 
@@ -45,11 +45,11 @@ npm install
 npm run dev
 ```
 
-Frontend mac dinh chay tai `http://localhost:3000`.
+By default, the frontend runs at `http://localhost:3000`.
 
-## Bien moi truong can luu y
+## Important Environment Variables
 
-Backend doc bien moi truong tu `.env`/profile Spring:
+The backend reads environment variables from `.env` or the Spring profile configuration:
 
 ```env
 JWT_SIGNER_KEY=
@@ -65,7 +65,7 @@ SPRING_KAFKA_BOOTSTRAP_SERVERS=
 REDIS_PASSWORD=
 ```
 
-Frontend can cac bien public:
+The frontend requires the following public environment variables:
 
 ```env
 NEXT_PUBLIC_APP_API_URL=http://localhost:8080/api
@@ -73,9 +73,9 @@ NEXT_PUBLIC_WS_API_URL=http://localhost:8080/api/ws
 NEXT_PUBLIC_AVATAR_BASE_URL=http://localhost:8080/api/files/avatars/
 ```
 
-## Module tong quan
+## Module Overview
 
-Backend gom cac nhom module:
+The backend includes the following module groups:
 
 - Authentication va security: login, register, JWT, refresh token, OAuth2, email verify, forgot/reset password.
 - User va instructor: profile, avatar, search user, dang ky instructor.
@@ -89,7 +89,7 @@ Backend gom cac nhom module:
 - Common services: file, email, JWT, Redis.
 - Report/moderation: tao report, search report, xu ly report.
 
-Frontend gom cac nhom module:
+The frontend includes the following module groups:
 
 - Routing/pages: home, courses, course detail, chat, settings theo route `/:locale`.
 - Instructor course studio: my courses, create/edit course, sections, lectures, quiz, resources, preview, publish checklist.
@@ -99,7 +99,7 @@ Frontend gom cac nhom module:
 - Utilities: shared API client, TanStack Query hooks, WebSocket singleton, auth helper, time formatter.
 - i18n/theme: `en`, `vi`, route locale, dark/light theme trong localStorage.
 
-## API va tai lieu phat trien
+## API and Development Documentation
 
 - Swagger UI: `http://localhost:8080/api/swagger-ui/index.html#`
 - Backend docs: [docs/backend.md](docs/backend.md)
@@ -109,7 +109,7 @@ Frontend gom cac nhom module:
 - Instructor Studio docs: [docs/frontend/instructor-course-studio.md](docs/frontend/instructor-course-studio.md)
 - Course Publishing docs: [docs/backend/course-publishing.md](docs/backend/course-publishing.md)
 
-## Lenh huu ich
+## Useful Commands
 
 ```bash
 # Backend
@@ -126,9 +126,12 @@ npm run build
 npm run start
 ```
 
-## Nguon README goc
+## Original README Sources
 
-README nay duoc tong hop tu:
+This README was compiled from:
 
-- [backend/README.md](backend/README.md)
-- [frontend/README.md](frontend/README.md)
+* [backend/README.md](backend/README.md)
+* [frontend/README.md](frontend/README.md)
+
+```
+```
