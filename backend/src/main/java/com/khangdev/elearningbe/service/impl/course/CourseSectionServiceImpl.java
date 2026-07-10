@@ -37,7 +37,7 @@ public class CourseSectionServiceImpl implements CourseSectionService {
 
     @Override
     public List<CourseSectionResponse> getCourseSectionByCourse(UUID courseId) {
-        return courseSectionRepository.findByCourseId(courseId)
+        return courseSectionRepository.findByCourseIdOrderByDisplayOrderAsc(courseId)
                 .stream().map(courseSectionMapper::toResponse).toList();
     }
 

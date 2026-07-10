@@ -44,6 +44,7 @@ public class SecurityConfig {
             "/auth/resend-verification",
             "/auth/forgot-password",
             "/auth/reset-password",
+            "/courses/search", "/courses/search/**", "/api/courses/search",
             "/ws/**",
     };
 
@@ -63,6 +64,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, whiteListPost).permitAll()
                         .requestMatchers(HttpMethod.GET, whiteListGet).permitAll()
                         .anyRequest().authenticated()
@@ -86,7 +88,9 @@ public class SecurityConfig {
 
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
-                .exceptionHandling(exceptionHandlingCustomize -> exceptionHandlingCustomize.accessDeniedHandler(customAccessDeniedHandler))
+                .exceptionHandling(exceptionHandlingCustomize -> exceptionHandlingCustomize
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                        .accessDeniedHandler(customAccessDeniedHandler))
         ;
 
         return http.build();

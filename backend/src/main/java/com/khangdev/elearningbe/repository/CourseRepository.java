@@ -15,6 +15,7 @@ import java.util.UUID;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, UUID>, JpaSpecificationExecutor<Course> {
     Page<Course> findByInstructorId(UUID instructorId, Pageable pageable);
+    Page<Course> findByInstructorUserId(UUID userId, Pageable pageable);
     List<Course> findByStatus(CourseStatus status);
     Slice<Course> findByStatusOrderByIdAsc(CourseStatus status,  Pageable pageable);
     List<Course> findTopByOrderByTotalEnrollmentsDesc(Pageable pageable);

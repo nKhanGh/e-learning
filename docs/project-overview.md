@@ -3,7 +3,7 @@
 Learnio la nen tang quan ly hoc tap hien dai, tap trung vao ba luong chinh:
 
 1. Nguoi hoc tim kiem khoa hoc, xem chi tiet, dang ky hoc, theo doi tien do va lam quiz.
-2. Giang vien tao course, section, lecture, quiz va theo doi learner.
+2. Giang vien tao course, section, lecture, quiz, resources va gui course sang review.
 3. He thong ho tro chat realtime, AI assistant, goi y khoa hoc, email, file protected va search.
 
 ## Ung dung trong repo
@@ -31,8 +31,10 @@ flowchart LR
     Learn --> Progress["Save Progress/Bookmark/Notes"]
     Learn --> Quiz["Take Quiz"]
     Student --> Chat["Chat with Users/AI"]
-    Instructor["Instructor"] --> ManageCourse["Manage Course Content"]
-    ManageCourse --> CourseIndex["Search Index/Recommendation Data"]
+    Instructor["Instructor"] --> ManageCourse["Build Course Content"]
+    ManageCourse --> Checklist["Publish Checklist"]
+    Checklist --> Review["Submit Review"]
+    Review --> CourseIndex["Search Index/Recommendation Data"]
 ```
 
 ## Tai lieu lien quan
@@ -40,3 +42,5 @@ flowchart LR
 - Backend: [backend.md](backend.md)
 - Frontend: [frontend.md](frontend.md)
 - Endpoint map: [backend/api-endpoints.md](backend/api-endpoints.md)
+- Instructor Studio: [frontend/instructor-course-studio.md](frontend/instructor-course-studio.md)
+- Course Publishing: [backend/course-publishing.md](backend/course-publishing.md)

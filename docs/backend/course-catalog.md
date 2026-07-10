@@ -22,6 +22,7 @@ Quan ly course, category, section, tag, search/filter va reindex course search.
 - `document/CourseDocument.java`
 - `repository/CourseRepository.java`, `CourseSearchRepository.java`, `CourseCategoryRepository.java`, `CourseSectionRepository.java`, `CourseTagRepository.java`
 - `mapper/CourseMapper.java`, `CourseDocumentMapper.java`, `CourseCategoryMapper.java`, `CourseSectionMapper.java`, `CourseTagMapper.java`
+- `dto/response/course/CoursePublishChecklistResponse.java`
 
 ## API
 
@@ -32,6 +33,10 @@ Course:
 - `POST /api/courses/admin/reindex`
 - `PUT /api/courses/{courseId}`
 - `GET /api/courses/{courseId}`
+- `GET /api/courses/{courseId}/curriculum`
+- `GET /api/courses/{courseId}/enrollment-status`
+- `GET /api/courses/{courseId}/publish-checklist`
+- `POST /api/courses/{courseId}/submit-review`
 - `DELETE /api/courses/{courseId}`
 - `GET /api/courses/my-course`
 - `GET /api/courses/instructor/{instructorId}`
@@ -54,6 +59,27 @@ Course search ket hop:
 - Elasticsearch document `CourseDocument`
 - Cache service de tang toc truy van lap lai
 - Reindex endpoint cho admin/dev
+
+## Instructor course lifecycle
+
+Course duoc build qua instructor UI:
+
+1. Instructor tao course draft.
+2. Instructor sua basic info, sections, lectures, quiz va resources.
+3. Instructor xem publish checklist.
+4. Backend validate checklist bang `GET /courses/{courseId}/publish-checklist`.
+5. Instructor submit bang `POST /courses/{courseId}/submit-review`.
+6. Course chuyen sang `PENDING_REVIEW` neu checklist pass.
+
+Chi tiet nam trong [Course Publishing](course-publishing.md).
+
+## Sort order
+
+Section va lecture API cho instructor can tra data theo `displayOrder`:
+
+- Sections theo `CourseSection.displayOrder`.
+- Lectures theo `Lecture.displayOrder`.
+- Checklist dung cung thu tu nay de UI va backend khop nhau.
 
 ## Test lien quan
 

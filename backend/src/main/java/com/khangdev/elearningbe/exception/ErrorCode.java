@@ -45,6 +45,8 @@ public enum     ErrorCode {
     COURSE_TAG_NOT_FOUND(400, "Course tag not found", HttpStatus.BAD_REQUEST),
     COURSE_SECTION_NOT_FOUND(400, "Course section not found", HttpStatus.BAD_REQUEST),
     COURSE_NOT_FULLY_COMPLETED(400, "Course not fully completed", HttpStatus.BAD_REQUEST),
+    COURSE_ALREADY_SUBMITTED(400, "Course has already been submitted for review", HttpStatus.BAD_REQUEST),
+    COURSE_ALREADY_PUBLISHED(400, "Course has already been published", HttpStatus.BAD_REQUEST),
 
     LECTURE_NOT_FOUND(400, "Lecture not found", HttpStatus.BAD_REQUEST),
     LECTURE_PROGRESS_NOT_FOUND(400, "Lecture progress not found", HttpStatus.BAD_REQUEST),

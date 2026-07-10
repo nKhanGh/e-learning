@@ -51,6 +51,27 @@ Thanh phan chinh:
 4. Data duoc doc/ghi qua PostgreSQL, Redis, Elasticsearch hoac file storage local.
 5. Chat dung SockJS + STOMP toi `/api/ws`, publish len `/app/*`, subscribe `/user/queue/*` va `/topic/*`.
 
+## Instructor course authoring flow
+
+```text
+My Courses
+  -> Create Course / Quick Edit
+  -> Course Studio
+     -> Sections
+     -> Lectures
+     -> Quiz overview
+     -> Resources
+     -> Publish checklist
+  -> Lecture Preview/Detail Studio
+     -> Article editor
+     -> Quiz config/questions/import
+     -> Resources
+  -> Submit Review
+  -> PENDING_REVIEW
+```
+
+Backend validate lai publish checklist khi submit. Frontend chi render checklist va dieu huong Fix theo `targetType`.
+
 ## Data stores va external systems
 
 | He thong | Vai tro |

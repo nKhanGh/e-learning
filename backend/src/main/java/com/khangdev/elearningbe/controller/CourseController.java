@@ -6,9 +6,14 @@ import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.CourseCurriculumResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseEnrollmentStatusResponse;
+import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSearchResponse;
+import com.khangdev.elearningbe.enums.CourseStatus;
 import com.khangdev.elearningbe.service.course.CourseIndex;
+import com.khangdev.elearningbe.service.course.CourseLearningService;
 import com.khangdev.elearningbe.service.course.CourseSearchService;
 import com.khangdev.elearningbe.service.course.CourseService;
 import com.khangdev.elearningbe.service.user.UserService;
@@ -29,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/courses")
 public class CourseController {
     CourseService courseService;
+    CourseLearningService courseLearningService;
     CourseIndex indexer;
     CourseSearchService searchService;
     UserService userService;
@@ -100,6 +106,35 @@ public class CourseController {
                 .build();
     }
 
+    @GetMapping("/{courseId}/curriculum")
+    ApiResponse<CourseCurriculumResponse> getCurriculum(@PathVariable UUID courseId){
+        return ApiResponse.<CourseCurriculumResponse>builder()
+                .result(courseLearningService.getCurriculum(courseId))
+                .build();
+    }
+
+    @GetMapping("/{courseId}/enrollment-status")
+    ApiResponse<CourseEnrollmentStatusResponse> getEnrollmentStatus(@PathVariable UUID courseId){
+        return ApiResponse.<CourseEnrollmentStatusResponse>builder()
+                .result(courseLearningService.getEnrollmentStatus(courseId))
+                .build();
+    }
+
+    @GetMapping("/{courseId}/publish-checklist")
+    ApiResponse<CoursePublishChecklistResponse> getPublishChecklist(@PathVariable UUID courseId){
+        return ApiResponse.<CoursePublishChecklistResponse>builder()
+                .result(courseService.getPublishChecklist(courseId))
+                .build();
+    }
+
+    @PostMapping("/{courseId}/submit-review")
+    ApiResponse<CourseResponse> submitForReview(@PathVariable UUID courseId){
+        return ApiResponse.<CourseResponse>builder()
+                .result(courseService.submitForReview(courseId))
+                .message("Course submitted for review successfully")
+                .build();
+    }
+
     @DeleteMapping("/{courseId}")
     ApiResponse<Void> deleteCourse(@PathVariable UUID courseId){
         courseService.deleteCourse(courseId);
@@ -110,20 +145,22 @@ public class CourseController {
 
     @GetMapping("/my-course")
     ApiResponse<PageResponse<CourseResponse>> getMyCourse(
-            @RequestParam(defaultValue = "9", required = false) int page,
-            @RequestParam(defaultValue = "0", required = false) int size
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "9", required = false) int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) CourseStatus status
     ){
         UUID userId = userService.getMyInfo().getId();
         return ApiResponse.<PageResponse<CourseResponse>>builder()
-                .result(courseService.getCourses(userId, page, size))
+                .result(courseService.getCoursesByInstructorUserId(userId, page, size, keyword, status))
                 .build();
     }
 
     @GetMapping("/instructor/{instructorId}")
     ApiResponse<PageResponse<CourseResponse>> getInstructorCourse(
             @PathVariable UUID instructorId,
-            @RequestParam(defaultValue = "9", required = false) int page,
-            @RequestParam(defaultValue = "0", required = false) int size
+            @RequestParam(defaultValue = "0", required = false) int page,
+            @RequestParam(defaultValue = "9", required = false) int size
     ){
         return ApiResponse.<PageResponse<CourseResponse>>builder()
                 .result(courseService.getCourses(instructorId, page, size))

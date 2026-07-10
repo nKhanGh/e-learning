@@ -1,63 +1,136 @@
 "use client";
 
-import { faChevronUp, faChevronDown, faPlay } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faChevronDown,
+  faChevronUp,
+  faLock,
+  faPlay,
+  faQuestionCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
 function formatDuration(minutes: number): string {
+  if (!minutes) return "0m";
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
+  if (h === 0) return `${m}m`;
   return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
-const MOCK_SECTIONS = [
-  { id: "s1", title: "Introduction to Web Development", lectures: 8, duration: 45, preview: true },
-  { id: "s2", title: "HTML Fundamentals", lectures: 22, duration: 180, preview: false },
-  { id: "s3", title: "CSS & Styling", lectures: 28, duration: 240, preview: false },
-  { id: "s4", title: "JavaScript Basics", lectures: 35, duration: 300, preview: false },
-  { id: "s5", title: "Advanced JavaScript", lectures: 42, duration: 360, preview: false },
-  { id: "s6", title: "React Framework", lectures: 48, duration: 420, preview: false },
-  { id: "s7", title: "Node.js & Express", lectures: 38, duration: 330, preview: false },
-  { id: "s8", title: "Databases & SQL", lectures: 30, duration: 265, preview: false },
-];
+const getStatusLabel = (status: LearningItemStatus) => {
+  const labels: Record<LearningItemStatus, string> = {
+    FREE_PREVIEW: "Preview",
+    AVAILABLE: "Available",
+    LOCKED: "Locked",
+    COMPLETED: "Completed",
+  };
+  return labels[status];
+};
 
-const SectionAccordion = ({ section }: { section: typeof MOCK_SECTIONS[0] }) => {
+const getStatusIcon = (status: LearningItemStatus) => {
+  if (status === "LOCKED") return faLock;
+  if (status === "COMPLETED") return faCheck;
+  return faPlay;
+};
+
+const getStatusClass = (status: LearningItemStatus) => {
+  if (status === "LOCKED") {
+    return "bg-gray-100 text-gray-500 dark:bg-border dark:text-muted";
+  }
+  if (status === "COMPLETED") {
+    return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
+  }
+  if (status === "FREE_PREVIEW") {
+    return "bg-primary/10 text-primary";
+  }
+  return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
+};
+
+const SectionAccordion = ({ section }: { section: CourseCurriculumSection }) => {
   const [open, setOpen] = useState(false);
+  const lectureCount = section.lectures.length;
+  const sectionDuration =
+    section.durationMinutes ||
+    section.lectures.reduce((total, lecture) => total + lecture.durationMinutes, 0);
+
   return (
     <div className="border border-gray-200 dark:border-border rounded-lg overflow-hidden">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-3.5 bg-gray-50 dark:bg-surface hover:bg-gray-100 dark:hover:bg-border transition-colors text-left"
+        className="w-full flex items-center justify-between gap-3 p-3.5 bg-gray-50 dark:bg-surface hover:bg-gray-100 dark:hover:bg-border transition-colors text-left"
       >
-        <div className="flex items-center gap-2.5">
-          <FontAwesomeIcon icon={open ? faChevronUp : faChevronDown} className="w-3 h-3 text-gray-400 flex-shrink-0" />
-          <span className="font-semibold text-gray-900 dark:text-text text-xs">{section.title}</span>
-          {section.preview && (
-            <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded font-medium">Preview</span>
-          )}
+        <div className="flex min-w-0 items-center gap-2.5">
+          <FontAwesomeIcon
+            icon={open ? faChevronUp : faChevronDown}
+            className="w-3 h-3 text-gray-400 flex-shrink-0"
+          />
+          <span className="truncate font-semibold text-gray-900 dark:text-text text-xs">
+            {section.title}
+          </span>
         </div>
-        <span className="text-xs text-gray-500 dark:text-muted flex-shrink-0 ml-3.5">
-          {section.lectures} lectures • {formatDuration(section.duration)}
+        <span className="text-xs text-gray-500 dark:text-muted flex-shrink-0">
+          {lectureCount} lectures - {formatDuration(sectionDuration)}
         </span>
       </button>
+
       {open && (
         <div className="p-3.5 space-y-1.5">
-          {Array.from({ length: Math.min(section.lectures, 4) }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2.5 py-1.5 px-1.5 rounded-md hover:bg-gray-50 dark:hover:bg-surface group">
-              <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-border flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10">
-                <FontAwesomeIcon icon={faPlay} className="w-2 h-2 text-gray-500 dark:text-muted group-hover:text-primary" />
+          {section.lectures.length > 0 ? (
+            section.lectures.map((lecture) => (
+              <div key={lecture.id} className="space-y-1">
+                <div className="flex items-center gap-2.5 py-1.5 px-1.5 rounded-md hover:bg-gray-50 dark:hover:bg-surface group">
+                  <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-border flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10">
+                    <FontAwesomeIcon
+                      icon={getStatusIcon(lecture.status)}
+                      className="w-2 h-2 text-gray-500 dark:text-muted group-hover:text-primary"
+                    />
+                  </div>
+                  <span className="text-xs text-gray-700 dark:text-muted flex-1 line-clamp-1">
+                    {lecture.title}
+                  </span>
+                  {lecture.preview && lecture.status !== "COMPLETED" && (
+                    <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded font-medium">
+                      Preview
+                    </span>
+                  )}
+                  <span
+                    className={`hidden sm:inline-flex px-1.5 py-0.5 text-xs rounded font-medium ${getStatusClass(
+                      lecture.status,
+                    )}`}
+                  >
+                    {getStatusLabel(lecture.status)}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-muted">
+                    {formatDuration(lecture.durationMinutes)}
+                  </span>
+                </div>
+
+                {lecture.quiz && (
+                  <div className="ml-8 flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-600 dark:text-muted">
+                    <FontAwesomeIcon
+                      icon={faQuestionCircle}
+                      className="h-3 w-3 text-primary"
+                    />
+                    <span className="flex-1 line-clamp-1">{lecture.quiz.title}</span>
+                    <span className={`px-1.5 py-0.5 rounded ${getStatusClass(lecture.quiz.status)}`}>
+                      {getStatusLabel(lecture.quiz.status)}
+                    </span>
+                  </div>
+                )}
               </div>
-              <span className="text-xs text-gray-700 dark:text-muted flex-1">Lecture {i + 1}: {["Introduction", "Core Concepts", "Practice Exercise", "Summary"][i]}</span>
-              <span className="text-xs text-gray-400 dark:text-muted">~{Math.floor(section.duration / section.lectures)}m</span>
-            </div>
-          ))}
-          {section.lectures > 4 && (
-            <p className="text-xs text-gray-500 dark:text-muted text-center py-1">+{section.lectures - 4} more lectures</p>
+            ))
+          ) : (
+            <p className="py-2 text-center text-xs text-gray-500 dark:text-muted">
+              No published lectures yet.
+            </p>
           )}
         </div>
       )}
     </div>
   );
-}
+};
 
 export default SectionAccordion;

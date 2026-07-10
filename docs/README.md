@@ -10,6 +10,7 @@ Thu muc nay la bo tai lieu chung cua repo `e-learning`, duoc tong hop tu code ba
 - [Frontend](frontend.md)
 - [API endpoints backend](backend/api-endpoints.md)
 - [Luu y tich hop FE/BE](integration-notes.md)
+- [PR description hien tai](PR_DESCRIPTION.md)
 
 ## Backend modules
 
@@ -17,6 +18,7 @@ Thu muc nay la bo tai lieu chung cua repo `e-learning`, duoc tong hop tu code ba
 - [User va Instructor](backend/user-instructor.md)
 - [Course Catalog](backend/course-catalog.md)
 - [Learning Content](backend/learning-content.md)
+- [Course Publishing](backend/course-publishing.md)
 - [Quiz va Assessment](backend/quiz-assessment.md)
 - [Enrollment](backend/enrollment.md)
 - [Chat va Realtime](backend/chat-realtime.md)
@@ -30,6 +32,7 @@ Thu muc nay la bo tai lieu chung cua repo `e-learning`, duoc tong hop tu code ba
 - [Routing va Pages](frontend/routing-pages.md)
 - [Authentication UI](frontend/authentication.md)
 - [Course Experience](frontend/course-experience.md)
+- [Instructor Course Studio](frontend/instructor-course-studio.md)
 - [Chat va Realtime UI](frontend/chat-realtime.md)
 - [Settings, i18n va Theme](frontend/settings-i18n-theme.md)
 - [Services, Types va Utilities](frontend/services-types-utils.md)

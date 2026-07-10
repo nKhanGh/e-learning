@@ -38,19 +38,19 @@ public class LectureServiceImpl implements LectureService {
         if(!courseSection.getCourse().getInstructor().getId().equals(userId)){
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-        return lectureRepository.findBySectionId(sectionId).stream()
+        return lectureRepository.findBySectionIdOrderByDisplayOrderAsc(sectionId).stream()
                 .map(lectureMapper::toLectureResponse).toList();
     }
 
     @Override
     public List<PublicLectureResponse> getGeneralLecturesBySectionId(UUID sectionId) {
-        return lectureRepository.findBySectionIdAndIsPublishedTrue(sectionId)
+        return lectureRepository.findBySectionIdAndIsPublishedTrueOrderByDisplayOrderAsc(sectionId)
                 .stream().map(lectureMapper::toPublicLectureResponse).toList();
     }
 
     @Override
     public List<LectureResponse> getPublicLecturesBySectionId(UUID sectionId) {
-        return lectureRepository.findBySectionIdAndIsPublishedTrue(sectionId)
+        return lectureRepository.findBySectionIdAndIsPublishedTrueOrderByDisplayOrderAsc(sectionId)
                 .stream().map(lectureMapper::toLectureResponse).toList();
     }
 

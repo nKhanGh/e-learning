@@ -77,33 +77,37 @@ NEXT_PUBLIC_AVATAR_BASE_URL=http://localhost:8080/api/files/avatars/
 
 The backend includes the following module groups:
 
-* Authentication and security: login, registration, JWT, refresh token, OAuth2, email verification, forgot/reset password.
-* User and instructor: profile, avatar, user search, instructor registration.
-* Course catalog: course, category, section, tag, Elasticsearch search, cache.
-* Learning content: lecture, public lecture, progress, bookmark, note.
-* Assessment: quiz, question, attempt, answer, submission.
-* Enrollment: enrollment creation, enrollment queries, access/completion tracking.
-* Interaction and real-time features: conversation, participant, message, reaction, STOMP WebSocket, online status.
-* AI: chatbot, course embedding, course recommendation.
-* Common services: file, email, JWT, Redis.
-* Report/moderation: report creation, report search, report handling.
+- Authentication va security: login, register, JWT, refresh token, OAuth2, email verify, forgot/reset password.
+- User va instructor: profile, avatar, search user, dang ky instructor.
+- Course catalog: course, category, section, tag, search Elasticsearch, cache.
+- Learning content: lecture, public lecture, progress, bookmark, note.
+- Course publishing: publish checklist, submit review, course status lifecycle cho instructor.
+- Assessment: quiz, question, attempt, answer, submission.
+- Enrollment: ghi danh, truy van enrollment, access/completion.
+- Interaction va realtime: conversation, participant, message, reaction, STOMP WebSocket, online status.
+- AI: chatbot, course embedding, course recommendation.
+- Common services: file, email, JWT, Redis.
+- Report/moderation: tao report, search report, xu ly report.
 
 The frontend includes the following module groups:
 
-* Routing/pages: home, courses, course detail, chat, and settings under the `/:locale` route.
-* API services: auth, user, course, category, enrollment, conversation, participant, message, AI.
-* Context/state: auth, auth modal, websocket, conversation.
-* UI/components: layout, auth form, course cards/sidebar, chat panels, pagination/loading/toast.
-* Utilities: shared API client, TanStack Query hooks, WebSocket singleton, auth helper, time formatter.
-* i18n/theme: `en`, `vi`, locale-based routing, dark/light theme stored in localStorage.
+- Routing/pages: home, courses, course detail, chat, settings theo route `/:locale`.
+- Instructor course studio: my courses, create/edit course, sections, lectures, quiz, resources, preview, publish checklist.
+- API services: auth, user, course, category, enrollment, conversation, participant, message, AI.
+- Context/state: auth, auth modal, websocket, conversation.
+- UI/components: layout, auth form, course cards/sidebar, chat panels, pagination/loading/toast.
+- Utilities: shared API client, TanStack Query hooks, WebSocket singleton, auth helper, time formatter.
+- i18n/theme: `en`, `vi`, route locale, dark/light theme trong localStorage.
 
 ## API and Development Documentation
 
-* Swagger UI: `http://localhost:8080/api/swagger-ui/index.html#`
-* Backend docs: [docs/backend.md](docs/backend.md)
-* Frontend docs: [docs/frontend.md](docs/frontend.md)
-* API endpoint map: [docs/backend/api-endpoints.md](docs/backend/api-endpoints.md)
-* FE/BE integration notes: [docs/integration-notes.md](docs/integration-notes.md)
+- Swagger UI: `http://localhost:8080/api/swagger-ui/index.html#`
+- Backend docs: [docs/backend.md](docs/backend.md)
+- Frontend docs: [docs/frontend.md](docs/frontend.md)
+- API endpoint map: [docs/backend/api-endpoints.md](docs/backend/api-endpoints.md)
+- Luu y tich hop FE/BE: [docs/integration-notes.md](docs/integration-notes.md)
+- Instructor Studio docs: [docs/frontend/instructor-course-studio.md](docs/frontend/instructor-course-studio.md)
+- Course Publishing docs: [docs/backend/course-publishing.md](docs/backend/course-publishing.md)
 
 ## Useful Commands
 

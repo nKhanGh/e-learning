@@ -54,6 +54,7 @@ NEXT_PUBLIC_AVATAR_BASE_URL=http://localhost:8080/api/files/avatars/
 - [Routing va Pages](frontend/routing-pages.md)
 - [Authentication UI](frontend/authentication.md)
 - [Course Experience](frontend/course-experience.md)
+- [Instructor Course Studio](frontend/instructor-course-studio.md)
 - [Chat va Realtime UI](frontend/chat-realtime.md)
 - [Settings, i18n va Theme](frontend/settings-i18n-theme.md)
 - [Services, Types va Utilities](frontend/services-types-utils.md)

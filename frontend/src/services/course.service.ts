@@ -1,19 +1,106 @@
-import apiClient from "@/lib/apiClient";
+import apiClient, { publicApiClient } from "@/lib/apiClient";
 
 export const courseService = {
-  searchCourses: ({
-    request,
-    page,
-    size,
-  }: {
-    request: CourseSearchRequest;
-    page: number;
-    size: number;
-  }) =>
-    apiClient.post<ApiResponse<PageResponse<CourseResponse>>>(
-      `/courses/search?page=${page}&size=${size}`,
+  searchCourses: (request: CourseSearchRequest) =>
+    publicApiClient.post<CourseSearchApiResponse>(
+      "/courses/search",
       request,
     ),
   getCourse: (courseId: string) =>
-    apiClient.get<ApiResponse<CourseResponse>>(`/courses/${courseId}`),
+    publicApiClient.get<ApiResponse<CourseResponse>>(`/courses/${courseId}`),
+  getMyCourses: (
+    page = 0,
+    size = 9,
+    keyword = "",
+    status?: CourseStatus,
+  ) =>
+    apiClient.get<ApiResponse<PageResponse<CourseResponse>>>(
+      "/courses/my-course",
+      { params: { page, size, keyword: keyword || undefined, status } },
+    ),
+  createCourse: (request: CourseCreationRequest) =>
+    apiClient.post<ApiResponse<CourseResponse>>("/courses", request),
+  updateCourse: (courseId: string, request: CourseUpdateRequest) =>
+    apiClient.put<ApiResponse<CourseResponse>>(`/courses/${courseId}`, request),
+  getCurriculum: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseCurriculumResponse>>(
+      `/courses/${courseId}/curriculum`,
+    ),
+  getCourseSections: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseSectionResponse[]>>(
+      `/course-sections/course/${courseId}`,
+    ),
+  getPublishChecklist: (courseId: string) =>
+    apiClient.get<ApiResponse<CoursePublishChecklistResponse>>(
+      `/courses/${courseId}/publish-checklist`,
+    ),
+  submitForReview: (courseId: string) =>
+    apiClient.post<ApiResponse<CourseResponse>>(
+      `/courses/${courseId}/submit-review`,
+    ),
+  createCourseSection: (request: CourseSectionRequest) =>
+    apiClient.post<ApiResponse<CourseSectionResponse>>(
+      "/course-sections",
+      request,
+    ),
+  updateCourseSection: (sectionId: string, request: CourseSectionRequest) =>
+    apiClient.put<ApiResponse<CourseSectionResponse>>(
+      `/course-sections/${sectionId}`,
+      request,
+    ),
+  deleteCourseSection: (sectionId: string) =>
+    apiClient.delete<ApiResponse<void>>(`/course-sections/${sectionId}`),
+  getLecturesBySection: (sectionId: string) =>
+    apiClient.get<ApiResponse<LectureResponse[]>>(
+      `/lectures/section/${sectionId}`,
+    ),
+  getLecture: (lectureId: string) =>
+    apiClient.get<ApiResponse<LectureResponse>>(`/lectures/${lectureId}`),
+  createLecture: (request: LectureRequest) =>
+    apiClient.post<ApiResponse<LectureResponse>>("/lectures", request),
+  updateLecture: (lectureId: string, request: LectureUpdateRequest) =>
+    apiClient.put<ApiResponse<LectureResponse>>(
+      `/lectures/${lectureId}`,
+      request,
+    ),
+  deleteLecture: (lectureId: string) =>
+    apiClient.delete<ApiResponse<void>>(`/lectures/${lectureId}`),
+  getQuizByLecture: (lectureId: string) =>
+    apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/lecture/${lectureId}`),
+  getQuiz: (quizId: string) =>
+    apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/${quizId}`),
+  createQuiz: (request: QuizRequest) =>
+    apiClient.post<ApiResponse<QuizResponse>>("/quizzes", request),
+  updateQuiz: (quizId: string, request: QuizUpdateRequest) =>
+    apiClient.put<ApiResponse<QuizResponse>>(`/quizzes/${quizId}`, request),
+  deleteQuiz: (quizId: string) =>
+    apiClient.delete<ApiResponse<void>>(`/quizzes/${quizId}`),
+  getQuizQuestions: (quizId: string) =>
+    apiClient.get<ApiResponse<QuizQuestionResponse[]>>(
+      `/quiz-questions/${quizId}`,
+    ),
+  createQuizQuestion: (request: QuizQuestionRequest) =>
+    apiClient.post<ApiResponse<QuizQuestionResponse>>(
+      "/quiz-questions",
+      request,
+    ),
+  importQuizQuestions: (request: QuizQuestionImportRequest) =>
+    apiClient.post<ApiResponse<QuizQuestionImportResponse>>(
+      "/quiz-questions/import",
+      request,
+    ),
+  updateQuizQuestion: (
+    questionId: string,
+    request: QuizQuestionUpdateRequest,
+  ) =>
+    apiClient.put<ApiResponse<QuizQuestionResponse>>(
+      `/quiz-questions/${questionId}`,
+      request,
+    ),
+  deleteQuizQuestion: (questionId: string) =>
+    apiClient.delete<ApiResponse<void>>(`/quiz-questions/${questionId}`),
+  getEnrollmentStatus: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseEnrollmentStatusResponse>>(
+      `/courses/${courseId}/enrollment-status`,
+    ),
 };

@@ -39,15 +39,38 @@ Quan ly quiz, question, answer, attempt va submission cua nguoi hoc.
 - `GET /api/quizzes/{quizId}/attempts`
 - `GET /api/quiz-questions/{quizId}`
 - `POST /api/quiz-questions`
+- `POST /api/quiz-questions/import`
 - `DELETE /api/quiz-questions/{quizQuestionId}`
 - `PUT /api/quiz-questions/{quizQuestionId}`
 
 ## Luong chinh
 
-1. Instructor tao quiz va questions cho lecture.
-2. Student lay public quiz/quiz detail tuy quyen truy cap.
-3. Student submit attempt/submission.
-4. Backend tinh score, luu attempt va answers.
+1. Instructor tao lecture co `contentType = QUIZ`.
+2. Instructor mo lecture preview/detail de tao hoac sua quiz config.
+3. Instructor tao/sua/xoa questions hoac import JSON.
+4. Student lay public quiz/quiz detail tuy quyen truy cap.
+5. Student submit attempt/submission.
+6. Backend tinh score, luu attempt va answers.
+
+## Import JSON
+
+`POST /api/quiz-questions/import` nhan request:
+
+- `quizId`
+- `mode`: `APPEND` hoac `REPLACE`
+- `questions`: danh sach cau hoi
+
+Moi question chi nen gom:
+
+- `questionText`
+- `explanation`
+- `points`
+- `options`
+- `correctAnswers`
+
+Image/video khong nam trong JSON import hien tai; media upload se lam rieng sau.
+
+Append mode ho tro ca quiz chua co question.
 
 ## Test lien quan
 

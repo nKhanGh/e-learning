@@ -9,14 +9,25 @@ import co.elastic.clients.json.JsonData;
 import com.khangdev.elearningbe.document.CourseDocument;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.response.course.CourseSearchResponse;
+import com.khangdev.elearningbe.entity.course.Course;
+import com.khangdev.elearningbe.entity.course.CourseTag;
+import com.khangdev.elearningbe.entity.user.Instructor;
+import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.CourseSortOption;
 import com.khangdev.elearningbe.enums.CourseStatus;
+import com.khangdev.elearningbe.repository.CourseRepository;
 import com.khangdev.elearningbe.service.course.CourseSearchCacheService;
 import com.khangdev.elearningbe.service.course.CourseSearchService;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregation;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregations;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -27,8 +38,11 @@ import org.springframework.data.elasticsearch.core.query.HighlightQuery;
 import org.springframework.data.elasticsearch.core.query.highlight.Highlight;
 import org.springframework.data.elasticsearch.core.query.highlight.HighlightField;
 import org.springframework.data.elasticsearch.core.query.highlight.HighlightFieldParameters;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,9 +56,11 @@ public class CourseSearchServiceImpl implements CourseSearchService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final CourseSearchCacheService cacheService;
+    private final CourseRepository courseRepository;
 
     @Override
     @CircuitBreaker(name = "elasticsearch", fallbackMethod = "searchFallback")
+    @Transactional(readOnly = true)
     public CourseSearchResponse.Page search(CourseSearchRequest req) {
         long start = System.currentTimeMillis();
 
@@ -58,6 +74,10 @@ public class CourseSearchServiceImpl implements CourseSearchService {
         SearchHits<CourseDocument> hits = elasticsearchOperations.search(query, CourseDocument.class);
 
         CourseSearchResponse.Page page = mapPage(hits, req, cacheKey, start);
+        if (page.getMeta().getTotalElements() == 0) {
+            page = searchDatabase(req, cacheKey, start);
+        }
+
         cacheService.putAsync(cacheKey, page, req);
 
         if (page.getMeta().getTotalElements() > 0) {
@@ -68,8 +88,14 @@ public class CourseSearchServiceImpl implements CourseSearchService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CourseSearchResponse.Page searchFallback(CourseSearchRequest req, Throwable t) {
-        log.error("ES circuit breaker open, fallback to Redis hot courses. Cause: {}", t.getMessage());
+        log.error("ES circuit breaker open, fallback to database courses. Cause: {}", t.getMessage());
+        CourseSearchResponse.Page databasePage = searchDatabase(req, "db-fallback", System.currentTimeMillis());
+        if (databasePage.getMeta().getTotalElements() > 0) {
+            return databasePage;
+        }
+
         List<CourseSearchResponse.CourseItem> hotCourses = cacheService.getHotCourses(req.getSize());
         return CourseSearchResponse.Page.builder()
                 .courses(hotCourses)
@@ -81,6 +107,111 @@ public class CourseSearchServiceImpl implements CourseSearchService {
                 .searchInfo(CourseSearchResponse.SearchInfo.builder()
                         .fromCache(true).tookMs(0).build())
                 .build();
+    }
+
+    private CourseSearchResponse.Page searchDatabase(CourseSearchRequest req, String traceId, long start) {
+        Pageable pageable = PageRequest.of(
+                Math.max(req.getPage(), 0),
+                Math.max(req.getSize(), 1),
+                buildDatabaseSort(req)
+        );
+        Page<Course> page = courseRepository.findAll(buildDatabaseSpecification(req), pageable);
+        List<CourseSearchResponse.CourseItem> courses = page.getContent().stream()
+                .map(this::toItem)
+                .toList();
+
+        return CourseSearchResponse.Page.builder()
+                .courses(courses)
+                .meta(CourseSearchResponse.PageMeta.builder()
+                        .page(page.getNumber())
+                        .size(page.getSize())
+                        .totalElements(page.getTotalElements())
+                        .totalPages(page.getTotalPages())
+                        .hasNext(page.hasNext())
+                        .hasPrevious(page.hasPrevious())
+                        .build())
+                .facets(CourseSearchResponse.Facets.builder().build())
+                .searchInfo(CourseSearchResponse.SearchInfo.builder()
+                        .tookMs(System.currentTimeMillis() - start)
+                        .fromCache(false)
+                        .traceId(traceId)
+                        .build())
+                .build();
+    }
+
+    private Specification<Course> buildDatabaseSpecification(CourseSearchRequest req) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("status"), CourseStatus.PUBLISHED));
+
+            if (notEmpty(req.getCategoryId())) {
+                predicates.add(root.get("category").get("id").in(req.getCategoryId()));
+            }
+
+            if (req.getLevel() != null) {
+                predicates.add(cb.equal(root.get("level"), req.getLevel()));
+            }
+
+            if (req.getMinPrice() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), BigDecimal.valueOf(req.getMinPrice())));
+            }
+
+            if (req.getMaxPrice() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("price"), BigDecimal.valueOf(req.getMaxPrice())));
+            }
+
+            if (req.getMinAverageRating() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("averageRating"), BigDecimal.valueOf(req.getMinAverageRating())));
+            }
+
+            if (req.getMaxAverageRating() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("averageRating"), BigDecimal.valueOf(req.getMaxAverageRating())));
+            }
+
+            if (req.getIsFree() != null) {
+                predicates.add(cb.equal(root.get("isFree"), req.getIsFree()));
+            }
+
+            if (req.getHasQuiz() != null) {
+                predicates.add(cb.equal(root.get("hasQuizzes"), req.getHasQuiz()));
+            }
+
+            if (notEmpty(req.getTagNames())) {
+                Join<Course, CourseTag> tagJoin = root.join("tags", JoinType.INNER);
+                predicates.add(tagJoin.get("name").in(req.getTagNames()));
+                query.distinct(true);
+            }
+
+            if (req.getKeyword() != null && !req.getKeyword().isBlank()) {
+                String keyword = "%" + req.getKeyword().trim().toLowerCase() + "%";
+                Join<Course, Instructor> instructorJoin = root.join("instructor", JoinType.LEFT);
+                Join<Instructor, User> userJoin = instructorJoin.join("user", JoinType.LEFT);
+                Join<Course, CourseTag> tagJoin = root.join("tags", JoinType.LEFT);
+                query.distinct(true);
+
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), keyword),
+                        cb.like(cb.lower(root.get("description")), keyword),
+                        cb.like(cb.lower(userJoin.get("firstName")), keyword),
+                        cb.like(cb.lower(userJoin.get("lastName")), keyword),
+                        cb.like(cb.lower(tagJoin.get("name")), keyword)
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private Sort buildDatabaseSort(CourseSearchRequest req) {
+        return switch (req.getSortBy()) {
+            case RATING -> Sort.by(Sort.Direction.DESC, "averageRating");
+            case NEWEST -> Sort.by(Sort.Direction.DESC, "publishedAt");
+            case POPULARITY -> Sort.by(Sort.Direction.DESC, "totalEnrollments");
+            case PRICE_ASC -> Sort.by(Sort.Direction.ASC, "price");
+            case PRICE_DESC -> Sort.by(Sort.Direction.DESC, "price");
+            default -> Sort.by(Sort.Direction.DESC, "totalEnrollments")
+                    .and(Sort.by(Sort.Direction.DESC, "publishedAt"));
+        };
     }
 
     private NativeQuery buildNativeQuery(CourseSearchRequest req) {
@@ -196,8 +327,8 @@ public class CourseSearchServiceImpl implements CourseSearchService {
             filters.add(termFilter("has_quizzes", "true"));
         }
 
-        if (Boolean.TRUE.equals(req.getIsFree())) {
-            filters.add(termFilter("is_free", "true"));
+        if (req.getIsFree() != null) {
+            filters.add(termFilter("is_free", String.valueOf(req.getIsFree())));
         }
 
         if (notEmpty(req.getTagNames())) {
@@ -402,6 +533,48 @@ public class CourseSearchServiceImpl implements CourseSearchService {
                 .searchScore(hit.getScore())
                 .highlights(hit.getHighlightFields())
                 .build();
+    }
+
+    private CourseSearchResponse.CourseItem toItem(Course course) {
+        User instructorUser = course.getInstructor() == null ? null : course.getInstructor().getUser();
+        String instructorName = instructorUser == null
+                ? ""
+                : (instructorUser.getFirstName() + " " + instructorUser.getLastName()).trim();
+
+        return CourseSearchResponse.CourseItem.builder()
+                .id(course.getId().toString())
+                .title(course.getTitle())
+                .slug(course.getSlug())
+                .description(course.getDescription())
+                .thumbnailUrl(course.getThumbnailUrl())
+                .categoryId(course.getCategory() == null ? null : course.getCategory().getId().toString())
+                .categoryName(course.getCategory() == null ? null : course.getCategory().getName())
+                .level(course.getLevel())
+                .language(course.getLanguage())
+                .price(course.getPrice())
+                .originalPrice(course.getOriginalPrice())
+                .isFree(course.getIsFree())
+                .hasQuizzes(course.getHasQuizzes())
+                .hasCertificate(course.getHasCertificate())
+                .isFeatured(course.getIsFeatured())
+                .isBestseller(course.getIsBestseller())
+                .averageRating(course.getAverageRating())
+                .totalReviews(nullToZero(course.getTotalReviews()))
+                .totalEnrollments(nullToZero(course.getTotalEnrollments()))
+                .durationMinutes(nullToZero(course.getDurationMinutes()))
+                .totalLectures(nullToZero(course.getTotalLectures()))
+                .instructorId(course.getInstructor() == null ? null : course.getInstructor().getId().toString())
+                .instructorName(instructorName)
+                .tagNames(course.getTags() == null
+                        ? List.of()
+                        : course.getTags().stream().map(CourseTag::getName).toList())
+                .searchScore(null)
+                .highlights(null)
+                .build();
+    }
+
+    private int nullToZero(Integer value) {
+        return value == null ? 0 : value;
     }
 
     private CourseSearchResponse.Facets extractFacets(SearchHits<CourseDocument> hits) {

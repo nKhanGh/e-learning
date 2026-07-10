@@ -1,8 +1,10 @@
 package com.khangdev.elearningbe.service.course;
 
 import com.khangdev.elearningbe.dto.request.course.QuizAnswerRequest;
+import com.khangdev.elearningbe.dto.request.course.QuizQuestionImportRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.QuizQuestionImportResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
 
 import java.math.BigDecimal;
@@ -12,6 +14,7 @@ import java.util.UUID;
 public interface QuizQuestionService {
     List<QuizQuestionResponse> findByQuizId(UUID quizId);
     QuizQuestionResponse createQuizQuestion(QuizQuestionRequest quizQuestionRequest);
+    QuizQuestionImportResponse importQuizQuestions(QuizQuestionImportRequest request);
     void deleteQuizQuestion(UUID quizQuestionId);
     QuizQuestionResponse updateQuizQuestion(UUID quizQuestionId, QuizQuestionUpdateRequest request);
     BigDecimal calculateScore(QuizAnswerRequest request);

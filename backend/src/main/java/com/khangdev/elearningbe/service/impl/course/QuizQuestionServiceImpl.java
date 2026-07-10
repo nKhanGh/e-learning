@@ -1,8 +1,10 @@
 package com.khangdev.elearningbe.service.impl.course;
 
 import com.khangdev.elearningbe.dto.request.course.QuizAnswerRequest;
+import com.khangdev.elearningbe.dto.request.course.QuizQuestionImportRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.QuizQuestionImportResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
 import com.khangdev.elearningbe.entity.course.Quiz;
 import com.khangdev.elearningbe.entity.course.QuizQuestion;
@@ -20,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -37,6 +41,100 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
         if(!courseUserId.equals(userId)){
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+    }
+
+    private String normalize(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private BigDecimal normalizePoints(BigDecimal points) {
+        return points == null ? BigDecimal.ONE : points;
+    }
+
+    private List<String> normalizeList(List<String> values) {
+        if (values == null) return List.of();
+
+        return values.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(value -> !value.isBlank())
+                .distinct()
+                .toList();
+    }
+
+    private void recalculateQuizSummary(Quiz quiz) {
+        List<QuizQuestion> questions = quizQuestionRepository.findByQuizIdOrderByDisplayOrderAsc(quiz.getId());
+        BigDecimal totalPoints = questions.stream()
+                .map(QuizQuestion::getPoints)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        quiz.setTotalQuestions(questions.size());
+        quiz.setTotalPoints(totalPoints);
+    }
+
+    private void addImportError(
+            List<QuizQuestionImportResponse.ImportError> errors,
+            Integer index,
+            String message
+    ) {
+        errors.add(QuizQuestionImportResponse.ImportError.builder()
+                .index(index)
+                .message(message)
+                .build());
+    }
+
+    private List<QuizQuestionImportResponse.ImportError> validateImportQuestions(
+            QuizQuestionImportRequest request
+    ) {
+        List<QuizQuestionImportResponse.ImportError> errors = new ArrayList<>();
+
+        if (request == null || request.getQuizId() == null) {
+            addImportError(errors, null, "quizId is required");
+            return errors;
+        }
+
+        if (request.getQuestions() == null || request.getQuestions().isEmpty()) {
+            addImportError(errors, null, "questions must not be empty");
+            return errors;
+        }
+
+        for (int index = 0; index < request.getQuestions().size(); index++) {
+            QuizQuestionImportRequest.QuestionItem item = request.getQuestions().get(index);
+
+            if (item == null) {
+                addImportError(errors, index, "question item is required");
+                continue;
+            }
+
+            if (normalize(item.getQuestionText()).isBlank()) {
+                addImportError(errors, index, "questionText is required");
+            }
+
+            BigDecimal points = normalizePoints(item.getPoints());
+            if (points.compareTo(BigDecimal.ZERO) <= 0) {
+                addImportError(errors, index, "points must be greater than 0");
+            }
+
+            List<String> options = normalizeList(item.getOptions());
+            if (options.size() < 2) {
+                addImportError(errors, index, "options must contain at least 2 values");
+            }
+
+            List<String> correctAnswers = normalizeList(item.getCorrectAnswers());
+            if (correctAnswers.isEmpty()) {
+                addImportError(errors, index, "correctAnswers must contain at least 1 value");
+            }
+
+            List<String> missingAnswers = correctAnswers.stream()
+                    .filter(answer -> !options.contains(answer))
+                    .toList();
+            if (!missingAnswers.isEmpty()) {
+                addImportError(errors, index, "correctAnswers must exist in options: " + missingAnswers);
+            }
+        }
+
+        return errors;
     }
 
     @Override
@@ -67,9 +165,85 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
 
 
         quiz.addQuestion(quizQuestion);
-//        quizRepository.save(quiz);
+        quizQuestionRepository.save(quizQuestion);
+        recalculateQuizSummary(quiz);
 
         return quizQuestionMapper.toQuizQuestionResponse(quizQuestion);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('INSTRUCTOR')")
+    @Transactional
+    public QuizQuestionImportResponse importQuizQuestions(QuizQuestionImportRequest request) {
+        List<QuizQuestionImportResponse.ImportError> errors = validateImportQuestions(request);
+
+        if (request == null || request.getQuizId() == null) {
+            return QuizQuestionImportResponse.builder()
+                    .importedCount(0)
+                    .skippedCount(0)
+                    .errors(errors)
+                    .questions(List.of())
+                    .build();
+        }
+
+        Quiz quiz = quizRepository.findById(request.getQuizId())
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
+        authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
+
+        if (!errors.isEmpty()) {
+            return QuizQuestionImportResponse.builder()
+                    .importedCount(0)
+                    .skippedCount(request.getQuestions() == null ? 0 : request.getQuestions().size())
+                    .errors(errors)
+                    .questions(List.of())
+                    .build();
+        }
+
+        QuizQuestionImportRequest.ImportMode mode = request.getMode() == null
+                ? QuizQuestionImportRequest.ImportMode.APPEND
+                : request.getMode();
+
+        if (mode == QuizQuestionImportRequest.ImportMode.REPLACE) {
+            List<QuizQuestion> existingQuestions = quizQuestionRepository.findByQuizIdOrderByDisplayOrderAsc(quiz.getId());
+            quizQuestionRepository.deleteAll(existingQuestions);
+            quizQuestionRepository.flush();
+            quiz.getQuestions().clear();
+        }
+
+        Integer maxOrder;
+        if (mode == QuizQuestionImportRequest.ImportMode.REPLACE) {
+            maxOrder = 0;
+        } else {
+            maxOrder = quizQuestionRepository.findMaxDisplayOrderByQuizId(quiz.getId());
+        }
+        int nextOrder = maxOrder == null ? 1 : maxOrder + 1;
+        List<QuizQuestion> importedQuestions = new ArrayList<>();
+
+        for (QuizQuestionImportRequest.QuestionItem item : request.getQuestions()) {
+            QuizQuestion question = QuizQuestion.builder()
+                    .quiz(quiz)
+                    .questionText(normalize(item.getQuestionText()))
+                    .explanation(normalize(item.getExplanation()))
+                    .points(normalizePoints(item.getPoints()))
+                    .displayOrder(nextOrder++)
+                    .options(normalizeList(item.getOptions()))
+                    .correctAnswers(normalizeList(item.getCorrectAnswers()))
+                    .build();
+
+            quiz.getQuestions().add(question);
+            importedQuestions.add(quizQuestionRepository.save(question));
+        }
+
+        recalculateQuizSummary(quiz);
+
+        return QuizQuestionImportResponse.builder()
+                .importedCount(importedQuestions.size())
+                .skippedCount(0)
+                .errors(List.of())
+                .questions(importedQuestions.stream()
+                        .map(quizQuestionMapper::toQuizQuestionResponse)
+                        .toList())
+                .build();
     }
 
     @Override
@@ -81,7 +255,8 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
         authorize(question.getQuiz().getLecture().getSection().getCourse().getInstructor().getId());
         Quiz quiz = question.getQuiz();
         quiz.removeQuestion(question);
-//        quizRepository.save(quiz);
+        quizQuestionRepository.delete(question);
+        recalculateQuizSummary(quiz);
     }
 
     @Override
@@ -92,8 +267,9 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_QUESTION_NOT_FOUND));
         authorize(question.getQuiz().getLecture().getSection().getCourse().getInstructor().getId());
         quizQuestionMapper.updateQuizQuestion(question, request);
-//        quizRepository.save(question.getQuiz());
-        return quizQuestionMapper.toQuizQuestionResponse(question);
+        QuizQuestion savedQuestion = quizQuestionRepository.save(question);
+        recalculateQuizSummary(savedQuestion.getQuiz());
+        return quizQuestionMapper.toQuizQuestionResponse(savedQuestion);
     }
 
     @Override
