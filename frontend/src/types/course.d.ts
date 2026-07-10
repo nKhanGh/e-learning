@@ -190,6 +190,53 @@ interface CourseCurriculumQuiz {
   status: LearningItemStatus;
 }
 
+interface QuizQuestionResponse {
+  id: string;
+  questionText: string;
+  explanation: string | null;
+  points: number;
+  displayOrder: number;
+  options: string[];
+  correctAnswers: string[];
+  imageUrl: string | null;
+  videoUrl: string | null;
+}
+
+interface QuizRequest {
+  lectureId: string;
+  title: string;
+  description: string;
+  instructions: string;
+  timeLimitMinutes: number | null;
+  passingScore: number;
+  maxAttempts: number | null;
+  randomizeQuestions: boolean;
+  showCorrectAnswers: boolean;
+  showAnswersAfterSubmission: boolean;
+  totalPoints: number;
+  isPublished: boolean;
+}
+
+interface QuizUpdateRequest {
+  title: string;
+  description: string;
+  instructions: string;
+  timeLimitMinutes: number | null;
+  passingScore: number;
+  maxAttempts: number | null;
+  randomizeQuestions: boolean;
+  showCorrectAnswers: boolean;
+  showAnswersAfterSubmission: boolean;
+  totalPoints: number;
+  isPublished: boolean;
+}
+
+interface QuizResponse extends QuizUpdateRequest {
+  id: string;
+  totalQuestions: number;
+  questions: QuizQuestionResponse[];
+}
+
 interface CourseCurriculumLecture {
   id: string;
   title: string;
@@ -274,7 +321,7 @@ interface LectureUpdateRequest {
 interface LectureResponse extends LectureUpdateRequest {
   id: string;
   section: CourseSectionResponse;
-  quiz: CourseCurriculumQuiz | null;
+  quiz: QuizResponse | CourseCurriculumQuiz | null;
 }
 
 interface CourseCurriculumResponse {

@@ -3,6 +3,7 @@ import { queryKeys } from "@/lib/queryKeys";
 import { courseCategoryService } from "@/services/courseCategory.service";
 import { courseService } from "@/services/course.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -332,6 +333,147 @@ export function useDeleteLectureMutation(courseId: string, sectionId: string) {
         queryKey: queryKeys.lectures.detail(lectureId),
       });
       invalidateLectureStructure(queryClient, courseId, sectionId);
+    },
+  });
+}
+
+const isQuizNotFoundError = (error: unknown) => {
+  if (!isAxiosError(error)) return false;
+
+  const data = error.response?.data as
+    | { message?: string; code?: number }
+    | undefined;
+
+  return (
+    error.response?.status === 400 &&
+    (data?.message === "Quiz not found" || data?.code === 400)
+  );
+};
+
+export function useQuizByLectureQuery(lectureId: string) {
+  return useQuery({
+    queryKey: queryKeys.quizzes.byLecture(lectureId),
+    queryFn: async () => {
+      try {
+        const response = await courseService.getQuizByLecture(lectureId);
+        return response.data.result;
+      } catch (error) {
+        if (isQuizNotFoundError(error)) {
+          return null;
+        }
+
+        throw error;
+      }
+    },
+    enabled: Boolean(lectureId),
+    retry: false,
+  });
+}
+
+const invalidateQuizStructure = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+  lectureId: string,
+  sectionId?: string,
+  quizId?: string,
+) => {
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.quizzes.byLecture(lectureId),
+  });
+  if (quizId) {
+    queryClient.invalidateQueries({ queryKey: queryKeys.quizzes.detail(quizId) });
+  }
+  if (sectionId) {
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.lectures.bySection(sectionId),
+    });
+  }
+  invalidateCourseStructure(queryClient, courseId);
+};
+
+export function useCreateQuizMutation(
+  courseId: string,
+  lectureId: string,
+  sectionId?: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: Omit<QuizRequest, "lectureId">) => {
+      const response = await courseService.createQuiz({
+        ...request,
+        lectureId,
+      });
+      return response.data.result;
+    },
+    onSuccess: (quiz) => {
+      queryClient.setQueryData(queryKeys.quizzes.byLecture(lectureId), quiz);
+      queryClient.setQueryData(queryKeys.quizzes.detail(quiz.id), quiz);
+      invalidateQuizStructure(
+        queryClient,
+        courseId,
+        lectureId,
+        sectionId,
+        quiz.id,
+      );
+    },
+  });
+}
+
+export function useUpdateQuizMutation(
+  courseId: string,
+  lectureId: string,
+  sectionId?: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      quizId,
+      request,
+    }: {
+      quizId: string;
+      request: QuizUpdateRequest;
+    }) => {
+      const response = await courseService.updateQuiz(quizId, request);
+      return response.data.result;
+    },
+    onSuccess: (quiz) => {
+      queryClient.setQueryData(queryKeys.quizzes.byLecture(lectureId), quiz);
+      queryClient.setQueryData(queryKeys.quizzes.detail(quiz.id), quiz);
+      invalidateQuizStructure(
+        queryClient,
+        courseId,
+        lectureId,
+        sectionId,
+        quiz.id,
+      );
+    },
+  });
+}
+
+export function useDeleteQuizMutation(
+  courseId: string,
+  lectureId: string,
+  sectionId?: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (quizId: string) => {
+      await courseService.deleteQuiz(quizId);
+      return quizId;
+    },
+    onSuccess: (quizId) => {
+      queryClient.setQueryData(queryKeys.quizzes.byLecture(lectureId), null);
+      queryClient.removeQueries({ queryKey: queryKeys.quizzes.detail(quizId) });
+      invalidateQuizStructure(
+        queryClient,
+        courseId,
+        lectureId,
+        sectionId,
+        quizId,
+      );
     },
   });
 }

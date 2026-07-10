@@ -217,7 +217,7 @@ const CourseStudioPage = () => {
             <LecturesTab courseId={courseId} sections={sections} />
           </TabsContent>
           <TabsContent value="quiz">
-            <QuizTab />
+            <QuizTab courseId={courseId} sections={sections} />
           </TabsContent>
           <TabsContent value="resources">
             <ResourcesTab />

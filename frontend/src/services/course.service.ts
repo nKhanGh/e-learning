@@ -57,6 +57,16 @@ export const courseService = {
     ),
   deleteLecture: (lectureId: string) =>
     apiClient.delete<ApiResponse<void>>(`/lectures/${lectureId}`),
+  getQuizByLecture: (lectureId: string) =>
+    apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/lecture/${lectureId}`),
+  getQuiz: (quizId: string) =>
+    apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/${quizId}`),
+  createQuiz: (request: QuizRequest) =>
+    apiClient.post<ApiResponse<QuizResponse>>("/quizzes", request),
+  updateQuiz: (quizId: string, request: QuizUpdateRequest) =>
+    apiClient.put<ApiResponse<QuizResponse>>(`/quizzes/${quizId}`, request),
+  deleteQuiz: (quizId: string) =>
+    apiClient.delete<ApiResponse<void>>(`/quizzes/${quizId}`),
   getEnrollmentStatus: (courseId: string) =>
     apiClient.get<ApiResponse<CourseEnrollmentStatusResponse>>(
       `/courses/${courseId}/enrollment-status`,
