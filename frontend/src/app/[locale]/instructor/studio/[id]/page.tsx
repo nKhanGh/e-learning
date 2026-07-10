@@ -220,7 +220,7 @@ const CourseStudioPage = () => {
             <QuizTab courseId={courseId} sections={sections} />
           </TabsContent>
           <TabsContent value="resources">
-            <ResourcesTab />
+            <ResourcesTab courseId={courseId} sections={sections} />
           </TabsContent>
           <TabsContent value="checklist">
             <ChecklistTab checklist={checklist} />

@@ -83,8 +83,8 @@ const InstructorLecturePreviewPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 px-2 py-4 dark:bg-bg">
         <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[300px_1fr]">
-          <div className="h-[640px] animate-pulse rounded-lg bg-gray-100 dark:bg-border" />
-          <div className="h-[640px] animate-pulse rounded-lg bg-gray-100 dark:bg-border" />
+          <div className="h-160 animate-pulse rounded-lg bg-gray-100 dark:bg-border" />
+          <div className="h-160 animate-pulse rounded-lg bg-gray-100 dark:bg-border" />
         </div>
       </div>
     );
@@ -98,7 +98,7 @@ const InstructorLecturePreviewPage = () => {
         action={
           <Button
             type="button"
-            className="mx-auto mt-4 !text-white"
+            className="mx-auto mt-4 text-white!"
             onClick={() => {
               courseQuery.refetch();
               curriculumQuery.refetch();

@@ -285,7 +285,7 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
                       type="button"
                       variant="destructive"
                       size="sm"
-                      className="!text-white"
+                      className="text-white!"
                       disabled={deleteLectureMutation.isPending}
                       onClick={() => handleDeleteLecture(lecture)}
                     >

@@ -556,7 +556,7 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
           <Button
             type="button"
             size="sm"
-            className="!text-white"
+            className="text-white!"
             disabled={!selectedLectureId || Boolean(quiz)}
             onClick={openCreateQuizDialog}
           >
@@ -639,7 +639,7 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
                     type="button"
                     variant="destructive"
                     size="sm"
-                    className="!text-white"
+                    className="text-white!"
                     disabled={deleteQuizMutation.isPending}
                     onClick={handleDeleteQuiz}
                   >
@@ -664,7 +664,7 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
                   <Button
                     type="button"
                     size="sm"
-                    className="!text-white"
+                    className="text-white!"
                     onClick={openCreateQuestionDialog}
                   >
                     <Plus className="h-4 w-4" />
@@ -735,7 +735,7 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
                             type="button"
                             variant="destructive"
                             size="sm"
-                            className="!text-white"
+                            className="text-white!"
                             disabled={deleteQuestionMutation.isPending}
                             onClick={() => handleDeleteQuestion(question)}
                           >
@@ -963,7 +963,7 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
               >
                 {t("quiz.cancel")}
               </Button>
-              <Button type="submit" className="!text-white" disabled={quizSaving}>
+              <Button type="submit" className="text-white!" disabled={quizSaving}>
                 {quizSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {quiz ? t("quiz.save") : t("quiz.create")}
               </Button>
@@ -1157,7 +1157,7 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
               </Button>
               <Button
                 type="submit"
-                className="!text-white"
+                className="text-white!"
                 disabled={questionSaving}
               >
                 {questionSaving ? (

@@ -504,7 +504,7 @@ export function LectureDialog({
             >
               {t("lectures.cancel")}
             </Button>
-            <Button type="submit" className="!text-white" disabled={saving}>
+            <Button type="submit" className="text-white!" disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {lecture ? t("lectures.save") : t("lectures.create")}
             </Button>
