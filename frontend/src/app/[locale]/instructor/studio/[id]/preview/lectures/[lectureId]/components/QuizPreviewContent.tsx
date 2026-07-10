@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
 import {
+  useCreateQuizMutation,
   useCreateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
   useImportQuizQuestionsMutation,
   useQuizByLectureQuery,
   useQuizQuestionsQuery,
+  useUpdateQuizMutation,
   useUpdateQuizQuestionMutation,
 } from "@/hooks/queries/useCourseQueries";
 import { cn } from "@/lib/utils";
-import { FileJson, Pencil, Plus, Trash2 } from "lucide-react";
+import { FileJson, Pencil, Plus, Settings2, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
@@ -20,12 +22,14 @@ import {
 import { getErrorMessage } from "../../../../components/studioUtils";
 import { EmptyContentMessage } from "./EmptyContentMessage";
 import { isFullQuizResponse } from "./lecturePreviewUtils";
+import { QuizConfigDialog } from "./QuizConfigDialog";
 import { QuizQuestionDialog } from "./QuizQuestionDialog";
 
 type QuizPreviewContentProps = {
   courseId: string;
   sectionId?: string;
   lectureId: string;
+  lectureTitle: string;
   fallbackQuiz: QuizResponse | CourseCurriculumQuiz | null;
 };
 
@@ -33,6 +37,7 @@ export function QuizPreviewContent({
   courseId,
   sectionId,
   lectureId,
+  lectureTitle,
   fallbackQuiz,
 }: QuizPreviewContentProps) {
   const t = useTranslations("InstructorCourseStudioPage");
@@ -40,8 +45,15 @@ export function QuizPreviewContent({
   const quiz = quizQuery.data ?? fallbackQuiz;
   const quizId = quiz?.id ?? "";
   const questionsQuery = useQuizQuestionsQuery(quizId);
-  const fallbackQuestions = isFullQuizResponse(quiz) ? quiz.questions : [];
-  const questions = questionsQuery.data ?? fallbackQuestions;
+  const fallbackQuestions =
+    isFullQuizResponse(quiz) && Array.isArray(quiz.questions)
+      ? quiz.questions
+      : [];
+  const questions = Array.isArray(questionsQuery.data)
+    ? questionsQuery.data
+    : fallbackQuestions;
+  const createQuizMutation = useCreateQuizMutation(courseId, lectureId, sectionId);
+  const updateQuizMutation = useUpdateQuizMutation(courseId, lectureId, sectionId);
   const nextQuestionOrder =
     Math.max(0, ...questions.map((question) => question.displayOrder ?? 0)) + 1;
   const createQuestionMutation = useCreateQuizQuestionMutation(
@@ -69,6 +81,7 @@ export function QuizPreviewContent({
     sectionId,
   );
   const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
+  const [quizConfigDialogOpen, setQuizConfigDialogOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] =
     useState<QuizQuestionResponse | null>(null);
@@ -76,6 +89,7 @@ export function QuizPreviewContent({
     useState<QuizQuestionResponse | null>(null);
   const questionSaving =
     createQuestionMutation.isPending || updateQuestionMutation.isPending;
+  const quizSaving = createQuizMutation.isPending || updateQuizMutation.isPending;
   const totalPoints = questions.reduce(
     (total, question) => total + Number(question.points ?? 0),
     0,
@@ -138,6 +152,28 @@ export function QuizPreviewContent({
   const handleImportQuestions = (payload: QuizQuestionImportPayload) =>
     importQuestionsMutation.mutateAsync(payload);
 
+  const handleQuizConfigSubmit = async (
+    payload: QuizUpdateRequest,
+    submittedQuiz: QuizResponse | CourseCurriculumQuiz | null,
+  ) => {
+    try {
+      if (submittedQuiz) {
+        await updateQuizMutation.mutateAsync({
+          quizId: submittedQuiz.id,
+          request: payload,
+        });
+        toast.success(t("quiz.updated"));
+      } else {
+        await createQuizMutation.mutateAsync(payload);
+        toast.success(t("quiz.created"));
+      }
+
+      setQuizConfigDialogOpen(false);
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("quiz.failed")));
+    }
+  };
+
   if (quizQuery.isLoading) {
     return (
       <div className="space-y-3">
@@ -147,25 +183,35 @@ export function QuizPreviewContent({
     );
   }
 
-  if (!quiz) {
-    return <EmptyContentMessage message={t("preview.quizEmpty")} />;
-  }
-
   return (
     <>
       <div className="space-y-4">
       <div id="quiz-config" className="scroll-mt-6">
-        <h3 className="text-sm font-bold text-gray-950 dark:text-text">
-          {t("preview.quizTitle")}
-        </h3>
-        <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-border dark:bg-bg">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h3 className="text-sm font-bold text-gray-950 dark:text-text">
+            {t("preview.quizTitle")}
+          </h3>
+          <Button
+            type="button"
+            variant={quiz ? "outline" : "default"}
+            size="sm"
+            className={quiz ? undefined : "text-white!"}
+            onClick={() => setQuizConfigDialogOpen(true)}
+          >
+            {quiz ? (
+              <Pencil className="h-3.5 w-3.5" />
+            ) : (
+              <Settings2 className="h-3.5 w-3.5" />
+            )}
+            {quiz ? t("quiz.edit") : t("quiz.setup")}
+          </Button>
+        </div>
+        {quiz ? (
+          <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-border dark:bg-bg">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
-              <p className="text-base font-bold text-gray-950 dark:text-text">
-                {quiz.title}
-              </p>
               {quiz.description ? (
-                <p className="mt-1 text-sm text-gray-500 dark:text-muted">
+                <p className="text-sm text-gray-500 dark:text-muted">
                   {quiz.description}
                 </p>
               ) : null}
@@ -236,9 +282,15 @@ export function QuizPreviewContent({
             </div>
           ) : null}
         </div>
+        ) : (
+          <div className="mt-3">
+            <EmptyContentMessage message={t("preview.quizEmpty")} />
+          </div>
+        )}
       </div>
 
-      <div id="quiz-questions" className="scroll-mt-6">
+      {quiz ? (
+        <div id="quiz-questions" className="scroll-mt-6">
         <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h4 className="text-sm font-bold text-gray-950 dark:text-text">
@@ -306,13 +358,23 @@ export function QuizPreviewContent({
           <EmptyContentMessage message={t("preview.quizQuestionsEmpty")} />
         )}
       </div>
+      ) : null}
     </div>
+
+      <QuizConfigDialog
+        open={quizConfigDialogOpen}
+        quiz={quiz}
+        lectureTitle={lectureTitle}
+        isSaving={quizSaving}
+        onOpenChange={setQuizConfigDialogOpen}
+        onSubmit={handleQuizConfigSubmit}
+      />
 
       <QuizQuestionDialog
         open={questionDialogOpen}
         question={editingQuestion}
         fallbackOrder={nextQuestionOrder}
-        quizTitle={quiz?.title ?? t("quiz.title")}
+        quizTitle={lectureTitle}
         isSaving={questionSaving}
         onOpenChange={setQuestionDialogOpen}
         onSubmit={handleQuestionSubmit}

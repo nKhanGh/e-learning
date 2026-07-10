@@ -193,6 +193,7 @@ const InstructorLecturePreviewPage = () => {
               <LecturePreviewContent
                 courseId={courseId}
                 sectionId={section?.id}
+                lectureTitle={displayLecture.title}
                 lecture={lecture}
                 contentType={contentType}
                 quiz={quiz}

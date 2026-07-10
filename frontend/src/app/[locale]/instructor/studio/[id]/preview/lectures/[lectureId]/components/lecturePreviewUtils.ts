@@ -49,4 +49,5 @@ export const isExternalUrl = (value?: string | null) =>
 
 export const isFullQuizResponse = (
   quiz: QuizResponse | CourseCurriculumQuiz | null,
-): quiz is QuizResponse => Boolean(quiz && "questions" in quiz);
+): quiz is QuizResponse =>
+  Boolean(quiz && "questions" in quiz && Array.isArray(quiz.questions));

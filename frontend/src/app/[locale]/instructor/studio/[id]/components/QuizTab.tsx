@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  useLecturesBySectionQuery,
   useQuizByLectureQuery,
   useQuizQuestionsQuery,
 } from "@/hooks/queries/useCourseQueries";
@@ -32,7 +33,7 @@ type QuizTabProps = {
 
 type QuizOverviewCardProps = {
   courseId: string;
-  lecture: CourseCurriculumLecture;
+  lecture: CourseCurriculumLecture | LectureResponse;
 };
 
 export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
@@ -41,12 +42,14 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
   const selectedSection = sections.find(
     (section) => section.id === selectedSectionId,
   );
+  const lecturesQuery = useLecturesBySectionQuery(selectedSectionId);
+  const lectures = lecturesQuery.data ?? selectedSection?.lectures ?? [];
   const quizLectures = useMemo(
     () =>
-      (selectedSection?.lectures ?? []).filter(
+      lectures.filter(
         (lecture) => lecture.contentType === "QUIZ",
       ),
-    [selectedSection?.lectures],
+    [lectures],
   );
 
   useEffect(() => {
@@ -107,7 +110,16 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
         </div>
       </div>
 
-      {quizLectures.length ? (
+      {lecturesQuery.isLoading ? (
+        <div className="space-y-3">
+          {[1, 2].map((item) => (
+            <div
+              key={item}
+              className="h-32 animate-pulse rounded-lg bg-gray-100 dark:bg-border"
+            />
+          ))}
+        </div>
+      ) : quizLectures.length ? (
         <div className="space-y-3">
           {quizLectures.map((lecture) => (
             <QuizOverviewCard
@@ -179,13 +191,17 @@ const QuizOverviewCard = ({ courseId, lecture }: QuizOverviewCardProps) => {
           </div>
 
           <h4 className="mt-3 text-base font-bold text-gray-950 dark:text-text">
-            {quiz?.title ?? t("quiz.status.noConfigTitle")}
+            {lecture.title}
           </h4>
-          {quiz?.description ? (
+          {quiz ? (
             <p className="mt-1 text-xs text-gray-500 dark:text-muted">
-              {quiz.description}
+              {quiz.description || t("quiz.status.configured")}
             </p>
-          ) : null}
+          ) : (
+            <p className="mt-1 text-xs text-gray-500 dark:text-muted">
+              {t("quiz.status.noConfigTitle")}
+            </p>
+          )}
 
           {quizQuery.isLoading ? (
             <div className="mt-3 h-16 animate-pulse rounded-lg bg-gray-100 dark:bg-border" />
@@ -198,7 +214,7 @@ const QuizOverviewCard = ({ courseId, lecture }: QuizOverviewCardProps) => {
               </QuizMeta>
               <QuizMeta label={t("quiz.meta.timeLimit")}>
                 {quiz?.timeLimitMinutes
-                  ? `${quiz.timeLimitMinutes}m`
+                  ? t("preview.minutes", { count: quiz.timeLimitMinutes })
                   : t("quiz.unlimited")}
               </QuizMeta>
               <QuizMeta label={t("quiz.meta.published")}>

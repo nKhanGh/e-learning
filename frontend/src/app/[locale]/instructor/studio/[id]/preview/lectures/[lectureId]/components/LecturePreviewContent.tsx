@@ -9,6 +9,7 @@ import { isExternalUrl } from "./lecturePreviewUtils";
 type LecturePreviewContentProps = {
   courseId: string;
   sectionId?: string;
+  lectureTitle?: string;
   lecture?: LectureResponse;
   contentType: LectureContentType;
   quiz: QuizResponse | CourseCurriculumQuiz | null;
@@ -18,6 +19,7 @@ type LecturePreviewContentProps = {
 export function LecturePreviewContent({
   courseId,
   sectionId,
+  lectureTitle,
   lecture,
   contentType,
   quiz,
@@ -110,6 +112,7 @@ export function LecturePreviewContent({
       courseId={courseId}
       sectionId={sectionId}
       lectureId={lecture?.id ?? ""}
+      lectureTitle={lectureTitle ?? lecture?.title ?? ""}
       fallbackQuiz={quiz}
     />
   );
