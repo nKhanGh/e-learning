@@ -12,6 +12,14 @@ import java.util.UUID;
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, UUID> {
     List<Lecture> findBySectionId(UUID courseId);
+    List<Lecture> findBySectionIdOrderByDisplayOrderAsc(UUID courseId);
+    List<Lecture> findBySectionCourseId(UUID courseId);
+    @Query("""
+        select l from Lecture l
+        where l.section.course.id = :courseId
+        order by l.section.displayOrder asc, l.displayOrder asc
+    """)
+    List<Lecture> findByCourseIdOrderBySectionAndDisplayOrder(@Param("courseId") UUID courseId);
     List<Lecture> findBySectionIdAndIsPublishedTrue(UUID courseId);
     List<Lecture> findBySectionIdAndIsPublishedTrueOrderByDisplayOrderAsc(UUID courseId);
 

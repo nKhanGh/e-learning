@@ -8,10 +8,15 @@ import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseTagRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.entity.course.CourseCategory;
+import com.khangdev.elearningbe.entity.course.CourseSection;
+import com.khangdev.elearningbe.entity.course.Lecture;
+import com.khangdev.elearningbe.entity.course.Quiz;
 import com.khangdev.elearningbe.entity.course.CourseTag;
+import com.khangdev.elearningbe.enums.ContentType;
 import com.khangdev.elearningbe.entity.user.Instructor;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.CourseStatus;
@@ -22,7 +27,9 @@ import com.khangdev.elearningbe.mapper.CourseMapper;
 import com.khangdev.elearningbe.mapper.UserMapper;
 import com.khangdev.elearningbe.repository.CourseCategoryRepository;
 import com.khangdev.elearningbe.repository.CourseRepository;
+import com.khangdev.elearningbe.repository.CourseSectionRepository;
 import com.khangdev.elearningbe.repository.CourseTagRepository;
+import com.khangdev.elearningbe.repository.LectureRepository;
 import com.khangdev.elearningbe.repository.UserRepository;
 import com.khangdev.elearningbe.service.course.CourseService;
 import com.khangdev.elearningbe.service.course.CourseTagService;
@@ -42,8 +49,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +66,8 @@ import java.util.concurrent.TimeUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseServiceImpl implements CourseService {
     CourseRepository courseRepository;
+    CourseSectionRepository courseSectionRepository;
+    LectureRepository lectureRepository;
     CourseMapper courseMapper;
     UserRepository userRepository;
     CourseCategoryRepository courseCategoryRepository;
@@ -67,6 +79,10 @@ public class CourseServiceImpl implements CourseService {
     RedisService redisService;
 
     KafkaTemplate<String, String> kafkaTemplate;
+
+    private static final String PASSED = "PASSED";
+    private static final String FAILED = "FAILED";
+    private static final String WARNING = "WARNING";
 
 
     @Override
@@ -318,5 +334,291 @@ public class CourseServiceImpl implements CourseService {
                 .totalElements(coursePage.getTotalElements())
                 .statusCounts(statusCounts)
                 .build();
+    }
+
+    @Override
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
+    @Transactional(readOnly = true)
+    public CoursePublishChecklistResponse getPublishChecklist(UUID courseId) {
+        Course course = getAuthorizedCourse(courseId);
+        List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
+        List<Lecture> lectures = lectureRepository.findByCourseIdOrderBySectionAndDisplayOrder(courseId);
+        List<CoursePublishChecklistResponse.Group> groups = new ArrayList<>();
+
+        groups.add(buildCourseInfoGroup(course));
+        groups.add(buildCurriculumGroup(course, sections, lectures));
+        groups.add(buildQuizGroup(course, lectures));
+        groups.add(buildPricingGroup(course));
+
+        boolean ready = groups.stream()
+                .flatMap(group -> group.getItems().stream())
+                .noneMatch(item -> FAILED.equals(item.getStatus()));
+
+        return CoursePublishChecklistResponse.builder()
+                .courseId(courseId)
+                .ready(ready)
+                .groups(groups)
+                .build();
+    }
+
+    @Override
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
+    @Transactional
+    public CourseResponse submitForReview(UUID courseId) {
+        Course course = getAuthorizedCourse(courseId);
+        CoursePublishChecklistResponse checklist = getPublishChecklist(courseId);
+
+        if (course.getStatus() == CourseStatus.PENDING_REVIEW) {
+            throw new AppException(ErrorCode.COURSE_ALREADY_SUBMITTED);
+        }
+
+        if (course.getStatus() == CourseStatus.PUBLISHED) {
+            throw new AppException(ErrorCode.COURSE_ALREADY_PUBLISHED);
+        }
+
+        if (!Boolean.TRUE.equals(checklist.getReady())) {
+            throw new AppException(ErrorCode.COURSE_NOT_FULLY_COMPLETED);
+        }
+
+        course.setStatus(CourseStatus.PENDING_REVIEW);
+        course.setLastUpdatedContent(Instant.now());
+
+        return courseMapper.toResponse(course);
+    }
+
+    private Course getAuthorizedCourse(UUID courseId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        if (user.getRole() != UserRole.ADMIN && !user.getId().equals(course.getInstructor().getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        return course;
+    }
+
+    private CoursePublishChecklistResponse.Group buildCourseInfoGroup(Course course) {
+        List<CoursePublishChecklistResponse.Item> items = new ArrayList<>();
+
+        addRequiredCourseItem(items, course, "COURSE_TITLE", course.getTitle(), "Course title is required.");
+        addRequiredCourseItem(items, course, "COURSE_DESCRIPTION", course.getDescription(), "Course description is required.");
+
+        if (course.getCategory() == null) {
+            items.add(checklistItem("COURSE_CATEGORY", FAILED, "Course category is required.", "COURSE_BASIC_INFO", course.getId()));
+        }
+
+        if (course.getLevel() == null) {
+            items.add(checklistItem("COURSE_LEVEL", FAILED, "Course level is required.", "COURSE_BASIC_INFO", course.getId()));
+        }
+
+        addRequiredCourseItem(items, course, "COURSE_LANGUAGE", course.getLanguage(), "Course language is required.");
+        addRequiredCourseItem(items, course, "COURSE_THUMBNAIL", course.getThumbnailUrl(), "Course thumbnail is required.");
+
+        if (items.isEmpty()) {
+            items.add(checklistItem("COURSE_INFO_COMPLETE", PASSED, "Course information is complete.", "COURSE_BASIC_INFO", course.getId()));
+        }
+
+        return checklistGroup("COURSE_INFO", "Course information", items);
+    }
+
+    private CoursePublishChecklistResponse.Group buildCurriculumGroup(
+            Course course,
+            List<CourseSection> sections,
+            List<Lecture> lectures
+    ) {
+        List<CoursePublishChecklistResponse.Item> items = new ArrayList<>();
+
+        if (sections.isEmpty()) {
+            items.add(checklistItem("NO_SECTIONS", FAILED, "Add at least one section.", "SECTIONS", course.getId()));
+        }
+
+        if (lectures.isEmpty()) {
+            items.add(checklistItem("NO_LECTURES", FAILED, "Add at least one lecture.", "LECTURES", course.getId()));
+        }
+
+        sections.stream()
+                .filter(section -> lectures.stream().noneMatch(lecture -> lecture.getSection().getId().equals(section.getId())))
+                .forEach(section -> items.add(checklistItem(
+                        "EMPTY_SECTION",
+                        FAILED,
+                        "Section \"" + section.getTitle() + "\" needs at least one lecture.",
+                        "SECTION",
+                        section.getId()
+                )));
+
+        lectures.forEach(lecture -> addLectureReadinessItems(items, lecture));
+
+        if (items.isEmpty()) {
+            items.add(checklistItem("CURRICULUM_COMPLETE", PASSED, "Curriculum is ready.", "LECTURES", course.getId()));
+        }
+
+        return checklistGroup("CURRICULUM", "Curriculum", items);
+    }
+
+    private CoursePublishChecklistResponse.Group buildQuizGroup(Course course, List<Lecture> lectures) {
+        List<CoursePublishChecklistResponse.Item> items = new ArrayList<>();
+        List<Lecture> quizLectures = lectures.stream()
+                .filter(lecture -> lecture.getContentType() == ContentType.QUIZ)
+                .toList();
+
+        quizLectures.forEach(lecture -> {
+            Quiz quiz = lecture.getQuiz();
+            if (quiz == null) {
+                items.add(checklistItem(
+                        "QUIZ_CONFIG_MISSING",
+                        FAILED,
+                        "Quiz lecture \"" + lecture.getTitle() + "\" needs quiz configuration.",
+                        "LECTURE_PREVIEW",
+                        lecture.getId()
+                ));
+                return;
+            }
+
+            int questionCount = quiz.getQuestions() == null ? 0 : quiz.getQuestions().size();
+            if (questionCount == 0) {
+                items.add(checklistItem(
+                        "QUIZ_QUESTIONS_MISSING",
+                        FAILED,
+                        "Quiz \"" + lecture.getTitle() + "\" needs at least one question.",
+                        "LECTURE_PREVIEW",
+                        lecture.getId()
+                ));
+            }
+
+            if (!Boolean.TRUE.equals(quiz.getIsPublished())) {
+                items.add(checklistItem(
+                        "QUIZ_UNPUBLISHED",
+                        WARNING,
+                        "Quiz \"" + lecture.getTitle() + "\" is currently unpublished.",
+                        "LECTURE_PREVIEW",
+                        lecture.getId()
+                ));
+            }
+        });
+
+        if (items.isEmpty()) {
+            items.add(checklistItem("QUIZ_READY", PASSED, "Quiz content is ready.", "QUIZ", course.getId()));
+        }
+
+        return checklistGroup("QUIZ", "Quiz readiness", items);
+    }
+
+    private CoursePublishChecklistResponse.Group buildPricingGroup(Course course) {
+        List<CoursePublishChecklistResponse.Item> items = new ArrayList<>();
+        BigDecimal price = course.getPrice() == null ? BigDecimal.ZERO : course.getPrice();
+
+        if (Boolean.TRUE.equals(course.getIsFree()) && price.compareTo(BigDecimal.ZERO) != 0) {
+            items.add(checklistItem("FREE_PRICE_NOT_ZERO", FAILED, "Free courses must have price set to 0.", "COURSE_BASIC_INFO", course.getId()));
+        } else if (!Boolean.TRUE.equals(course.getIsFree()) && price.compareTo(BigDecimal.ZERO) <= 0) {
+            items.add(checklistItem("PAID_PRICE_MISSING", FAILED, "Paid courses need a price greater than 0.", "COURSE_BASIC_INFO", course.getId()));
+        } else {
+            items.add(checklistItem("PRICING_READY", PASSED, "Pricing is ready.", "COURSE_BASIC_INFO", course.getId()));
+        }
+
+        return checklistGroup("PRICING", "Pricing", items);
+    }
+
+    private void addLectureReadinessItems(List<CoursePublishChecklistResponse.Item> items, Lecture lecture) {
+        if (isBlank(lecture.getTitle())) {
+            items.add(checklistItem("LECTURE_TITLE_MISSING", FAILED, "A lecture title is required.", "LECTURE", lecture.getId()));
+        }
+
+        if (!Boolean.TRUE.equals(lecture.getIsPublished())) {
+            items.add(checklistItem(
+                    "LECTURE_UNPUBLISHED",
+                    WARNING,
+                    "Lecture \"" + lecture.getTitle() + "\" is currently unpublished.",
+                    "LECTURE",
+                    lecture.getId()
+            ));
+        }
+
+        if (lecture.getContentType() == ContentType.ARTICLE && isBlank(lecture.getTextContent())) {
+            items.add(checklistItem(
+                    "ARTICLE_CONTENT_MISSING",
+                    FAILED,
+                    "Article lecture \"" + lecture.getTitle() + "\" needs content.",
+                    "LECTURE_PREVIEW",
+                    lecture.getId()
+            ));
+        }
+
+        if (lecture.getContentType() == ContentType.VIDEO && isBlank(lecture.getVideoFileName())) {
+            items.add(checklistItem(
+                    "VIDEO_CONTENT_MISSING",
+                    FAILED,
+                    "Video lecture \"" + lecture.getTitle() + "\" needs a video file or URL.",
+                    "LECTURE_PREVIEW",
+                    lecture.getId()
+            ));
+        }
+
+        if (lecture.getContentType() == ContentType.FILE
+                && (lecture.getAttachments() == null || lecture.getAttachments().isEmpty())) {
+            items.add(checklistItem(
+                    "FILE_CONTENT_MISSING",
+                    FAILED,
+                    "File lecture \"" + lecture.getTitle() + "\" needs at least one attachment.",
+                    "LECTURE_PREVIEW",
+                    lecture.getId()
+            ));
+        }
+
+        if (lecture.getContentType() == ContentType.EXTERNAL_LINK && isBlank(lecture.getExternalUrl())) {
+            items.add(checklistItem(
+                    "EXTERNAL_LINK_MISSING",
+                    FAILED,
+                    "External link lecture \"" + lecture.getTitle() + "\" needs a URL.",
+                    "LECTURE_PREVIEW",
+                    lecture.getId()
+            ));
+        }
+    }
+
+    private void addRequiredCourseItem(
+            List<CoursePublishChecklistResponse.Item> items,
+            Course course,
+            String key,
+            String value,
+            String message
+    ) {
+        if (isBlank(value)) {
+            items.add(checklistItem(key, FAILED, message, "COURSE_BASIC_INFO", course.getId()));
+        }
+    }
+
+    private CoursePublishChecklistResponse.Group checklistGroup(
+            String key,
+            String label,
+            List<CoursePublishChecklistResponse.Item> items
+    ) {
+        return CoursePublishChecklistResponse.Group.builder()
+                .key(key)
+                .label(label)
+                .items(items)
+                .build();
+    }
+
+    private CoursePublishChecklistResponse.Item checklistItem(
+            String key,
+            String status,
+            String message,
+            String targetType,
+            UUID targetId
+    ) {
+        return CoursePublishChecklistResponse.Item.builder()
+                .key(key)
+                .status(status)
+                .message(message)
+                .targetType(targetType)
+                .targetId(targetId)
+                .build();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

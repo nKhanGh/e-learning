@@ -8,6 +8,7 @@ import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.CourseCurriculumResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseEnrollmentStatusResponse;
+import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSearchResponse;
 import com.khangdev.elearningbe.enums.CourseStatus;
@@ -116,6 +117,21 @@ public class CourseController {
     ApiResponse<CourseEnrollmentStatusResponse> getEnrollmentStatus(@PathVariable UUID courseId){
         return ApiResponse.<CourseEnrollmentStatusResponse>builder()
                 .result(courseLearningService.getEnrollmentStatus(courseId))
+                .build();
+    }
+
+    @GetMapping("/{courseId}/publish-checklist")
+    ApiResponse<CoursePublishChecklistResponse> getPublishChecklist(@PathVariable UUID courseId){
+        return ApiResponse.<CoursePublishChecklistResponse>builder()
+                .result(courseService.getPublishChecklist(courseId))
+                .build();
+    }
+
+    @PostMapping("/{courseId}/submit-review")
+    ApiResponse<CourseResponse> submitForReview(@PathVariable UUID courseId){
+        return ApiResponse.<CourseResponse>builder()
+                .result(courseService.submitForReview(courseId))
+                .message("Course submitted for review successfully")
                 .build();
     }
 
