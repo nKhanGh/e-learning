@@ -399,6 +399,35 @@ interface CourseEnrollmentStatusResponse {
   completedLectureIds: string[];
 }
 
+type CoursePublishChecklistStatus = "PASSED" | "FAILED" | "WARNING";
+
+interface CoursePublishChecklistItem {
+  key: string;
+  status: CoursePublishChecklistStatus;
+  message: string;
+  targetType:
+    | "COURSE_BASIC_INFO"
+    | "SECTIONS"
+    | "SECTION"
+    | "LECTURES"
+    | "LECTURE"
+    | "LECTURE_PREVIEW"
+    | "QUIZ";
+  targetId: string;
+}
+
+interface CoursePublishChecklistGroup {
+  key: string;
+  label: string;
+  items: CoursePublishChecklistItem[];
+}
+
+interface CoursePublishChecklistResponse {
+  courseId: string;
+  ready: boolean;
+  groups: CoursePublishChecklistGroup[];
+}
+
 interface CourseUpdateRequest {
   categoryId: string;
   title: string;

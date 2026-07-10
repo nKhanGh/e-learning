@@ -30,6 +30,14 @@ export const courseService = {
     apiClient.get<ApiResponse<CourseSectionResponse[]>>(
       `/course-sections/course/${courseId}`,
     ),
+  getPublishChecklist: (courseId: string) =>
+    apiClient.get<ApiResponse<CoursePublishChecklistResponse>>(
+      `/courses/${courseId}/publish-checklist`,
+    ),
+  submitForReview: (courseId: string) =>
+    apiClient.post<ApiResponse<CourseResponse>>(
+      `/courses/${courseId}/submit-review`,
+    ),
   createCourseSection: (request: CourseSectionRequest) =>
     apiClient.post<ApiResponse<CourseSectionResponse>>(
       "/course-sections",

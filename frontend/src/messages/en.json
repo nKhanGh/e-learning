@@ -255,6 +255,8 @@
     "back": "Back to My Courses",
     "quickEdit": "Quick edit",
     "submitReview": "Submit for review",
+    "submittedForReview": "Submitted for review",
+    "publishedStatus": "Published",
     "auth": {
       "signInTitle": "Sign in required",
       "signInSubtitle": "Please sign in as an instructor to open Course Studio.",
@@ -671,11 +673,24 @@
       "loadFailedSubtitle": "Please choose another lecture or try again."
     },
     "checklist": {
-      "basicInfo": "Basic information is complete",
-      "thumbnail": "Thumbnail is added",
-      "sections": "At least one section exists",
-      "lectures": "At least one lecture exists",
-      "pricing": "Pricing is configured"
+      "readyTitle": "Ready for review",
+      "readySubtitle": "This course passes the publish checks and can be sent to review.",
+      "notReadyTitle": "Course is not ready yet",
+      "notReadySubtitle": "{count} required items still need attention before review.",
+      "submittedTitle": "Course submitted for review",
+      "submittedSubtitle": "This course is waiting for admin review. You cannot submit it again unless it is rejected or moved back to draft.",
+      "publishedTitle": "Course is published",
+      "publishedSubtitle": "This course is already published, so review submission is locked.",
+      "errorTitle": "Could not load publish checklist",
+      "errorSubtitle": "Please try again in a moment.",
+      "fix": "Fix",
+      "submitted": "Course submitted for review.",
+      "submitFailed": "Could not submit this course for review.",
+      "status": {
+        "passed": "Passed",
+        "warning": "Warning",
+        "failed": "Required"
+      }
     },
     "actions": {
       "manage": "Manage"

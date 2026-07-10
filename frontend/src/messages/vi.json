@@ -255,6 +255,8 @@
     "back": "Quay lại khóa học của tôi",
     "quickEdit": "Sửa nhanh",
     "submitReview": "Gửi duyệt",
+    "submittedForReview": "Đã gửi duyệt",
+    "publishedStatus": "Đã xuất bản",
     "auth": {
       "signInTitle": "Cần đăng nhập",
       "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản giảng viên để mở Course Studio.",
@@ -671,11 +673,24 @@
       "loadFailedSubtitle": "Vui lòng chọn lecture khác hoặc thử lại."
     },
     "checklist": {
-      "basicInfo": "Thông tin cơ bản đã hoàn tất",
-      "thumbnail": "Đã thêm ảnh bìa",
-      "sections": "Có ít nhất một section",
-      "lectures": "Có ít nhất một bài giảng",
-      "pricing": "Đã cấu hình giá"
+      "readyTitle": "Đã sẵn sàng gửi duyệt",
+      "readySubtitle": "Khóa học đã đạt các điều kiện xuất bản và có thể gửi duyệt.",
+      "notReadyTitle": "Khóa học chưa sẵn sàng",
+      "notReadySubtitle": "Còn {count} mục bắt buộc cần xử lý trước khi gửi duyệt.",
+      "submittedTitle": "Khóa học đã được gửi duyệt",
+      "submittedSubtitle": "Khóa học đang chờ admin duyệt. Bạn không thể gửi lại trừ khi khóa học bị từ chối hoặc được chuyển về bản nháp.",
+      "publishedTitle": "Khóa học đã được xuất bản",
+      "publishedSubtitle": "Khóa học đã public nên không thể gửi duyệt lại.",
+      "errorTitle": "Không tải được checklist xuất bản",
+      "errorSubtitle": "Vui lòng thử lại sau.",
+      "fix": "Sửa",
+      "submitted": "Đã gửi khóa học để duyệt.",
+      "submitFailed": "Không thể gửi khóa học để duyệt.",
+      "status": {
+        "passed": "Đạt",
+        "warning": "Cảnh báo",
+        "failed": "Bắt buộc"
+      }
     },
     "actions": {
       "manage": "Quản lý"

@@ -17,6 +17,8 @@ export const queryKeys = {
       status: CourseStatus | undefined,
     ) => ["courses", "my", page, size, keyword, status] as const,
     curriculum: (courseId: string) => ["courses", "curriculum", courseId] as const,
+    publishChecklist: (courseId: string) =>
+      ["courses", "publish-checklist", courseId] as const,
     enrollmentStatus: (courseId: string) =>
       ["courses", "enrollment-status", courseId] as const,
     featured: (size: number) => ["courses", "featured", size] as const,

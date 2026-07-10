@@ -20,7 +20,6 @@ import {
   Users,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -71,6 +70,24 @@ const formatPrice = (course: CourseResponse, locale: string, freeLabel: string) 
     currency: course.currency || "USD",
     maximumFractionDigits: 0,
   }).format(course.price ?? 0);
+};
+
+const DEFAULT_COURSE_THUMBNAIL = "/default-course-background.png";
+
+const getCourseThumbnailSrc = (thumbnailUrl: string | null | undefined) => {
+  if (!thumbnailUrl) return DEFAULT_COURSE_THUMBNAIL;
+
+  try {
+    const url = new URL(thumbnailUrl);
+
+    if (url.hostname === "www.google.com" && url.pathname.includes("/imgres")) {
+      return url.searchParams.get("imgurl") || DEFAULT_COURSE_THUMBNAIL;
+    }
+
+    return thumbnailUrl;
+  } catch {
+    return DEFAULT_COURSE_THUMBNAIL;
+  }
 };
 
 const MyCoursesPage = () => {
@@ -278,12 +295,13 @@ const MyCoursesPage = () => {
                   className="flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-border dark:bg-bg md:flex-row"
                 >
                   <div className="relative h-40 bg-gray-100 dark:bg-border md:h-auto md:w-48 md:shrink-0">
-                    <Image
-                      src={course.thumbnailUrl || "/default-course-background.png"}
+                    <img
+                      src={getCourseThumbnailSrc(course.thumbnailUrl)}
                       alt={course.title}
-                      fill
-                      className="object-cover"
-                      sizes="192px"
+                      className="h-full w-full object-cover"
+                      onError={(event) => {
+                        event.currentTarget.src = DEFAULT_COURSE_THUMBNAIL;
+                      }}
                     />
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col p-3">

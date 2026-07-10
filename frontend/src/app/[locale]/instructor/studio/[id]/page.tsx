@@ -5,8 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   useCourseCurriculumQuery,
+  useCoursePublishChecklistQuery,
   useCourseQuery,
   useCourseSectionsQuery,
+  useSubmitCourseForReviewMutation,
 } from "@/hooks/queries/useCourseQueries";
 import { UserRole } from "@/types/enums/UserRole.enum";
 import {
@@ -22,16 +24,14 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
+import { toast } from "sonner";
 import { ChecklistTab } from "./components/ChecklistTab";
 import { LecturesTab } from "./components/LecturesTab";
 import { QuizTab } from "./components/QuizTab";
 import { ResourcesTab } from "./components/ResourcesTab";
 import { SectionsTab } from "./components/SectionsTab";
-import {
-  checklistItems,
-  type StudioChecklist,
-  type StudioSection,
-} from "./components/types";
+import { getErrorMessage } from "./components/studioUtils";
+import { type StudioSection } from "./components/types";
 
 const CourseStudioPage = () => {
   const locale = useLocale();
@@ -42,14 +42,17 @@ const CourseStudioPage = () => {
   const courseQuery = useCourseQuery(courseId);
   const curriculumQuery = useCourseCurriculumQuery(courseId);
   const courseSectionsQuery = useCourseSectionsQuery(courseId);
+  const publishChecklistQuery = useCoursePublishChecklistQuery(courseId);
+  const submitForReviewMutation = useSubmitCourseForReviewMutation(courseId);
   const course = courseQuery.data;
   const curriculum = curriculumQuery.data;
+  const publishChecklist = publishChecklistQuery.data;
   const curriculumSections = curriculum?.sections ?? [];
   const sections = useMemo<StudioSection[]>(() => {
     const sourceSections: Array<CourseSectionResponse | CourseCurriculumSection> =
       courseSectionsQuery.data ?? curriculumSections;
 
-    return sourceSections.map((section) => {
+    return sortByDisplayOrder(sourceSections).map((section) => {
       const curriculumSection = curriculumSections.find(
         (item) => item.id === section.id,
       );
@@ -57,9 +60,10 @@ const CourseStudioPage = () => {
       return {
         ...section,
         isPublished: section.isPublished ?? true,
-        lectures:
+        lectures: sortByDisplayOrder(
           curriculumSection?.lectures ??
-          ("lectures" in section ? section.lectures : []),
+            ("lectures" in section ? section.lectures : []),
+        ),
       };
     });
   }, [courseSectionsQuery.data, curriculumSections]);
@@ -67,14 +71,31 @@ const CourseStudioPage = () => {
     user?.role === UserRole.ADMIN ||
     (user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id);
 
-  const checklist: StudioChecklist = {
-    basicInfo: Boolean(course?.title && course.description && course.category?.id),
-    thumbnail: Boolean(course?.thumbnailUrl),
-    sections: (curriculum?.totalSections ?? course?.totalSections ?? 0) > 0,
-    lectures: (curriculum?.totalLectures ?? course?.totalLectures ?? 0) > 0,
-    pricing: Boolean(course?.isFree || Number(course?.price ?? 0) > 0),
+  const checklistItems =
+    publishChecklist?.groups.flatMap((group) => group.items) ?? [];
+  const completedChecklist = checklistItems.filter(
+    (item) => item.status === "PASSED",
+  ).length;
+  const totalChecklist = checklistItems.length;
+  const isReviewLocked =
+    course?.status === "PENDING_REVIEW" || course?.status === "PUBLISHED";
+  const submitReviewLabel =
+    course?.status === "PENDING_REVIEW"
+      ? t("submittedForReview")
+      : course?.status === "PUBLISHED"
+        ? t("publishedStatus")
+        : t("submitReview");
+
+  const handleSubmitForReview = async () => {
+    if (isReviewLocked) return;
+
+    try {
+      await submitForReviewMutation.mutateAsync();
+      toast.success(t("checklist.submitted"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("checklist.submitFailed")));
+    }
   };
-  const completedChecklist = Object.values(checklist).filter(Boolean).length;
 
   if (!isLoggedIn) {
     return (
@@ -157,9 +178,17 @@ const CourseStudioPage = () => {
                 {t("quickEdit")}
               </Link>
             </Button>
-            <Button className="!text-white">
+            <Button
+              className="!text-white"
+              disabled={
+                isReviewLocked ||
+                !publishChecklist?.ready ||
+                submitForReviewMutation.isPending
+              }
+              onClick={handleSubmitForReview}
+            >
               <ListChecks className="h-4 w-4" />
-              {t("submitReview")}
+              {submitReviewLabel}
             </Button>
           </div>
         </div>
@@ -175,7 +204,7 @@ const CourseStudioPage = () => {
             {curriculum?.totalDurationMinutes ?? course.durationMinutes ?? 0}m
           </StudioMetric>
           <StudioMetric label={t("metrics.checklist")}>
-            {completedChecklist}/{checklistItems.length}
+            {completedChecklist}/{totalChecklist}
           </StudioMetric>
         </div>
 
@@ -223,7 +252,15 @@ const CourseStudioPage = () => {
             <ResourcesTab courseId={courseId} sections={sections} />
           </TabsContent>
           <TabsContent value="checklist">
-            <ChecklistTab checklist={checklist} />
+            <ChecklistTab
+              courseId={courseId}
+              courseStatus={course.status}
+              checklist={publishChecklist}
+              isLoading={publishChecklistQuery.isLoading}
+              isSubmitting={submitForReviewMutation.isPending}
+              onRetry={() => publishChecklistQuery.refetch()}
+              onSubmit={handleSubmitForReview}
+            />
           </TabsContent>
         </Tabs>
       </div>
@@ -247,3 +284,10 @@ const StudioMetric = ({
 );
 
 export default CourseStudioPage;
+
+const sortByDisplayOrder = <T extends { displayOrder?: number | null }>(
+  items: T[],
+) =>
+  [...items].sort(
+    (first, second) => (first.displayOrder ?? 0) - (second.displayOrder ?? 0),
+  );

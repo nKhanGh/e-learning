@@ -2,7 +2,12 @@ import { defaultCourseSearchRequest } from "@/lib/courseSearch";
 import { queryKeys } from "@/lib/queryKeys";
 import { courseCategoryService } from "@/services/courseCategory.service";
 import { courseService } from "@/services/course.service";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -181,6 +186,9 @@ const invalidateCourseStructure = (
   queryClient.invalidateQueries({
     queryKey: queryKeys.courseSections.byCourse(courseId),
   });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.publishChecklist(courseId),
+  });
   queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
 };
 
@@ -203,6 +211,32 @@ export function useCourseSectionsQuery(courseId: string) {
       return response.data.result;
     },
     enabled: Boolean(courseId),
+  });
+}
+
+export function useCoursePublishChecklistQuery(courseId: string) {
+  return useQuery({
+    queryKey: queryKeys.courses.publishChecklist(courseId),
+    queryFn: async () => {
+      const response = await courseService.getPublishChecklist(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId),
+  });
+}
+
+export function useSubmitCourseForReviewMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.submitForReview(courseId);
+      return response.data.result;
+    },
+    onSuccess: (course) => {
+      queryClient.setQueryData(queryKeys.courses.detail(course.id), course);
+      invalidateCourseStructure(queryClient, course.id);
+    },
   });
 }
 
@@ -268,6 +302,19 @@ export function useLecturesBySectionQuery(sectionId: string) {
       return response.data.result;
     },
     enabled: Boolean(sectionId),
+  });
+}
+
+export function useLecturesBySectionsQuery(sectionIds: string[]) {
+  return useQueries({
+    queries: sectionIds.map((sectionId) => ({
+      queryKey: queryKeys.lectures.bySection(sectionId),
+      queryFn: async () => {
+        const response = await courseService.getLecturesBySection(sectionId);
+        return response.data.result;
+      },
+      enabled: Boolean(sectionId),
+    })),
   });
 }
 

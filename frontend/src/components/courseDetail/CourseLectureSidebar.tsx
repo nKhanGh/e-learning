@@ -60,14 +60,30 @@ export function CourseLectureSidebar({
   onCollapsedChange,
   className,
 }: CourseLectureSidebarProps) {
+  const displaySections = useMemo(
+    () =>
+      sortByDisplayOrder(sections).map((section) => ({
+        ...section,
+        lectures: sortByDisplayOrder(section.lectures),
+      })),
+    [sections],
+  );
+
   const activeSectionId = useMemo(() => {
-    return sections.find((section) =>
+    return displaySections.find((section) =>
       section.lectures.some((lecture) => lecture.id === activeLectureId),
     )?.id;
-  }, [activeLectureId, sections]);
+  }, [activeLectureId, displaySections]);
 
   const [openSectionIds, setOpenSectionIds] = useState<Set<string>>(
-    () => new Set(activeSectionId ? [activeSectionId] : sections[0]?.id ? [sections[0].id] : []),
+    () =>
+      new Set(
+        activeSectionId
+          ? [activeSectionId]
+          : displaySections[0]?.id
+            ? [displaySections[0].id]
+            : [],
+      ),
   );
 
   useEffect(() => {
@@ -147,8 +163,8 @@ export function CourseLectureSidebar({
       </div>
 
       <div className="flex-1 space-y-2 overflow-y-auto pr-1">
-        {sections.length ? (
-          sections.map((section) => {
+        {displaySections.length ? (
+          displaySections.map((section) => {
             const isOpen = openSectionIds.has(section.id);
             const hasActiveLecture = section.id === activeSectionId;
 
@@ -229,3 +245,10 @@ export function CourseLectureSidebar({
     </aside>
   );
 }
+
+const sortByDisplayOrder = <T extends { displayOrder?: number | null }>(
+  items: T[],
+) =>
+  [...items].sort(
+    (first, second) => (first.displayOrder ?? 0) - (second.displayOrder ?? 0),
+  );

@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   useCourseCurriculumQuery,
   useCourseQuery,
+  useCourseSectionsQuery,
+  useLecturesBySectionsQuery,
   useLectureQuery,
   useUpdateLectureMutation,
 } from "@/hooks/queries/useCourseQueries";
@@ -34,19 +36,54 @@ const InstructorLecturePreviewPage = () => {
   const { isLoggedIn, user } = useAuth();
   const courseQuery = useCourseQuery(courseId);
   const curriculumQuery = useCourseCurriculumQuery(courseId);
+  const courseSectionsQuery = useCourseSectionsQuery(courseId);
   const lectureQuery = useLectureQuery(lectureId);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const course = courseQuery.data;
   const curriculum = curriculumQuery.data;
+  const courseSections = courseSectionsQuery.data ?? [];
+  const sectionIds = useMemo(
+    () => sortByDisplayOrder(courseSections).map((section) => section.id),
+    [courseSections],
+  );
+  const sectionLecturesQueries = useLecturesBySectionsQuery(sectionIds);
+
+  const sidebarSections = useMemo<CourseCurriculumSection[]>(() => {
+    const curriculumSections = curriculum?.sections ?? [];
+    const sourceSections: Array<CourseSectionResponse | CourseCurriculumSection> =
+      courseSections.length ? courseSections : curriculumSections;
+
+    return sortByDisplayOrder(sourceSections).map((section) => {
+      const curriculumSection = curriculumSections.find(
+        (item) => item.id === section.id,
+      );
+      const lectureQueryIndex = sectionIds.indexOf(section.id);
+      const sectionLectures = sectionLecturesQueries[lectureQueryIndex]?.data;
+
+      return {
+        id: section.id,
+        title: section.title,
+        description: section.description,
+        displayOrder: section.displayOrder,
+        durationMinutes: section.durationMinutes,
+        isPublished: section.isPublished ?? curriculumSection?.isPublished,
+        lectures: sortByDisplayOrder(
+          sectionLectures
+            ? sectionLectures.map(toCurriculumLecture)
+            : (curriculumSection?.lectures ?? []),
+        ),
+      };
+    });
+  }, [courseSections, curriculum?.sections, sectionIds, sectionLecturesQueries]);
 
   const flatLectures = useMemo<CurriculumLectureItem[]>(() => {
     return (
-      curriculum?.sections.flatMap((section) =>
+      sidebarSections.flatMap((section) =>
         section.lectures.map((lecture) => ({ section, lecture })),
       ) ?? []
     );
-  }, [curriculum?.sections]);
+  }, [sidebarSections]);
 
   const currentIndex = flatLectures.findIndex(
     (item) => item.lecture.id === lectureId,
@@ -79,7 +116,17 @@ const InstructorLecturePreviewPage = () => {
     );
   }
 
-  if (courseQuery.isLoading || curriculumQuery.isLoading || lectureQuery.isLoading) {
+  const sectionLecturesLoading = sectionLecturesQueries.some(
+    (query) => query.isLoading,
+  );
+
+  if (
+    courseQuery.isLoading ||
+    curriculumQuery.isLoading ||
+    courseSectionsQuery.isLoading ||
+    sectionLecturesLoading ||
+    lectureQuery.isLoading
+  ) {
     return (
       <div className="min-h-screen bg-gray-50 px-2 py-4 dark:bg-bg">
         <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[300px_1fr]">
@@ -90,7 +137,15 @@ const InstructorLecturePreviewPage = () => {
     );
   }
 
-  if (courseQuery.isError || curriculumQuery.isError || lectureQuery.isError) {
+  const sectionLecturesError = sectionLecturesQueries.some((query) => query.isError);
+
+  if (
+    courseQuery.isError ||
+    curriculumQuery.isError ||
+    courseSectionsQuery.isError ||
+    sectionLecturesError ||
+    lectureQuery.isError
+  ) {
     return (
       <PreviewState
         title={t("preview.errorTitle")}
@@ -102,6 +157,8 @@ const InstructorLecturePreviewPage = () => {
             onClick={() => {
               courseQuery.refetch();
               curriculumQuery.refetch();
+              courseSectionsQuery.refetch();
+              sectionLecturesQueries.forEach((query) => query.refetch());
               lectureQuery.refetch();
             }}
           >
@@ -239,9 +296,9 @@ const InstructorLecturePreviewPage = () => {
           </main>
 
           <CourseLectureSidebar
-            sections={curriculum?.sections ?? []}
+            sections={sidebarSections}
             activeLectureId={lectureId}
-            totalLectures={curriculum?.totalLectures ?? 0}
+            totalLectures={flatLectures.length}
             collapsed={sidebarCollapsed}
             labels={{
               title: t("preview.curriculum"),
@@ -282,5 +339,48 @@ const InstructorLecturePreviewPage = () => {
     </div>
   );
 };
+
+const toCurriculumLecture = (
+  lecture: LectureResponse,
+): CourseCurriculumLecture => ({
+  id: lecture.id,
+  title: lecture.title,
+  description: lecture.description,
+  contentType: lecture.contentType,
+  displayOrder: lecture.displayOrder,
+  durationMinutes: Math.max(
+    0,
+    Math.round((lecture.videoDurationSeconds ?? 0) / 60),
+  ),
+  videoDurationSeconds: lecture.videoDurationSeconds ?? null,
+  preview: lecture.isPreview,
+  downloadable: lecture.isDownloadable,
+  completed: false,
+  status: lecture.isPublished ? "AVAILABLE" : "LOCKED",
+  quiz: toCurriculumQuiz(lecture.quiz),
+});
+
+const toCurriculumQuiz = (
+  quiz: QuizResponse | CourseCurriculumQuiz | null,
+): CourseCurriculumQuiz | null => {
+  if (!quiz) return null;
+
+  return {
+    id: quiz.id,
+    title: quiz.title,
+    description: quiz.description,
+    timeLimitMinutes: quiz.timeLimitMinutes,
+    totalQuestions: quiz.totalQuestions,
+    completed: "completed" in quiz ? quiz.completed : false,
+    status: "status" in quiz ? quiz.status : "AVAILABLE",
+  };
+};
+
+const sortByDisplayOrder = <T extends { displayOrder?: number | null }>(
+  items: T[],
+) =>
+  [...items].sort(
+    (first, second) => (first.displayOrder ?? 0) - (second.displayOrder ?? 0),
+  );
 
 export default InstructorLecturePreviewPage;

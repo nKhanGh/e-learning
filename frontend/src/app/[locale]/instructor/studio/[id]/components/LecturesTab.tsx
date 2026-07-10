@@ -48,10 +48,10 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
   );
   const lecturesQuery = useLecturesBySectionQuery(selectedSectionId);
   const lectures = useMemo<LectureResponse[]>(() => {
-    if (lecturesQuery.data) return lecturesQuery.data;
+    if (lecturesQuery.data) return sortByDisplayOrder(lecturesQuery.data);
     if (!selectedSection) return [];
 
-    return selectedSection.lectures.map((lecture) => ({
+    return sortByDisplayOrder(selectedSection.lectures).map((lecture) => ({
       id: lecture.id,
       section: selectedSection,
       title: lecture.title,
@@ -341,3 +341,10 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
     </>
   );
 };
+
+const sortByDisplayOrder = <T extends { displayOrder?: number | null }>(
+  items: T[],
+) =>
+  [...items].sort(
+    (first, second) => (first.displayOrder ?? 0) - (second.displayOrder ?? 0),
+  );
