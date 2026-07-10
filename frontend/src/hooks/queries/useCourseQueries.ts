@@ -271,6 +271,17 @@ export function useLecturesBySectionQuery(sectionId: string) {
   });
 }
 
+export function useLectureQuery(lectureId: string) {
+  return useQuery({
+    queryKey: queryKeys.lectures.detail(lectureId),
+    queryFn: async () => {
+      const response = await courseService.getLecture(lectureId);
+      return response.data.result;
+    },
+    enabled: Boolean(lectureId),
+  });
+}
+
 const invalidateLectureStructure = (
   queryClient: ReturnType<typeof useQueryClient>,
   courseId: string,
