@@ -25,6 +25,9 @@ public class QuizServiceImpl implements QuizService {
     private final QuizMapper quizMapper;
     private final UserService userService;
     private final LectureRepository lectureRepository;
+    private final QuizAnswerRepository quizAnswerRepository;
+    private final QuizAttemptRepository quizAttemptRepository;
+    private final QuizQuestionRepository quizQuestionRepository;
 
     private void authorize(UUID courseUserId) {
         UUID userId = userService.getMyInfo().getId();
@@ -90,6 +93,16 @@ public class QuizServiceImpl implements QuizService {
     public void deleteById(UUID quizId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
+        Lecture lecture = quiz.getLecture();
+
+        if (lecture != null) {
+            lecture.setQuiz(null);
+        }
+
+        quizAnswerRepository.deleteByQuizId(quizId);
+        quizAttemptRepository.deleteByQuizId(quizId);
+        quizQuestionRepository.deleteByQuizId(quizId);
+        quiz.setLecture(null);
         quizRepository.delete(quiz);
     }
 

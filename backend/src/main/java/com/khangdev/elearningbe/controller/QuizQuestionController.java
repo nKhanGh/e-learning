@@ -1,8 +1,10 @@
 package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
+import com.khangdev.elearningbe.dto.request.course.QuizQuestionImportRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizQuestionUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.QuizQuestionImportResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
 import com.khangdev.elearningbe.service.course.QuizQuestionService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,13 @@ public class QuizQuestionController {
     ApiResponse<QuizQuestionResponse> createQuizQuestion(@RequestBody QuizQuestionRequest quizQuestionRequest){
         return ApiResponse.<QuizQuestionResponse>builder()
                 .result(quizQuestionService.createQuizQuestion(quizQuestionRequest))
+                .build();
+    }
+
+    @PostMapping("/import")
+    ApiResponse<QuizQuestionImportResponse> importQuizQuestions(@RequestBody QuizQuestionImportRequest request) {
+        return ApiResponse.<QuizQuestionImportResponse>builder()
+                .result(quizQuestionService.importQuizQuestions(request))
                 .build();
     }
 
