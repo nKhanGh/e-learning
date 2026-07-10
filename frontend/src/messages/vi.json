@@ -460,8 +460,8 @@
       "next": "Lecture tiếp theo"
     },
     "quiz": {
-      "title": "Quiz builder",
-      "subtitle": "Tạo quiz cho bài giảng hoặc section, sau đó thêm câu hỏi và quy tắc chấm điểm.",
+      "title": "Tổng quan quiz",
+      "subtitle": "Xem các lecture dạng quiz trong section này. Phần chỉnh sâu quiz nằm trong preview lecture.",
       "sectionLabel": "Section",
       "sectionPlaceholder": "Chọn section",
       "lectureLabel": "Lecture",
@@ -479,6 +479,8 @@
       "noSectionSubtitle": "Quiz được gắn với lecture, và lecture thuộc về section.",
       "noLectureTitle": "Tạo lecture trước",
       "noLectureSubtitle": "Quiz phải được gắn với một lecture có sẵn.",
+      "noQuizLecturesTitle": "Section này chưa có lecture dạng quiz",
+      "noQuizLecturesSubtitle": "Tạo lecture với loại QUIZ, sau đó quản lý quiz từ trang preview lecture.",
       "emptyTitle": "Lecture này chưa có quiz",
       "emptySubtitle": "Tạo quiz để thêm cấu hình đánh giá cho lecture đang chọn.",
       "published": "Đã publish",
@@ -497,6 +499,19 @@
       "afterSubmissionHint": "Hiển thị đáp án ngay sau khi nộp bài.",
       "publishedHint": "Quiz đã publish có thể hiển thị trong curriculum của học viên.",
       "questionsHint": "Dùng phần câu hỏi bên dưới để xây dựng nội dung quiz.",
+      "actions": {
+        "preview": "Preview",
+        "editQuiz": "Sửa quiz",
+        "manageQuestions": "Quản lý câu hỏi"
+      },
+      "status": {
+        "ready": "Sẵn sàng",
+        "needsWork": "Cần bổ sung",
+        "noConfigTitle": "Chưa có cấu hình quiz",
+        "missingConfig": "Thiếu cấu hình quiz",
+        "missingQuestions": "Chưa có câu hỏi",
+        "unpublished": "Chưa publish"
+      },
       "questions": {
         "title": "Câu hỏi",
         "subtitle": "Quản lý lựa chọn, đáp án đúng, điểm và thứ tự.",

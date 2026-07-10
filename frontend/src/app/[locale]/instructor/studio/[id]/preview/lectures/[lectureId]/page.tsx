@@ -191,6 +191,8 @@ const InstructorLecturePreviewPage = () => {
 
             <section className="rounded-lg border border-gray-200 bg-white p-4 dark:border-border dark:bg-surface">
               <LecturePreviewContent
+                courseId={courseId}
+                sectionId={section?.id}
                 lecture={lecture}
                 contentType={contentType}
                 quiz={quiz}

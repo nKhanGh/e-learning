@@ -7,6 +7,8 @@ import { ResourceList } from "./ResourceList";
 import { isExternalUrl } from "./lecturePreviewUtils";
 
 type LecturePreviewContentProps = {
+  courseId: string;
+  sectionId?: string;
   lecture?: LectureResponse;
   contentType: LectureContentType;
   quiz: QuizResponse | CourseCurriculumQuiz | null;
@@ -14,6 +16,8 @@ type LecturePreviewContentProps = {
 };
 
 export function LecturePreviewContent({
+  courseId,
+  sectionId,
   lecture,
   contentType,
   quiz,
@@ -102,6 +106,11 @@ export function LecturePreviewContent({
   }
 
   return (
-    <QuizPreviewContent lectureId={lecture?.id ?? ""} fallbackQuiz={quiz} />
+    <QuizPreviewContent
+      courseId={courseId}
+      sectionId={sectionId}
+      lectureId={lecture?.id ?? ""}
+      fallbackQuiz={quiz}
+    />
   );
 }

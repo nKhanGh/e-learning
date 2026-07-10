@@ -460,8 +460,8 @@
       "next": "Next lecture"
     },
     "quiz": {
-      "title": "Quiz builder",
-      "subtitle": "Create quizzes for lectures or sections, then attach questions and scoring rules.",
+      "title": "Quiz overview",
+      "subtitle": "Review quiz lectures in this section. Detailed quiz editing happens in the lecture preview.",
       "sectionLabel": "Section",
       "sectionPlaceholder": "Choose a section",
       "lectureLabel": "Lecture",
@@ -479,6 +479,8 @@
       "noSectionSubtitle": "Quizzes are attached to lectures, and lectures belong to sections.",
       "noLectureTitle": "Create a lecture first",
       "noLectureSubtitle": "A quiz must be attached to an existing lecture.",
+      "noQuizLecturesTitle": "No quiz lectures in this section",
+      "noQuizLecturesSubtitle": "Create a lecture with content type QUIZ, then manage its quiz from the lecture preview.",
       "emptyTitle": "No quiz for this lecture",
       "emptySubtitle": "Create a quiz to add assessment settings for the selected lecture.",
       "published": "Published",
@@ -497,6 +499,19 @@
       "afterSubmissionHint": "Show answers immediately after submission.",
       "publishedHint": "Published quizzes can appear in the student curriculum.",
       "questionsHint": "Use the questions panel below to build the quiz content.",
+      "actions": {
+        "preview": "Preview",
+        "editQuiz": "Edit quiz",
+        "manageQuestions": "Manage questions"
+      },
+      "status": {
+        "ready": "Ready",
+        "needsWork": "Needs work",
+        "noConfigTitle": "Quiz config is missing",
+        "missingConfig": "Missing quiz config",
+        "missingQuestions": "No questions",
+        "unpublished": "Unpublished"
+      },
       "questions": {
         "title": "Questions",
         "subtitle": "Manage options, correct answers, points, and ordering.",

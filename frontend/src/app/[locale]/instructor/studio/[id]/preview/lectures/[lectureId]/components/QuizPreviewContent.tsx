@@ -1,19 +1,36 @@
+import { Button } from "@/components/ui/button";
 import {
+  useCreateQuizQuestionMutation,
+  useDeleteQuizQuestionMutation,
+  useImportQuizQuestionsMutation,
   useQuizByLectureQuery,
   useQuizQuestionsQuery,
+  useUpdateQuizQuestionMutation,
 } from "@/hooks/queries/useCourseQueries";
 import { cn } from "@/lib/utils";
+import { FileJson, Pencil, Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { toast } from "sonner";
+import {
+  QuizQuestionImportDialog,
+  type QuizQuestionImportPayload,
+} from "../../../../components/QuizQuestionImportDialog";
+import { getErrorMessage } from "../../../../components/studioUtils";
 import { EmptyContentMessage } from "./EmptyContentMessage";
 import { isFullQuizResponse } from "./lecturePreviewUtils";
+import { QuizQuestionDialog } from "./QuizQuestionDialog";
 
 type QuizPreviewContentProps = {
+  courseId: string;
+  sectionId?: string;
   lectureId: string;
   fallbackQuiz: QuizResponse | CourseCurriculumQuiz | null;
 };
 
 export function QuizPreviewContent({
+  courseId,
+  sectionId,
   lectureId,
   fallbackQuiz,
 }: QuizPreviewContentProps) {
@@ -24,10 +41,100 @@ export function QuizPreviewContent({
   const questionsQuery = useQuizQuestionsQuery(quizId);
   const fallbackQuestions = isFullQuizResponse(quiz) ? quiz.questions : [];
   const questions = questionsQuery.data ?? fallbackQuestions;
+  const nextQuestionOrder =
+    Math.max(0, ...questions.map((question) => question.displayOrder ?? 0)) + 1;
+  const createQuestionMutation = useCreateQuizQuestionMutation(
+    courseId,
+    lectureId,
+    quizId,
+    sectionId,
+  );
+  const updateQuestionMutation = useUpdateQuizQuestionMutation(
+    courseId,
+    lectureId,
+    quizId,
+    sectionId,
+  );
+  const deleteQuestionMutation = useDeleteQuizQuestionMutation(
+    courseId,
+    lectureId,
+    quizId,
+    sectionId,
+  );
+  const importQuestionsMutation = useImportQuizQuestionsMutation(
+    courseId,
+    lectureId,
+    quizId,
+    sectionId,
+  );
+  const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] =
+    useState<QuizQuestionResponse | null>(null);
+  const questionSaving =
+    createQuestionMutation.isPending || updateQuestionMutation.isPending;
   const totalPoints = questions.reduce(
     (total, question) => total + Number(question.points ?? 0),
     0,
   );
+
+  const openCreateQuestionDialog = () => {
+    if (!quizId) {
+      toast.error(t("quiz.questions.selectQuizFirst"));
+      return;
+    }
+
+    setEditingQuestion(null);
+    setQuestionDialogOpen(true);
+  };
+
+  const openEditQuestionDialog = (question: QuizQuestionResponse) => {
+    setEditingQuestion(question);
+    setQuestionDialogOpen(true);
+  };
+
+  const handleQuestionSubmit = async (
+    payload: QuizQuestionUpdateRequest,
+    submittedQuestion: QuizQuestionResponse | null,
+  ) => {
+    if (!quizId) {
+      toast.error(t("quiz.questions.selectQuizFirst"));
+      return;
+    }
+
+    try {
+      if (submittedQuestion) {
+        await updateQuestionMutation.mutateAsync({
+          questionId: submittedQuestion.id,
+          request: payload,
+        });
+        toast.success(t("quiz.questions.updated"));
+      } else {
+        const { displayOrder: _displayOrder, ...createPayload } = payload;
+        await createQuestionMutation.mutateAsync(createPayload);
+        toast.success(t("quiz.questions.created"));
+      }
+
+      setQuestionDialogOpen(false);
+      setEditingQuestion(null);
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("quiz.questions.failed")));
+    }
+  };
+
+  const handleDeleteQuestion = async (question: QuizQuestionResponse) => {
+    if (!globalThis.confirm(t("quiz.questions.deleteConfirm"))) return;
+
+    try {
+      await deleteQuestionMutation.mutateAsync(question.id);
+      toast.success(t("quiz.questions.deleted"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("quiz.questions.deleteFailed")));
+    }
+  };
+
+  const handleImportQuestions = (payload: QuizQuestionImportPayload) =>
+    importQuestionsMutation.mutateAsync(payload);
 
   if (quizQuery.isLoading) {
     return (
@@ -43,8 +150,9 @@ export function QuizPreviewContent({
   }
 
   return (
-    <div className="space-y-4">
-      <div>
+    <>
+      <div className="space-y-4">
+      <div id="quiz-config" className="scroll-mt-6">
         <h3 className="text-sm font-bold text-gray-950 dark:text-text">
           {t("preview.quizTitle")}
         </h3>
@@ -128,16 +236,44 @@ export function QuizPreviewContent({
         </div>
       </div>
 
-      <div>
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h4 className="text-sm font-bold text-gray-950 dark:text-text">
-            {t("preview.quizQuestions")}
-          </h4>
+      <div id="quiz-questions" className="scroll-mt-6">
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h4 className="text-sm font-bold text-gray-950 dark:text-text">
+              {t("preview.quizQuestions")}
+            </h4>
+            <p className="mt-1 text-xs text-gray-500 dark:text-muted">
+              {t("quiz.questions.subtitle")}
+            </p>
+          </div>
           {questionsQuery.isFetching ? (
             <span className="text-xs text-gray-400">
               {t("preview.loadingQuestions")}
             </span>
           ) : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              className="text-white!"
+              onClick={openCreateQuestionDialog}
+            >
+              <Plus className="h-4 w-4" />
+              {t("quiz.questions.add")}
+            </Button>
+            <span className="text-xs text-gray-400">
+              {t("quiz.questions.or")}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setImportDialogOpen(true)}
+            >
+              <FileJson className="h-4 w-4" />
+              {t("quiz.questions.importJson")}
+            </Button>
+          </div>
         </div>
 
         {questionsQuery.isLoading ? (
@@ -155,7 +291,13 @@ export function QuizPreviewContent({
               .slice()
               .sort((first, second) => first.displayOrder - second.displayOrder)
               .map((question) => (
-                <QuizQuestionPreview key={question.id} question={question} />
+                <QuizQuestionPreview
+                  key={question.id}
+                  question={question}
+                  isDeleting={deleteQuestionMutation.isPending}
+                  onEdit={() => openEditQuestionDialog(question)}
+                  onDelete={() => handleDeleteQuestion(question)}
+                />
               ))}
           </div>
         ) : (
@@ -163,19 +305,43 @@ export function QuizPreviewContent({
         )}
       </div>
     </div>
+
+      <QuizQuestionDialog
+        open={questionDialogOpen}
+        question={editingQuestion}
+        fallbackOrder={nextQuestionOrder}
+        quizTitle={quiz?.title ?? t("quiz.title")}
+        isSaving={questionSaving}
+        onOpenChange={setQuestionDialogOpen}
+        onSubmit={handleQuestionSubmit}
+      />
+
+      <QuizQuestionImportDialog
+        open={importDialogOpen}
+        isImporting={importQuestionsMutation.isPending}
+        onOpenChange={setImportDialogOpen}
+        onImport={handleImportQuestions}
+      />
+    </>
   );
 }
 
 const QuizQuestionPreview = ({
   question,
+  isDeleting,
+  onEdit,
+  onDelete,
 }: {
   question: QuizQuestionResponse;
+  isDeleting: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
 }) => {
   const t = useTranslations("InstructorCourseStudioPage");
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-border dark:bg-surface">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-semibold text-primary">
             {t("quiz.questions.order", {
@@ -188,9 +354,26 @@ const QuizQuestionPreview = ({
             {question.questionText}
           </h5>
         </div>
-        <span className="w-fit rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
-          {(question.correctAnswers ?? []).length} {t("quiz.questions.correct")}
-        </span>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <span className="w-fit rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
+            {(question.correctAnswers ?? []).length} {t("quiz.questions.correct")}
+          </span>
+          <Button type="button" variant="outline" size="sm" onClick={onEdit}>
+            <Pencil className="h-3.5 w-3.5" />
+            {t("quiz.questions.edit")}
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            className="text-white!"
+            disabled={isDeleting}
+            onClick={onDelete}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            {t("quiz.questions.delete")}
+          </Button>
+        </div>
       </div>
 
       <div className="mt-3 grid gap-2">
