@@ -54,6 +54,18 @@ Quan ly lecture, lecture visibility, video/document content, progress, bookmark 
 3. Completion, bookmark va note duoc update qua endpoint progress.
 4. File/video protected duoc truy cap qua signed URL tu File module.
 
+## Instructor authoring
+
+Instructor dung Course Studio de tao/sua lecture metadata va dung Lecture Preview/Detail Studio de sua sau noi dung:
+
+- `ARTICLE`: noi dung markdown trong `textContent`.
+- `VIDEO`: thong tin video/file hien co, upload that se bo sung sau.
+- `QUIZ`: lecture gan voi quiz config va question CRUD.
+- `FILE`: attachments/resources.
+- `EXTERNAL_LINK`: external URL.
+
+Lecture list theo section duoc sort theo `displayOrder` tu backend.
+
 ## Test lien quan
 
 - `controller/LectureControllerTest.java`

@@ -36,6 +36,10 @@ Tat ca endpoint ben duoi nam sau prefix `/api`.
 | POST | `/courses/admin/reindex` | Reindex course search |
 | PUT | `/courses/{courseId}` | Cap nhat course |
 | GET | `/courses/{courseId}` | Lay course |
+| GET | `/courses/{courseId}/curriculum` | Lay curriculum public/student |
+| GET | `/courses/{courseId}/enrollment-status` | Lay trang thai access/enrollment cua user hien tai |
+| GET | `/courses/{courseId}/publish-checklist` | Lay checklist publish cho instructor/admin |
+| POST | `/courses/{courseId}/submit-review` | Submit course sang `PENDING_REVIEW` neu checklist pass |
 | DELETE | `/courses/{courseId}` | Xoa course |
 | GET | `/courses/my-course` | Lay course cua instructor hien tai |
 | GET | `/courses/instructor/{instructorId}` | Lay course theo instructor |
@@ -100,6 +104,7 @@ Tat ca endpoint ben duoi nam sau prefix `/api`.
 | --- | --- | --- |
 | GET | `/quiz-questions/{quizId}` | Lay questions theo quiz |
 | POST | `/quiz-questions` | Tao question |
+| POST | `/quiz-questions/import` | Import questions tu JSON, ho tro APPEND/REPLACE |
 | DELETE | `/quiz-questions/{quizQuestionId}` | Xoa question |
 | PUT | `/quiz-questions/{quizQuestionId}` | Cap nhat question |
 

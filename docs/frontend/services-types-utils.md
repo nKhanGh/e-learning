@@ -10,7 +10,7 @@ Gom cac API client, query hooks, type declaration va helper dung chung cho front
 | --- | --- |
 | `services/auth.service.ts` | Login, signup, logout, refresh token |
 | `services/user.service.ts` | My info, search users |
-| `services/course.service.ts` | Search course, get course |
+| `services/course.service.ts` | Search/get course, instructor course CRUD support, sections, lectures, quizzes, quiz questions, publish checklist |
 | `services/courseCategory.service.ts` | Get categories |
 | `services/enrollment.service.ts` | Get my enrollment |
 | `services/conversation.service.ts` | Conversation CRUD/search/AI |
@@ -40,7 +40,7 @@ Gom cac API client, query hooks, type declaration va helper dung chung cho front
 | `types/PageResponse.d.ts` | Contract paging |
 | `types/auth.d.ts` | Auth request/response |
 | `types/user.d.ts` | User model |
-| `types/course.d.ts` | Course/search/category model |
+| `types/course.d.ts` | Course/search/category/curriculum/instructor studio/publish checklist model |
 | `types/enrollment.d.ts` | Enrollment model |
 | `types/conversation.d.ts` | Conversation model |
 | `types/message.d.ts` | Message model |
@@ -59,4 +59,5 @@ Gom cac API client, query hooks, type declaration va helper dung chung cho front
 - `QueryProvider` boc app trong route locale layout.
 - Query keys nam trong `lib/queryKeys.ts`.
 - Default stale time la 60 giay va `refetchOnWindowFocus` tat de tranh request lap lai qua nhieu.
-- Course search, categories, enrollment, conversations, messages va user search deu co query hook rieng.
+- Course search, categories, instructor course list, course detail, curriculum, sections, lectures, quiz, quiz questions, publish checklist, enrollment, conversations, messages va user search deu co query hook rieng.
+- Instructor mutations invalidate course detail/list, curriculum, sections, lectures, quiz, questions va publish checklist de UI khong dung cache cu.

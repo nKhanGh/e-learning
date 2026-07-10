@@ -81,6 +81,7 @@ Backend gom cac nhom module:
 - User va instructor: profile, avatar, search user, dang ky instructor.
 - Course catalog: course, category, section, tag, search Elasticsearch, cache.
 - Learning content: lecture, public lecture, progress, bookmark, note.
+- Course publishing: publish checklist, submit review, course status lifecycle cho instructor.
 - Assessment: quiz, question, attempt, answer, submission.
 - Enrollment: ghi danh, truy van enrollment, access/completion.
 - Interaction va realtime: conversation, participant, message, reaction, STOMP WebSocket, online status.
@@ -91,6 +92,7 @@ Backend gom cac nhom module:
 Frontend gom cac nhom module:
 
 - Routing/pages: home, courses, course detail, chat, settings theo route `/:locale`.
+- Instructor course studio: my courses, create/edit course, sections, lectures, quiz, resources, preview, publish checklist.
 - API services: auth, user, course, category, enrollment, conversation, participant, message, AI.
 - Context/state: auth, auth modal, websocket, conversation.
 - UI/components: layout, auth form, course cards/sidebar, chat panels, pagination/loading/toast.
@@ -104,6 +106,8 @@ Frontend gom cac nhom module:
 - Frontend docs: [docs/frontend.md](docs/frontend.md)
 - API endpoint map: [docs/backend/api-endpoints.md](docs/backend/api-endpoints.md)
 - Luu y tich hop FE/BE: [docs/integration-notes.md](docs/integration-notes.md)
+- Instructor Studio docs: [docs/frontend/instructor-course-studio.md](docs/frontend/instructor-course-studio.md)
+- Course Publishing docs: [docs/backend/course-publishing.md](docs/backend/course-publishing.md)
 
 ## Lenh huu ich
 

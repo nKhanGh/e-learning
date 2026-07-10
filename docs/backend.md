@@ -61,6 +61,7 @@ Resources hien co:
 - [User va Instructor](backend/user-instructor.md)
 - [Course Catalog](backend/course-catalog.md)
 - [Learning Content](backend/learning-content.md)
+- [Course Publishing](backend/course-publishing.md)
 - [Quiz va Assessment](backend/quiz-assessment.md)
 - [Enrollment](backend/enrollment.md)
 - [Chat va Realtime](backend/chat-realtime.md)
