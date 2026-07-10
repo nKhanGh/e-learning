@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,6 +90,9 @@ export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
   const [downloadable, setDownloadable] = useState(false);
   const [savedDownloadable, setSavedDownloadable] = useState(false);
   const [editingResourceIndex, setEditingResourceIndex] = useState<number | null>(
+    null,
+  );
+  const [deletingResourceIndex, setDeletingResourceIndex] = useState<number | null>(
     null,
   );
   const [resourceDraft, setResourceDraft] = useState("");
@@ -222,11 +226,16 @@ export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
     if (!didSave) {
       setResources(previousResources);
     }
+    return didSave;
   };
 
-  const confirmRemoveResource = (index: number) => {
-    if (!globalThis.confirm(t("resources.deleteConfirm"))) return;
-    void removeResource(index);
+  const handleConfirmRemoveResource = async () => {
+    if (deletingResourceIndex === null) return;
+
+    const didSave = await removeResource(deletingResourceIndex);
+    if (didSave) {
+      setDeletingResourceIndex(null);
+    }
   };
 
   const discardChanges = () => {
@@ -389,7 +398,7 @@ export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
                       key={`${resource}-${index}`}
                       resource={resource}
                       onEdit={() => openEditResourceForm(index)}
-                      onRemove={() => confirmRemoveResource(index)}
+                      onRemove={() => setDeletingResourceIndex(index)}
                       isSaving={updateLectureMutation.isPending}
                     />
                   ),
@@ -495,6 +504,20 @@ export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
           subtitle={t("resources.loadFailedSubtitle")}
         />
       )}
+      <ConfirmDeleteDialog
+        open={deletingResourceIndex !== null}
+        title={t("resources.deleteConfirm")}
+        description={t("deleteDialog.description")}
+        cancelLabel={t("deleteDialog.cancel")}
+        confirmLabel={t("deleteDialog.confirm")}
+        isPending={updateLectureMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setDeletingResourceIndex(null);
+        }}
+        onConfirm={() => {
+          void handleConfirmRemoveResource();
+        }}
+      />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
 import {
   useCreateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
@@ -71,6 +72,8 @@ export function QuizPreviewContent({
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] =
     useState<QuizQuestionResponse | null>(null);
+  const [deletingQuestion, setDeletingQuestion] =
+    useState<QuizQuestionResponse | null>(null);
   const questionSaving =
     createQuestionMutation.isPending || updateQuestionMutation.isPending;
   const totalPoints = questions.reduce(
@@ -123,11 +126,10 @@ export function QuizPreviewContent({
   };
 
   const handleDeleteQuestion = async (question: QuizQuestionResponse) => {
-    if (!globalThis.confirm(t("quiz.questions.deleteConfirm"))) return;
-
     try {
       await deleteQuestionMutation.mutateAsync(question.id);
       toast.success(t("quiz.questions.deleted"));
+      setDeletingQuestion(null);
     } catch (error) {
       toast.error(getErrorMessage(error, t("quiz.questions.deleteFailed")));
     }
@@ -296,7 +298,7 @@ export function QuizPreviewContent({
                   question={question}
                   isDeleting={deleteQuestionMutation.isPending}
                   onEdit={() => openEditQuestionDialog(question)}
-                  onDelete={() => handleDeleteQuestion(question)}
+                  onDelete={() => setDeletingQuestion(question)}
                 />
               ))}
           </div>
@@ -314,6 +316,20 @@ export function QuizPreviewContent({
         isSaving={questionSaving}
         onOpenChange={setQuestionDialogOpen}
         onSubmit={handleQuestionSubmit}
+      />
+      <ConfirmDeleteDialog
+        open={Boolean(deletingQuestion)}
+        title={t("quiz.questions.deleteConfirm")}
+        description={t("deleteDialog.description")}
+        cancelLabel={t("deleteDialog.cancel")}
+        confirmLabel={t("deleteDialog.confirm")}
+        isPending={deleteQuestionMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setDeletingQuestion(null);
+        }}
+        onConfirm={() => {
+          if (deletingQuestion) void handleDeleteQuestion(deletingQuestion);
+        }}
       />
 
       <QuizQuestionImportDialog

@@ -279,6 +279,11 @@
       "resources": "Resources",
       "checklist": "Publish checklist"
     },
+    "deleteDialog": {
+      "description": "This action cannot be undone. Please confirm before deleting.",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
     "sections": {
       "title": "Course sections",
       "add": "Add section",
@@ -596,7 +601,8 @@
         "questions": "Questions",
         "points": "Points",
         "passingScore": "Passing",
-        "timeLimit": "Time limit"
+        "timeLimit": "Time limit",
+        "published": "Published status"
       },
       "fields": {
         "title": "Title",

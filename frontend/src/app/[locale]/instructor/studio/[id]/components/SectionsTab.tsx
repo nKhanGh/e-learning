@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -82,6 +83,8 @@ export const SectionsTab = ({
   const [sectionDialogOpen, setSectionDialogOpen] = useState(false);
   const [editingSection, setEditingSection] =
     useState<CourseSectionResponse | null>(null);
+  const [deletingSection, setDeletingSection] =
+    useState<CourseSectionResponse | null>(null);
   const [sectionForm, setSectionForm] = useState<SectionForm>(
     toSectionForm(null, nextSectionOrder),
   );
@@ -145,11 +148,10 @@ export const SectionsTab = ({
   };
 
   const handleDeleteSection = async (section: CourseSectionResponse) => {
-    if (!globalThis.confirm(t("sections.deleteConfirm"))) return;
-
     try {
       await deleteSectionMutation.mutateAsync(section.id);
       toast.success(t("sections.deleted"));
+      setDeletingSection(null);
     } catch (error) {
       toast.error(getErrorMessage(error, t("sections.deleteFailed")));
     }
@@ -239,7 +241,7 @@ export const SectionsTab = ({
                       size="sm"
                       className="!text-white"
                       disabled={deleteSectionMutation.isPending}
-                      onClick={() => handleDeleteSection(section)}
+                      onClick={() => setDeletingSection(section)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       {t("sections.delete")}
@@ -381,6 +383,21 @@ export const SectionsTab = ({
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={Boolean(deletingSection)}
+        title={t("sections.deleteConfirm")}
+        description={t("deleteDialog.description")}
+        cancelLabel={t("deleteDialog.cancel")}
+        confirmLabel={t("deleteDialog.confirm")}
+        isPending={deleteSectionMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setDeletingSection(null);
+        }}
+        onConfirm={() => {
+          if (deletingSection) void handleDeleteSection(deletingSection);
+        }}
+      />
     </>
   );
 };

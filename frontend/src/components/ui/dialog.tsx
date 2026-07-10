@@ -41,7 +41,7 @@ const DialogContent = ({
     <DialogPrimitive.Content
       data-slot="dialog-content"
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-gray-200 bg-white p-5 text-gray-900 shadow-xl outline-none dark:border-border dark:bg-surface dark:text-text",
+        "fixed left-1/2 top-1/2 z-50 p-5 grid w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-gray-200 bg-white text-gray-900 shadow-xl outline-none dark:border-border dark:bg-surface dark:text-text",
         className,
       )}
       {...props}
@@ -63,7 +63,7 @@ const DialogHeader = ({
 }: React.ComponentProps<"div">) => (
   <div
     data-slot="dialog-header"
-    className={cn("flex flex-col gap-1.5 text-center sm:text-left", className)}
+    className={cn("flex flex-col gap-1 text-center sm:text-left", className)}
     {...props}
   />
 );
@@ -75,7 +75,7 @@ const DialogFooter = ({
   <div
     data-slot="dialog-footer"
     className={cn(
-      "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+      "flex flex-col-reverse gap-2 -m-5 mt-5 sm:flex-row sm:justify-end bg-gray-50 py-3 px-5 dark:bg-border border-t border-gray-200 dark:border-border",
       className,
     )}
     {...props}

@@ -1,5 +1,6 @@
 "use client";
 
+import { ConfirmDeleteDialog } from "@/components/common/ConfirmDeleteDialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -91,6 +92,9 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
   const [editingLecture, setEditingLecture] = useState<LectureResponse | null>(
     null,
   );
+  const [deletingLecture, setDeletingLecture] = useState<LectureResponse | null>(
+    null,
+  );
   const lectureSaving =
     createLectureMutation.isPending || updateLectureMutation.isPending;
 
@@ -160,11 +164,10 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
   };
 
   const handleDeleteLecture = async (lecture: LectureResponse) => {
-    if (!globalThis.confirm(t("lectures.deleteConfirm"))) return;
-
     try {
       await deleteLectureMutation.mutateAsync(lecture.id);
       toast.success(t("lectures.deleted"));
+      setDeletingLecture(null);
     } catch (error) {
       toast.error(getErrorMessage(error, t("lectures.deleteFailed")));
     }
@@ -287,7 +290,7 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
                       size="sm"
                       className="text-white!"
                       disabled={deleteLectureMutation.isPending}
-                      onClick={() => handleDeleteLecture(lecture)}
+                      onClick={() => setDeletingLecture(lecture)}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       {t("lectures.delete")}
@@ -320,6 +323,20 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
         saving={lectureSaving}
         onOpenChange={handleLectureDialogOpenChange}
         onSubmit={handleLectureSubmit}
+      />
+      <ConfirmDeleteDialog
+        open={Boolean(deletingLecture)}
+        title={t("lectures.deleteConfirm")}
+        description={t("deleteDialog.description")}
+        cancelLabel={t("deleteDialog.cancel")}
+        confirmLabel={t("deleteDialog.confirm")}
+        isPending={deleteLectureMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setDeletingLecture(null);
+        }}
+        onConfirm={() => {
+          if (deletingLecture) void handleDeleteLecture(deletingLecture);
+        }}
       />
     </>
   );

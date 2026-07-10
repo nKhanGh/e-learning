@@ -279,6 +279,11 @@
       "resources": "Tài nguyên",
       "checklist": "Checklist xuất bản"
     },
+    "deleteDialog": {
+      "description": "Thao tác này không thể hoàn tác. Vui lòng xác nhận trước khi xóa.",
+      "cancel": "Hủy",
+      "confirm": "Xóa"
+    },
     "sections": {
       "title": "Sections của khóa học",
       "add": "Thêm section",
@@ -596,7 +601,8 @@
         "questions": "Câu hỏi",
         "points": "Điểm",
         "passingScore": "Điểm đạt",
-        "timeLimit": "Thời gian"
+        "timeLimit": "Thời gian",
+        "published": "Đã publish"
       },
       "fields": {
         "title": "Tên quiz",
