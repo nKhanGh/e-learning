@@ -67,6 +67,25 @@ export const courseService = {
     apiClient.put<ApiResponse<QuizResponse>>(`/quizzes/${quizId}`, request),
   deleteQuiz: (quizId: string) =>
     apiClient.delete<ApiResponse<void>>(`/quizzes/${quizId}`),
+  getQuizQuestions: (quizId: string) =>
+    apiClient.get<ApiResponse<QuizQuestionResponse[]>>(
+      `/quiz-questions/${quizId}`,
+    ),
+  createQuizQuestion: (request: QuizQuestionRequest) =>
+    apiClient.post<ApiResponse<QuizQuestionResponse>>(
+      "/quiz-questions",
+      request,
+    ),
+  updateQuizQuestion: (
+    questionId: string,
+    request: QuizQuestionUpdateRequest,
+  ) =>
+    apiClient.put<ApiResponse<QuizQuestionResponse>>(
+      `/quiz-questions/${questionId}`,
+      request,
+    ),
+  deleteQuizQuestion: (questionId: string) =>
+    apiClient.delete<ApiResponse<void>>(`/quiz-questions/${questionId}`),
   getEnrollmentStatus: (courseId: string) =>
     apiClient.get<ApiResponse<CourseEnrollmentStatusResponse>>(
       `/courses/${courseId}/enrollment-status`,

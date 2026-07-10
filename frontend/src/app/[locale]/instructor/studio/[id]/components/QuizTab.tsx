@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -20,9 +21,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  useCreateQuizQuestionMutation,
   useCreateQuizMutation,
+  useDeleteQuizQuestionMutation,
   useDeleteQuizMutation,
   useQuizByLectureQuery,
+  useQuizQuestionsQuery,
+  useUpdateQuizQuestionMutation,
   useUpdateQuizMutation,
 } from "@/hooks/queries/useCourseQueries";
 import {
@@ -32,6 +37,7 @@ import {
   Plus,
   Shuffle,
   Trash2,
+  X,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -55,6 +61,17 @@ type QuizForm = {
   isPublished: boolean;
 };
 
+type QuestionForm = {
+  questionText: string;
+  explanation: string;
+  points: string;
+  displayOrder: string;
+  options: string[];
+  correctAnswers: string[];
+  imageUrl: string;
+  videoUrl: string;
+};
+
 type QuizTabProps = {
   courseId: string;
   sections: StudioSection[];
@@ -72,6 +89,17 @@ const initialQuizForm: QuizForm = {
   showCorrectAnswers: true,
   showAnswersAfterSubmission: true,
   isPublished: true,
+};
+
+const initialQuestionForm: QuestionForm = {
+  questionText: "",
+  explanation: "",
+  points: "1",
+  displayOrder: "1",
+  options: ["", ""],
+  correctAnswers: [],
+  imageUrl: "",
+  videoUrl: "",
 };
 
 const toQuizForm = (quiz: QuizResponse | null): QuizForm => {
@@ -105,6 +133,34 @@ const toNullableNumber = (value: string) => {
   return Number(trimmed);
 };
 
+const toQuestionForm = (
+  question: QuizQuestionResponse | null,
+  fallbackOrder: number,
+): QuestionForm => {
+  if (!question) {
+    return {
+      ...initialQuestionForm,
+      displayOrder: String(fallbackOrder),
+      options: [...initialQuestionForm.options],
+      correctAnswers: [],
+    };
+  }
+
+  return {
+    questionText: question.questionText ?? "",
+    explanation: question.explanation ?? "",
+    points: String(question.points ?? 1),
+    displayOrder: String(question.displayOrder ?? fallbackOrder),
+    options:
+      question.options && question.options.length >= 2
+        ? [...question.options]
+        : ["", ""],
+    correctAnswers: [...(question.correctAnswers ?? [])],
+    imageUrl: question.imageUrl ?? "",
+    videoUrl: question.videoUrl ?? "",
+  };
+};
+
 export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
   const t = useTranslations("InstructorCourseStudioPage");
   const [selectedSectionId, setSelectedSectionId] = useState("");
@@ -118,6 +174,9 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
   );
   const quizQuery = useQuizByLectureQuery(selectedLectureId);
   const quiz = quizQuery.data ?? null;
+  const quizId = quiz?.id ?? "";
+  const questionsQuery = useQuizQuestionsQuery(quizId);
+  const questions = questionsQuery.data ?? quiz?.questions ?? [];
   const createQuizMutation = useCreateQuizMutation(
     courseId,
     selectedLectureId,
@@ -136,6 +195,34 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
   const [quizDialogOpen, setQuizDialogOpen] = useState(false);
   const [quizForm, setQuizForm] = useState<QuizForm>(initialQuizForm);
   const quizSaving = createQuizMutation.isPending || updateQuizMutation.isPending;
+  const nextQuestionOrder =
+    Math.max(0, ...questions.map((question) => question.displayOrder ?? 0)) + 1;
+  const createQuestionMutation = useCreateQuizQuestionMutation(
+    courseId,
+    selectedLectureId,
+    quizId,
+    selectedSectionId,
+  );
+  const updateQuestionMutation = useUpdateQuizQuestionMutation(
+    courseId,
+    selectedLectureId,
+    quizId,
+    selectedSectionId,
+  );
+  const deleteQuestionMutation = useDeleteQuizQuestionMutation(
+    courseId,
+    selectedLectureId,
+    quizId,
+    selectedSectionId,
+  );
+  const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
+  const [editingQuestion, setEditingQuestion] =
+    useState<QuizQuestionResponse | null>(null);
+  const [questionForm, setQuestionForm] = useState<QuestionForm>(
+    toQuestionForm(null, nextQuestionOrder),
+  );
+  const questionSaving =
+    createQuestionMutation.isPending || updateQuestionMutation.isPending;
   const totalLectures = useMemo(
     () => sections.reduce((total, section) => total + section.lectures.length, 0),
     [sections],
@@ -250,6 +337,150 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
     }
   };
 
+  const openCreateQuestionDialog = () => {
+    if (!quiz) {
+      toast.error(t("quiz.questions.selectQuizFirst"));
+      return;
+    }
+
+    setEditingQuestion(null);
+    setQuestionForm(toQuestionForm(null, nextQuestionOrder));
+    setQuestionDialogOpen(true);
+  };
+
+  const openEditQuestionDialog = (question: QuizQuestionResponse) => {
+    setEditingQuestion(question);
+    setQuestionForm(toQuestionForm(question, nextQuestionOrder));
+    setQuestionDialogOpen(true);
+  };
+
+  const updateOption = (index: number, value: string) => {
+    setQuestionForm((current) => {
+      const previousValue = current.options[index];
+      const options = current.options.map((option, optionIndex) =>
+        optionIndex === index ? value : option,
+      );
+      const correctAnswers = current.correctAnswers.map((answer) =>
+        answer === previousValue ? value : answer,
+      );
+
+      return { ...current, options, correctAnswers };
+    });
+  };
+
+  const addOption = () => {
+    setQuestionForm((current) => ({
+      ...current,
+      options: [...current.options, ""],
+    }));
+  };
+
+  const removeOption = (index: number) => {
+    setQuestionForm((current) => {
+      if (current.options.length <= 2) return current;
+
+      const removedOption = current.options[index];
+      return {
+        ...current,
+        options: current.options.filter((_, optionIndex) => optionIndex !== index),
+        correctAnswers: current.correctAnswers.filter(
+          (answer) => answer !== removedOption,
+        ),
+      };
+    });
+  };
+
+  const toggleCorrectAnswer = (option: string, checked: boolean) => {
+    const normalizedOption = option.trim();
+    if (!normalizedOption) return;
+
+    setQuestionForm((current) => ({
+      ...current,
+      correctAnswers: checked
+        ? Array.from(new Set([...current.correctAnswers, normalizedOption]))
+        : current.correctAnswers.filter((answer) => answer !== normalizedOption),
+    }));
+  };
+
+  const toQuestionPayload = (): QuizQuestionUpdateRequest => {
+    const options = questionForm.options
+      .map((option) => option.trim())
+      .filter(Boolean);
+    const correctAnswers = questionForm.correctAnswers
+      .map((answer) => answer.trim())
+      .filter((answer) => options.includes(answer));
+
+    return {
+      questionText: questionForm.questionText.trim(),
+      explanation: questionForm.explanation.trim(),
+      points: Number(questionForm.points) || 1,
+      displayOrder: Math.max(
+        1,
+        Number(questionForm.displayOrder) || nextQuestionOrder,
+      ),
+      options,
+      correctAnswers,
+      imageUrl: questionForm.imageUrl.trim(),
+      videoUrl: questionForm.videoUrl.trim(),
+    };
+  };
+
+  const handleQuestionSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!quiz) {
+      toast.error(t("quiz.questions.selectQuizFirst"));
+      return;
+    }
+
+    const payload = toQuestionPayload();
+
+    if (!payload.questionText) {
+      toast.error(t("quiz.questions.validationText"));
+      return;
+    }
+
+    if (payload.options.length < 2) {
+      toast.error(t("quiz.questions.validationOptions"));
+      return;
+    }
+
+    if (payload.correctAnswers.length < 1) {
+      toast.error(t("quiz.questions.validationCorrect"));
+      return;
+    }
+
+    try {
+      if (editingQuestion) {
+        await updateQuestionMutation.mutateAsync({
+          questionId: editingQuestion.id,
+          request: payload,
+        });
+        toast.success(t("quiz.questions.updated"));
+      } else {
+        const { displayOrder: _displayOrder, ...createPayload } = payload;
+        await createQuestionMutation.mutateAsync(createPayload);
+        toast.success(t("quiz.questions.created"));
+      }
+
+      setQuestionDialogOpen(false);
+      setEditingQuestion(null);
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("quiz.questions.failed")));
+    }
+  };
+
+  const handleDeleteQuestion = async (question: QuizQuestionResponse) => {
+    if (!globalThis.confirm(t("quiz.questions.deleteConfirm"))) return;
+
+    try {
+      await deleteQuestionMutation.mutateAsync(question.id);
+      toast.success(t("quiz.questions.deleted"));
+    } catch (error) {
+      toast.error(getErrorMessage(error, t("quiz.questions.deleteFailed")));
+    }
+  };
+
   return (
     <>
       <div className="space-y-3">
@@ -324,66 +555,168 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
         ) : quizQuery.isLoading ? (
           <div className="h-40 animate-pulse rounded-lg bg-gray-100 dark:bg-border" />
         ) : quiz ? (
-          <div className="rounded-lg border border-gray-200 p-4 dark:border-border">
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-primary">
-                  {selectedLecture?.title ?? t("quiz.lectureLabel")}
-                  <span className="mx-2 text-gray-300">.</span>
-                  <span
-                    className={
-                      quiz.isPublished ? "text-emerald-600" : "text-amber-600"
-                    }
-                  >
-                    {quiz.isPublished
-                      ? t("quiz.published")
-                      : t("quiz.unpublished")}
-                  </span>
-                </p>
-                <h3 className="mt-1 text-base font-bold text-gray-950 dark:text-text">
-                  {quiz.title}
-                </h3>
-                {quiz.description ? (
-                  <p className="mt-1 text-xs text-gray-500 dark:text-muted">
-                    {quiz.description}
+          <>
+            <div className="rounded-lg border border-gray-200 p-4 dark:border-border">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-primary">
+                    {selectedLecture?.title ?? t("quiz.lectureLabel")}
+                    <span className="mx-2 text-gray-300">.</span>
+                    <span
+                      className={
+                        quiz.isPublished ? "text-emerald-600" : "text-amber-600"
+                      }
+                    >
+                      {quiz.isPublished
+                        ? t("quiz.published")
+                        : t("quiz.unpublished")}
+                    </span>
                   </p>
-                ) : null}
-                <div className="mt-3 grid gap-2 text-xs text-gray-600 sm:grid-cols-4 dark:text-muted">
-                  <QuizMeta label={t("quiz.meta.questions")}>
-                    {quiz.totalQuestions ?? 0}
-                  </QuizMeta>
-                  <QuizMeta label={t("quiz.meta.points")}>
-                    {quiz.totalPoints ?? 0}
-                  </QuizMeta>
-                  <QuizMeta label={t("quiz.meta.passingScore")}>
-                    {quiz.passingScore ?? 0}%
-                  </QuizMeta>
-                  <QuizMeta label={t("quiz.meta.timeLimit")}>
-                    {quiz.timeLimitMinutes
-                      ? `${quiz.timeLimitMinutes}m`
-                      : t("quiz.unlimited")}
-                  </QuizMeta>
+                  <h3 className="mt-1 text-base font-bold text-gray-950 dark:text-text">
+                    {quiz.title}
+                  </h3>
+                  {quiz.description ? (
+                    <p className="mt-1 text-xs text-gray-500 dark:text-muted">
+                      {quiz.description}
+                    </p>
+                  ) : null}
+                  <div className="mt-3 grid gap-2 text-xs text-gray-600 sm:grid-cols-4 dark:text-muted">
+                    <QuizMeta label={t("quiz.meta.questions")}>
+                      {questions.length}
+                    </QuizMeta>
+                    <QuizMeta label={t("quiz.meta.points")}>
+                      {questions.reduce(
+                        (total, question) => total + Number(question.points ?? 0),
+                        0,
+                      )}
+                    </QuizMeta>
+                    <QuizMeta label={t("quiz.meta.passingScore")}>
+                      {quiz.passingScore ?? 0}%
+                    </QuizMeta>
+                    <QuizMeta label={t("quiz.meta.timeLimit")}>
+                      {quiz.timeLimitMinutes
+                        ? `${quiz.timeLimitMinutes}m`
+                        : t("quiz.unlimited")}
+                    </QuizMeta>
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={openEditQuizDialog}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    {t("quiz.edit")}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="!text-white"
+                    disabled={deleteQuizMutation.isPending}
+                    onClick={handleDeleteQuiz}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    {t("quiz.delete")}
+                  </Button>
                 </div>
               </div>
-              <div className="flex shrink-0 flex-wrap gap-2">
-                <Button type="button" variant="outline" size="sm" onClick={openEditQuizDialog}>
-                  <Pencil className="h-3.5 w-3.5" />
-                  {t("quiz.edit")}
-                </Button>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 p-4 dark:border-border">
+              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-950 dark:text-text">
+                    {t("quiz.questions.title")}
+                  </h3>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-muted">
+                    {t("quiz.questions.subtitle")}
+                  </p>
+                </div>
                 <Button
                   type="button"
-                  variant="destructive"
                   size="sm"
                   className="!text-white"
-                  disabled={deleteQuizMutation.isPending}
-                  onClick={handleDeleteQuiz}
+                  onClick={openCreateQuestionDialog}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  {t("quiz.delete")}
+                  <Plus className="h-4 w-4" />
+                  {t("quiz.questions.add")}
                 </Button>
               </div>
+
+              {questionsQuery.isLoading ? (
+                <div className="space-y-2">
+                  {[1, 2].map((item) => (
+                    <div
+                      key={item}
+                      className="h-24 animate-pulse rounded-lg bg-gray-100 dark:bg-border"
+                    />
+                  ))}
+                </div>
+              ) : questions.length ? (
+                <div className="space-y-2">
+                  {questions.map((question) => (
+                    <div
+                      key={question.id}
+                      className="rounded-lg border border-gray-200 p-3 dark:border-border"
+                    >
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-primary">
+                            {t("quiz.questions.order", {
+                              order: question.displayOrder ?? 0,
+                            })}
+                            <span className="mx-2 text-gray-300">.</span>
+                            {question.points ?? 0} {t("quiz.questions.points")}
+                          </p>
+                          <h4 className="mt-1 text-sm font-bold text-gray-950 dark:text-text">
+                            {question.questionText}
+                          </h4>
+                          <p className="mt-1 text-xs text-gray-500 dark:text-muted">
+                            {question.options?.length ?? 0}{" "}
+                            {t("quiz.questions.options")}
+                            <span className="mx-2">.</span>
+                            {(question.correctAnswers ?? []).length}{" "}
+                            {t("quiz.questions.correct")}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditQuestionDialog(question)}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            {t("quiz.questions.edit")}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="!text-white"
+                            disabled={deleteQuestionMutation.isPending}
+                            onClick={() => handleDeleteQuestion(question)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            {t("quiz.questions.delete")}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyStudioState
+                  icon={<FileQuestion className="h-5 w-5" />}
+                  title={t("quiz.questions.emptyTitle")}
+                  subtitle={t("quiz.questions.emptySubtitle")}
+                />
+              )}
             </div>
-          </div>
+          </>
         ) : (
           <EmptyStudioState
             icon={<FileQuestion className="h-5 w-5" />}
@@ -594,6 +927,206 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
               <Button type="submit" className="!text-white" disabled={quizSaving}>
                 {quizSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {quiz ? t("quiz.save") : t("quiz.create")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={questionDialogOpen} onOpenChange={setQuestionDialogOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingQuestion
+                ? t("quiz.questions.editTitle")
+                : t("quiz.questions.createTitle")}
+            </DialogTitle>
+            <DialogDescription>
+              {quiz?.title ?? t("quiz.title")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form className="space-y-4" onSubmit={handleQuestionSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="question-text">
+                {t("quiz.questions.fields.questionText")}
+              </Label>
+              <Textarea
+                id="question-text"
+                className="min-h-28"
+                value={questionForm.questionText}
+                placeholder={t("quiz.questions.placeholders.questionText")}
+                onChange={(event) =>
+                  setQuestionForm((current) => ({
+                    ...current,
+                    questionText: event.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="question-points">
+                  {t("quiz.questions.fields.points")}
+                </Label>
+                <Input
+                  id="question-points"
+                  type="number"
+                  min={0}
+                  step="0.5"
+                  value={questionForm.points}
+                  onChange={(event) =>
+                    setQuestionForm((current) => ({
+                      ...current,
+                      points: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="question-order">
+                  {t("quiz.questions.fields.displayOrder")}
+                </Label>
+                <Input
+                  id="question-order"
+                  type="number"
+                  min={1}
+                  disabled={!editingQuestion}
+                  value={questionForm.displayOrder}
+                  onChange={(event) =>
+                    setQuestionForm((current) => ({
+                      ...current,
+                      displayOrder: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="question-explanation">
+                {t("quiz.questions.fields.explanation")}
+              </Label>
+              <Textarea
+                id="question-explanation"
+                value={questionForm.explanation}
+                placeholder={t("quiz.questions.placeholders.explanation")}
+                onChange={(event) =>
+                  setQuestionForm((current) => ({
+                    ...current,
+                    explanation: event.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <Label>{t("quiz.questions.fields.options")}</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addOption}>
+                  <Plus className="h-3.5 w-3.5" />
+                  {t("quiz.questions.addOption")}
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {questionForm.options.map((option, index) => {
+                  const normalizedOption = option.trim();
+
+                  return (
+                    <div
+                      key={index}
+                      className="grid gap-2 rounded-md border border-gray-200 p-2 sm:grid-cols-[auto_1fr_auto] sm:items-center dark:border-border"
+                    >
+                      <Checkbox
+                        checked={
+                          Boolean(normalizedOption) &&
+                          questionForm.correctAnswers.includes(normalizedOption)
+                        }
+                        disabled={!normalizedOption}
+                        onCheckedChange={(checked) =>
+                          toggleCorrectAnswer(option, checked === true)
+                        }
+                      />
+                      <Input
+                        value={option}
+                        placeholder={t("quiz.questions.placeholders.option", {
+                          number: index + 1,
+                        })}
+                        onChange={(event) => updateOption(index, event.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={questionForm.options.length <= 2}
+                        onClick={() => removeOption(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-muted">
+                {t("quiz.questions.correctHint")}
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="question-image">
+                  {t("quiz.questions.fields.imageUrl")}
+                </Label>
+                <Input
+                  id="question-image"
+                  value={questionForm.imageUrl}
+                  placeholder={t("quiz.questions.placeholders.mediaUrl")}
+                  onChange={(event) =>
+                    setQuestionForm((current) => ({
+                      ...current,
+                      imageUrl: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="question-video">
+                  {t("quiz.questions.fields.videoUrl")}
+                </Label>
+                <Input
+                  id="question-video"
+                  value={questionForm.videoUrl}
+                  placeholder={t("quiz.questions.placeholders.mediaUrl")}
+                  onChange={(event) =>
+                    setQuestionForm((current) => ({
+                      ...current,
+                      videoUrl: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setQuestionDialogOpen(false)}
+              >
+                {t("quiz.questions.cancel")}
+              </Button>
+              <Button
+                type="submit"
+                className="!text-white"
+                disabled={questionSaving}
+              >
+                {questionSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
+                {editingQuestion
+                  ? t("quiz.questions.save")
+                  : t("quiz.questions.create")}
               </Button>
             </DialogFooter>
           </form>

@@ -202,6 +202,28 @@ interface QuizQuestionResponse {
   videoUrl: string | null;
 }
 
+interface QuizQuestionRequest {
+  quizId: string;
+  questionText: string;
+  explanation: string;
+  points: number;
+  options: string[];
+  correctAnswers: string[];
+  imageUrl: string;
+  videoUrl: string;
+}
+
+interface QuizQuestionUpdateRequest {
+  questionText: string;
+  explanation: string;
+  points: number;
+  displayOrder: number;
+  options: string[];
+  correctAnswers: string[];
+  imageUrl: string;
+  videoUrl: string;
+}
+
 interface QuizRequest {
   lectureId: string;
   title: string;

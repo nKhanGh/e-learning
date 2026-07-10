@@ -478,6 +478,117 @@ export function useDeleteQuizMutation(
   });
 }
 
+export function useQuizQuestionsQuery(quizId: string) {
+  return useQuery({
+    queryKey: queryKeys.quizQuestions.byQuiz(quizId),
+    queryFn: async () => {
+      const response = await courseService.getQuizQuestions(quizId);
+      return response.data.result;
+    },
+    enabled: Boolean(quizId),
+  });
+}
+
+const invalidateQuizQuestionStructure = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+  lectureId: string,
+  quizId: string,
+  sectionId?: string,
+) => {
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.quizQuestions.byQuiz(quizId),
+  });
+  invalidateQuizStructure(queryClient, courseId, lectureId, sectionId, quizId);
+};
+
+export function useCreateQuizQuestionMutation(
+  courseId: string,
+  lectureId: string,
+  quizId: string,
+  sectionId?: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: Omit<QuizQuestionRequest, "quizId">) => {
+      const response = await courseService.createQuizQuestion({
+        ...request,
+        quizId,
+      });
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateQuizQuestionStructure(
+        queryClient,
+        courseId,
+        lectureId,
+        quizId,
+        sectionId,
+      );
+    },
+  });
+}
+
+export function useUpdateQuizQuestionMutation(
+  courseId: string,
+  lectureId: string,
+  quizId: string,
+  sectionId?: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      questionId,
+      request,
+    }: {
+      questionId: string;
+      request: QuizQuestionUpdateRequest;
+    }) => {
+      const response = await courseService.updateQuizQuestion(
+        questionId,
+        request,
+      );
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateQuizQuestionStructure(
+        queryClient,
+        courseId,
+        lectureId,
+        quizId,
+        sectionId,
+      );
+    },
+  });
+}
+
+export function useDeleteQuizQuestionMutation(
+  courseId: string,
+  lectureId: string,
+  quizId: string,
+  sectionId?: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (questionId: string) => {
+      await courseService.deleteQuizQuestion(questionId);
+      return questionId;
+    },
+    onSuccess: () => {
+      invalidateQuizQuestionStructure(
+        queryClient,
+        courseId,
+        lectureId,
+        quizId,
+        sectionId,
+      );
+    },
+  });
+}
+
 export function useCourseEnrollmentStatusQuery(courseId: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.courses.enrollmentStatus(courseId),
