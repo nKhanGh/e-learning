@@ -106,6 +106,18 @@
       "profile": "Hồ sơ"
     }
   },
+  "AdminSidebar": {
+    "items": {
+      "home": "Trang chủ",
+      "dashboard": "Tổng quan",
+      "courseReviews": "Duyệt khóa học",
+      "courses": "Khóa học",
+      "users": "Người dùng",
+      "instructors": "Giảng viên",
+      "reports": "Báo cáo",
+      "categories": "Danh mục"
+    }
+  },
   "InstructorCoursesPage": {
     "title": "Khóa học của tôi",
     "subtitle": "Xem và quản lý các khóa học bạn sở hữu.",

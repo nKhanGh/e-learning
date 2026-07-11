@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import AdminSidebar from "./AdminSidebar";
 import InstructorSidebar from "./InstructorSidebar";
 
 const Sidebar = ({ open }: { open: boolean }) => {
@@ -24,6 +25,10 @@ const Sidebar = ({ open }: { open: boolean }) => {
 
   if (user?.role === UserRole.INSTRUCTOR) {
     return <InstructorSidebar open={open} />;
+  }
+
+  if (user?.role === UserRole.ADMIN) {
+    return <AdminSidebar open={open} />;
   }
 
   const sidebarItems = [

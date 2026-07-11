@@ -106,6 +106,18 @@
       "profile": "Profile"
     }
   },
+  "AdminSidebar": {
+    "items": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "courseReviews": "Course Reviews",
+      "courses": "Courses",
+      "users": "Users",
+      "instructors": "Instructors",
+      "reports": "Reports",
+      "categories": "Categories"
+    }
+  },
   "InstructorCoursesPage": {
     "title": "My Courses",
     "subtitle": "View and manage the courses you own.",
