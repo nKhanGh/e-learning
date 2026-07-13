@@ -118,6 +118,62 @@
       "categories": "Categories"
     }
   },
+  "AdminCourseReviewsPage": {
+    "eyebrow": "Admin moderation",
+    "title": "Course Reviews",
+    "subtitle": "Triage submitted courses before opening the detail review.",
+    "unknown": "Unknown",
+    "contentCounts": "{sections} sections · {lectures} lectures · {quizzes} quizzes",
+    "checklistRatio": "Checklist {passed}/{total}",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in with an admin account to review courses.",
+      "adminOnlyTitle": "Admin access only",
+      "adminOnlySubtitle": "Course review moderation is available for admin accounts."
+    },
+    "filters": {
+      "keyword": "Search course title...",
+      "instructor": "Instructor name or email...",
+      "category": "Category",
+      "allCategories": "All categories",
+      "sort": "Sort"
+    },
+    "sort": {
+      "SUBMITTED_DESC": "Submitted newest",
+      "SUBMITTED_ASC": "Submitted oldest",
+      "UPDATED_DESC": "Updated newest",
+      "UPDATED_ASC": "Updated oldest",
+      "TITLE_ASC": "Title A-Z",
+      "TITLE_DESC": "Title Z-A"
+    },
+    "columns": {
+      "course": "Course",
+      "instructor": "Instructor",
+      "category": "Category",
+      "status": "Status",
+      "content": "Sections / Lectures / Quizzes",
+      "date": "Submitted / Updated",
+      "checklist": "Checklist",
+      "actions": "Actions"
+    },
+    "actions": {
+      "review": "Review"
+    },
+    "empty": {
+      "title": "No courses match these filters",
+      "subtitle": "Try another status, instructor, category, or sort option."
+    },
+    "error": {
+      "title": "Failed to load course reviews",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "pagination": {
+      "summary": "{total} courses · page {page}/{totalPages}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
   "InstructorCoursesPage": {
     "title": "My Courses",
     "subtitle": "View and manage the courses you own.",

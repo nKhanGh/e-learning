@@ -12,4 +12,5 @@ public interface CourseSectionRepository extends JpaRepository<CourseSection, UU
     List<CourseSection> findByCourseId(UUID courseId);
     List<CourseSection> findByCourseIdOrderByDisplayOrderAsc(UUID courseId);
     List<CourseSection> findByCourseIdAndIsPublishedTrueOrderByDisplayOrderAsc(UUID courseId);
+    Long countByCourseId(UUID courseId);
 }

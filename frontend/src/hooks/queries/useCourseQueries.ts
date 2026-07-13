@@ -143,6 +143,21 @@ export function useMyCoursesQuery(
   });
 }
 
+export function useAdminCourseReviewsQuery(
+  filters: AdminCourseReviewFilters,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.adminCourseReviews.list(filters),
+    queryFn: async () => {
+      const response = await courseService.getAdminCourseReviews(filters);
+      return response.data.result;
+    },
+    enabled,
+    placeholderData: (previousData) => previousData,
+  });
+}
+
 export function useCreateCourseMutation() {
   const queryClient = useQueryClient();
 

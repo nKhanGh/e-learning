@@ -8,6 +8,7 @@ import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseTagRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewItemResponse;
 import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.entity.course.Course;
@@ -337,10 +338,63 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional(readOnly = true)
+    public PageResponse<AdminCourseReviewItemResponse> getAdminCourseReviews(
+            int page,
+            int size,
+            String keyword,
+            CourseStatus status,
+            UUID categoryId,
+            String instructor,
+            String sortBy
+    ) {
+        Specification<Course> baseSpecification = buildAdminCourseReviewSpecification(
+                keyword,
+                categoryId,
+                instructor
+        );
+        Specification<Course> specification = status == null
+                ? baseSpecification
+                : baseSpecification.and((root, query, cb) -> cb.equal(root.get("status"), status));
+
+        Pageable pageable = PageRequest.of(page, size, resolveAdminCourseReviewSort(sortBy));
+        Page<Course> coursePage = courseRepository.findAll(specification, pageable);
+
+        Map<String, Long> statusCounts = new LinkedHashMap<>();
+        statusCounts.put("ALL", courseRepository.count(baseSpecification));
+        List<CourseStatus> reviewStatuses = List.of(
+                CourseStatus.PENDING_REVIEW,
+                CourseStatus.PUBLISHED,
+                CourseStatus.REJECTED
+        );
+        reviewStatuses.forEach(courseStatus -> statusCounts.put(
+                courseStatus.name(),
+                courseRepository.count(baseSpecification.and(
+                        (root, query, cb) -> cb.equal(root.get("status"), courseStatus)
+                ))
+        ));
+
+        return PageResponse.<AdminCourseReviewItemResponse>builder()
+                .items(coursePage.getContent().stream().map(this::toAdminCourseReviewItem).toList())
+                .page(page)
+                .size(size)
+                .totalPages(coursePage.getTotalPages())
+                .totalElements(coursePage.getTotalElements())
+                .statusCounts(statusCounts)
+                .build();
+    }
+
+    @Override
     @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     @Transactional(readOnly = true)
     public CoursePublishChecklistResponse getPublishChecklist(UUID courseId) {
         Course course = getAuthorizedCourse(courseId);
+        return buildPublishChecklist(course);
+    }
+
+    private CoursePublishChecklistResponse buildPublishChecklist(Course course) {
+        UUID courseId = course.getId();
         List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
         List<Lecture> lectures = lectureRepository.findByCourseIdOrderBySectionAndDisplayOrder(courseId);
         List<CoursePublishChecklistResponse.Group> groups = new ArrayList<>();
@@ -620,5 +674,88 @@ public class CourseServiceImpl implements CourseService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private Specification<Course> buildAdminCourseReviewSpecification(
+            String keyword,
+            UUID categoryId,
+            String instructor
+    ) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (keyword != null && !keyword.isBlank()) {
+                String pattern = "%" + keyword.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
+                ));
+            }
+
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+
+            if (instructor != null && !instructor.isBlank()) {
+                String pattern = "%" + instructor.trim().toLowerCase() + "%";
+                Join<Course, Instructor> instructorJoin = root.join("instructor", JoinType.LEFT);
+                Join<Instructor, User> userJoin = instructorJoin.join("user", JoinType.LEFT);
+
+                predicates.add(cb.or(
+                        cb.like(cb.lower(userJoin.get("firstName")), pattern),
+                        cb.like(cb.lower(userJoin.get("lastName")), pattern),
+                        cb.like(cb.lower(userJoin.get("email")), pattern)
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private Sort resolveAdminCourseReviewSort(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return Sort.by(Sort.Direction.DESC, "lastUpdatedContent");
+        }
+
+        return switch (sortBy) {
+            case "SUBMITTED_ASC" -> Sort.by(Sort.Direction.ASC, "lastUpdatedContent");
+            case "UPDATED_DESC" -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "UPDATED_ASC" -> Sort.by(Sort.Direction.ASC, "updatedAt");
+            case "TITLE_ASC" -> Sort.by(Sort.Direction.ASC, "title");
+            case "TITLE_DESC" -> Sort.by(Sort.Direction.DESC, "title");
+            default -> Sort.by(Sort.Direction.DESC, "lastUpdatedContent");
+        };
+    }
+
+    private AdminCourseReviewItemResponse toAdminCourseReviewItem(Course course) {
+        CourseResponse courseResponse = courseMapper.toResponse(course);
+        CoursePublishChecklistResponse checklist = buildPublishChecklist(course);
+        int totalChecklistItems = checklist.getGroups().stream()
+                .mapToInt(group -> group.getItems().size())
+                .sum();
+        int passedChecklistItems = checklist.getGroups().stream()
+                .flatMap(group -> group.getItems().stream())
+                .mapToInt(item -> PASSED.equals(item.getStatus()) ? 1 : 0)
+                .sum();
+
+        return AdminCourseReviewItemResponse.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .instructor(courseResponse.getInstructor())
+                .category(courseResponse.getCategory())
+                .status(course.getStatus())
+                .totalSections(toInt(courseSectionRepository.countByCourseId(course.getId())))
+                .totalLectures(toInt(lectureRepository.countByCourseId(course.getId())))
+                .totalQuizzes(toInt(lectureRepository.countByCourseIdAndContentType(course.getId(), ContentType.QUIZ)))
+                .checklistReady(checklist.getReady())
+                .checklistPassed(passedChecklistItems)
+                .checklistTotal(totalChecklistItems)
+                .submittedAt(course.getLastUpdatedContent())
+                .updatedAt(course.getUpdatedAt())
+                .build();
+    }
+
+    private int toInt(Long value) {
+        return value == null ? 0 : value.intValue();
     }
 }

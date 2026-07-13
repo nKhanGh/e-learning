@@ -118,6 +118,62 @@
       "categories": "Danh mục"
     }
   },
+  "AdminCourseReviewsPage": {
+    "eyebrow": "Kiểm duyệt admin",
+    "title": "Duyệt khóa học",
+    "subtitle": "Sàng lọc các khóa học đã gửi duyệt trước khi mở trang review chi tiết.",
+    "unknown": "Không rõ",
+    "contentCounts": "{sections} sections · {lectures} lectures · {quizzes} quizzes",
+    "checklistRatio": "Checklist {passed}/{total}",
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản admin để duyệt khóa học.",
+      "adminOnlyTitle": "Chỉ dành cho admin",
+      "adminOnlySubtitle": "Khu vực duyệt khóa học chỉ khả dụng với tài khoản admin."
+    },
+    "filters": {
+      "keyword": "Tìm tên khóa học...",
+      "instructor": "Tên hoặc email giảng viên...",
+      "category": "Danh mục",
+      "allCategories": "Tất cả danh mục",
+      "sort": "Sắp xếp"
+    },
+    "sort": {
+      "SUBMITTED_DESC": "Gửi duyệt mới nhất",
+      "SUBMITTED_ASC": "Gửi duyệt cũ nhất",
+      "UPDATED_DESC": "Cập nhật mới nhất",
+      "UPDATED_ASC": "Cập nhật cũ nhất",
+      "TITLE_ASC": "Tên A-Z",
+      "TITLE_DESC": "Tên Z-A"
+    },
+    "columns": {
+      "course": "Khóa học",
+      "instructor": "Giảng viên",
+      "category": "Danh mục",
+      "status": "Trạng thái",
+      "content": "Sections / Lectures / Quizzes",
+      "date": "Gửi duyệt / Cập nhật",
+      "checklist": "Checklist",
+      "actions": "Thao tác"
+    },
+    "actions": {
+      "review": "Review"
+    },
+    "empty": {
+      "title": "Không có khóa học phù hợp",
+      "subtitle": "Thử đổi trạng thái, giảng viên, danh mục hoặc cách sắp xếp."
+    },
+    "error": {
+      "title": "Không tải được danh sách duyệt",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    },
+    "pagination": {
+      "summary": "{total} khóa học · trang {page}/{totalPages}",
+      "previous": "Trước",
+      "next": "Sau"
+    }
+  },
   "InstructorCoursesPage": {
     "title": "Khóa học của tôi",
     "subtitle": "Xem và quản lý các khóa học bạn sở hữu.",

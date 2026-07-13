@@ -5,8 +5,9 @@ import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
-import com.khangdev.elearningbe.dto.response.course.CourseResponse;
+import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewItemResponse;
 import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.enums.CourseStatus;
 
 import java.util.UUID;
@@ -19,6 +20,15 @@ public interface CourseService {
     void deleteCourse(UUID courseId);
     PageResponse<CourseResponse> getCourses(UUID instructorId, int page, int size);
     PageResponse<CourseResponse> getCoursesByInstructorUserId(UUID userId, int page, int size, String keyword, CourseStatus status);
+    PageResponse<AdminCourseReviewItemResponse> getAdminCourseReviews(
+            int page,
+            int size,
+            String keyword,
+            CourseStatus status,
+            UUID categoryId,
+            String instructor,
+            String sortBy
+    );
     CoursePublishChecklistResponse getPublishChecklist(UUID courseId);
     CourseResponse submitForReview(UUID courseId);
 }

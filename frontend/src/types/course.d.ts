@@ -428,6 +428,40 @@ interface CoursePublishChecklistResponse {
   groups: CoursePublishChecklistGroup[];
 }
 
+type AdminCourseReviewSortOption =
+  | "SUBMITTED_DESC"
+  | "SUBMITTED_ASC"
+  | "UPDATED_DESC"
+  | "UPDATED_ASC"
+  | "TITLE_ASC"
+  | "TITLE_DESC";
+
+interface AdminCourseReviewFilters {
+  page: number;
+  size: number;
+  keyword: string;
+  status: "PENDING_REVIEW" | "PUBLISHED" | "REJECTED";
+  categoryId: string;
+  instructor: string;
+  sortBy: AdminCourseReviewSortOption;
+}
+
+interface AdminCourseReviewItemResponse {
+  id: string;
+  title: string;
+  instructor: UserResponse | null;
+  category: CourseCategoryResponse | null;
+  status: CourseStatus;
+  totalSections: number;
+  totalLectures: number;
+  totalQuizzes: number;
+  checklistReady: boolean;
+  checklistPassed: number;
+  checklistTotal: number;
+  submittedAt: string | null;
+  updatedAt: string | null;
+}
+
 interface CourseUpdateRequest {
   categoryId: string;
   title: string;

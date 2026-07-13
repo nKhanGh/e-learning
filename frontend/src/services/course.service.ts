@@ -18,6 +18,21 @@ export const courseService = {
       "/courses/my-course",
       { params: { page, size, keyword: keyword || undefined, status } },
     ),
+  getAdminCourseReviews: (filters: AdminCourseReviewFilters) =>
+    apiClient.get<ApiResponse<PageResponse<AdminCourseReviewItemResponse>>>(
+      "/admin/course-reviews",
+      {
+        params: {
+          page: filters.page,
+          size: filters.size,
+          keyword: filters.keyword || undefined,
+          status: filters.status,
+          categoryId: filters.categoryId || undefined,
+          instructor: filters.instructor || undefined,
+          sortBy: filters.sortBy,
+        },
+      },
+    ),
   createCourse: (request: CourseCreationRequest) =>
     apiClient.post<ApiResponse<CourseResponse>>("/courses", request),
   updateCourse: (courseId: string, request: CourseUpdateRequest) =>

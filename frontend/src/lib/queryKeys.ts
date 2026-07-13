@@ -23,6 +23,11 @@ export const queryKeys = {
       ["courses", "enrollment-status", courseId] as const,
     featured: (size: number) => ["courses", "featured", size] as const,
   },
+  adminCourseReviews: {
+    lists: ["admin", "course-reviews"] as const,
+    list: (filters: AdminCourseReviewFilters) =>
+      ["admin", "course-reviews", filters] as const,
+  },
   courseCategories: {
     all: ["course-categories"] as const,
   },
