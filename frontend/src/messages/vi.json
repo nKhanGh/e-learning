@@ -180,6 +180,47 @@
       "profile": "Hồ sơ"
     }
   },
+  "InstructorStudentsPage": {
+    "eyebrow": "Khu vực giảng viên",
+    "title": "Học viên",
+    "subtitle": "Theo dõi học viên đã đăng ký và tiến độ khóa học.",
+    "course": "Khóa học",
+    "selectCourse": "Chọn khóa học",
+    "students": "Học viên",
+    "listSubtitle": "Xem trạng thái học của học viên trong khóa đã chọn.",
+    "openStudio": "Mở Studio",
+    "unknownStudent": "Học viên không rõ",
+    "noEmail": "Chưa có email",
+    "progress": "Tiến độ",
+    "completedLectures": "bài đã hoàn thành",
+    "metrics": {
+      "students": "Học viên",
+      "completed": "Hoàn thành",
+      "active": "Đang học",
+      "avgProgress": "Tiến độ TB"
+    },
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản giảng viên.",
+      "instructorOnlyTitle": "Chỉ dành cho giảng viên",
+      "instructorOnlySubtitle": "Tiến độ học viên chỉ dành cho tài khoản giảng viên."
+    },
+    "emptyCourses": {
+      "title": "Chưa có khóa học",
+      "subtitle": "Tạo khóa học trước khi theo dõi tiến độ học viên.",
+      "create": "Tạo khóa học"
+    },
+    "emptyStudents": {
+      "title": "Chưa có học viên đăng ký",
+      "subtitle": "Học viên sẽ xuất hiện ở đây sau khi đăng ký khóa học này."
+    },
+    "error": {
+      "coursesTitle": "Không thể tải khóa học",
+      "studentsTitle": "Không thể tải học viên",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    }
+  },
   "AdminSidebar": {
     "items": {
       "home": "Trang chủ",

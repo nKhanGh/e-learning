@@ -180,6 +180,47 @@
       "profile": "Profile"
     }
   },
+  "InstructorStudentsPage": {
+    "eyebrow": "Instructor workspace",
+    "title": "Students",
+    "subtitle": "Track enrolled students and course progress.",
+    "course": "Course",
+    "selectCourse": "Select a course",
+    "students": "Students",
+    "listSubtitle": "Review learner status for the selected course.",
+    "openStudio": "Open Studio",
+    "unknownStudent": "Unknown student",
+    "noEmail": "No email",
+    "progress": "Progress",
+    "completedLectures": "completed lectures",
+    "metrics": {
+      "students": "Students",
+      "completed": "Completed",
+      "active": "Active",
+      "avgProgress": "Avg progress"
+    },
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in with an instructor account.",
+      "instructorOnlyTitle": "Instructor access only",
+      "instructorOnlySubtitle": "Student progress is available for instructor accounts."
+    },
+    "emptyCourses": {
+      "title": "No courses yet",
+      "subtitle": "Create a course before tracking student progress.",
+      "create": "Create course"
+    },
+    "emptyStudents": {
+      "title": "No students enrolled",
+      "subtitle": "Students will appear here after enrolling in this course."
+    },
+    "error": {
+      "coursesTitle": "Failed to load courses",
+      "studentsTitle": "Failed to load students",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    }
+  },
   "AdminSidebar": {
     "items": {
       "home": "Home",

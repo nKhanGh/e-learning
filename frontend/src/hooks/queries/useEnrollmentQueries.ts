@@ -25,6 +25,17 @@ export function useMyLearningQuery(enabled = true) {
   });
 }
 
+export function useCourseEnrollmentsQuery(courseId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.enrollments.byCourse(courseId),
+    queryFn: async () => {
+      const response = await enrollmentService.getCourseEnrollments(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
+  });
+}
+
 export function useEnrollCourseMutation(courseId: string) {
   const queryClient = useQueryClient();
 
