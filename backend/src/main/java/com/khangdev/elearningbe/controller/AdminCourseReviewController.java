@@ -2,16 +2,16 @@ package com.khangdev.elearningbe.controller;
 
 import com.khangdev.elearningbe.dto.ApiResponse;
 import com.khangdev.elearningbe.dto.PageResponse;
+import com.khangdev.elearningbe.dto.request.course.CourseRejectRequest;
+import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewDetailResponse;
 import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewItemResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseResponse;
 import com.khangdev.elearningbe.enums.CourseStatus;
 import com.khangdev.elearningbe.service.course.CourseService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -42,6 +42,32 @@ public class AdminCourseReviewController {
                         instructor,
                         sortBy
                 ))
+                .build();
+    }
+
+    @GetMapping("/{courseId}")
+    ApiResponse<AdminCourseReviewDetailResponse> getCourseReviewDetail(@PathVariable UUID courseId) {
+        return ApiResponse.<AdminCourseReviewDetailResponse>builder()
+                .result(courseService.getAdminCourseReviewDetail(courseId))
+                .build();
+    }
+
+    @PostMapping("/{courseId}/approve")
+    ApiResponse<CourseResponse> approveCourseReview(@PathVariable UUID courseId) {
+        return ApiResponse.<CourseResponse>builder()
+                .result(courseService.approveCourseReview(courseId))
+                .message("Course approved successfully")
+                .build();
+    }
+
+    @PostMapping("/{courseId}/reject")
+    ApiResponse<CourseResponse> rejectCourseReview(
+            @PathVariable UUID courseId,
+            @RequestBody CourseRejectRequest request
+    ) {
+        return ApiResponse.<CourseResponse>builder()
+                .result(courseService.rejectCourseReview(courseId, request))
+                .message("Course rejected successfully")
                 .build();
     }
 }

@@ -3,8 +3,10 @@ package com.khangdev.elearningbe.service.course;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
+import com.khangdev.elearningbe.dto.request.course.CourseRejectRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewDetailResponse;
 import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewItemResponse;
 import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
@@ -29,6 +31,9 @@ public interface CourseService {
             String instructor,
             String sortBy
     );
+    AdminCourseReviewDetailResponse getAdminCourseReviewDetail(UUID courseId);
+    CourseResponse approveCourseReview(UUID courseId);
+    CourseResponse rejectCourseReview(UUID courseId, CourseRejectRequest request);
     CoursePublishChecklistResponse getPublishChecklist(UUID courseId);
     CourseResponse submitForReview(UUID courseId);
 }

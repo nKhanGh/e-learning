@@ -5,19 +5,25 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
+import com.khangdev.elearningbe.dto.request.course.CourseRejectRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseTagRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewDetailResponse;
 import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewItemResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseCurriculumResponse;
 import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseReviewHistoryResponse;
 import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.entity.course.CourseCategory;
+import com.khangdev.elearningbe.entity.course.CourseReviewHistory;
 import com.khangdev.elearningbe.entity.course.CourseSection;
 import com.khangdev.elearningbe.entity.course.Lecture;
 import com.khangdev.elearningbe.entity.course.Quiz;
 import com.khangdev.elearningbe.entity.course.CourseTag;
 import com.khangdev.elearningbe.enums.ContentType;
+import com.khangdev.elearningbe.enums.CourseReviewAction;
 import com.khangdev.elearningbe.entity.user.Instructor;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.CourseStatus;
@@ -28,6 +34,7 @@ import com.khangdev.elearningbe.mapper.CourseMapper;
 import com.khangdev.elearningbe.mapper.UserMapper;
 import com.khangdev.elearningbe.repository.CourseCategoryRepository;
 import com.khangdev.elearningbe.repository.CourseRepository;
+import com.khangdev.elearningbe.repository.CourseReviewHistoryRepository;
 import com.khangdev.elearningbe.repository.CourseSectionRepository;
 import com.khangdev.elearningbe.repository.CourseTagRepository;
 import com.khangdev.elearningbe.repository.LectureRepository;
@@ -67,6 +74,7 @@ import java.util.concurrent.TimeUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseServiceImpl implements CourseService {
     CourseRepository courseRepository;
+    CourseReviewHistoryRepository courseReviewHistoryRepository;
     CourseSectionRepository courseSectionRepository;
     LectureRepository lectureRepository;
     CourseMapper courseMapper;
@@ -386,6 +394,77 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional(readOnly = true)
+    public AdminCourseReviewDetailResponse getAdminCourseReviewDetail(UUID courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        return AdminCourseReviewDetailResponse.builder()
+                .course(courseMapper.toResponse(course))
+                .checklist(buildPublishChecklist(course))
+                .curriculum(buildAdminCurriculum(course))
+                .reviewHistory(getCourseReviewHistory(courseId))
+                .build();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
+    public CourseResponse approveCourseReview(UUID courseId) {
+        User reviewer = getCurrentUser();
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
+            throw new AppException(ErrorCode.COURSE_REVIEW_INVALID_STATUS);
+        }
+
+        CoursePublishChecklistResponse checklist = buildPublishChecklist(course);
+        if (!Boolean.TRUE.equals(checklist.getReady())) {
+            throw new AppException(ErrorCode.COURSE_NOT_FULLY_COMPLETED);
+        }
+
+        CourseStatus fromStatus = course.getStatus();
+        course.setStatus(CourseStatus.PUBLISHED);
+        if (course.getPublishedAt() == null) {
+            course.setPublishedAt(Instant.now());
+        }
+        course.setLastUpdatedContent(Instant.now());
+
+        saveReviewHistory(course, reviewer, CourseReviewAction.APPROVED, fromStatus, CourseStatus.PUBLISHED, null);
+        kafkaTemplate.send("course.published", course.getId().toString());
+
+        return courseMapper.toResponse(course);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
+    public CourseResponse rejectCourseReview(UUID courseId, CourseRejectRequest request) {
+        User reviewer = getCurrentUser();
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        String reason = request == null ? null : request.getReason();
+
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
+            throw new AppException(ErrorCode.COURSE_REVIEW_INVALID_STATUS);
+        }
+
+        if (isBlank(reason)) {
+            throw new AppException(ErrorCode.REVIEW_REASON_REQUIRED);
+        }
+
+        CourseStatus fromStatus = course.getStatus();
+        course.setStatus(CourseStatus.REJECTED);
+        course.setLastUpdatedContent(Instant.now());
+
+        saveReviewHistory(course, reviewer, CourseReviewAction.REJECTED, fromStatus, CourseStatus.REJECTED, reason.trim());
+
+        return courseMapper.toResponse(course);
+    }
+
+    @Override
     @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     @Transactional(readOnly = true)
     public CoursePublishChecklistResponse getPublishChecklist(UUID courseId) {
@@ -419,8 +498,10 @@ public class CourseServiceImpl implements CourseService {
     @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     @Transactional
     public CourseResponse submitForReview(UUID courseId) {
+        User reviewer = getCurrentUser();
         Course course = getAuthorizedCourse(courseId);
         CoursePublishChecklistResponse checklist = getPublishChecklist(courseId);
+        CourseStatus fromStatus = course.getStatus();
 
         if (course.getStatus() == CourseStatus.PENDING_REVIEW) {
             throw new AppException(ErrorCode.COURSE_ALREADY_SUBMITTED);
@@ -436,6 +517,14 @@ public class CourseServiceImpl implements CourseService {
 
         course.setStatus(CourseStatus.PENDING_REVIEW);
         course.setLastUpdatedContent(Instant.now());
+        saveReviewHistory(
+                course,
+                reviewer,
+                fromStatus == CourseStatus.REJECTED ? CourseReviewAction.RESUBMITTED : CourseReviewAction.SUBMITTED,
+                fromStatus,
+                CourseStatus.PENDING_REVIEW,
+                null
+        );
 
         return courseMapper.toResponse(course);
     }
@@ -674,6 +763,121 @@ public class CourseServiceImpl implements CourseService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private CourseCurriculumResponse buildAdminCurriculum(Course course) {
+        UUID courseId = course.getId();
+        List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
+        List<Lecture> lectures = lectureRepository.findByCourseIdOrderBySectionAndDisplayOrder(courseId);
+
+        List<CourseCurriculumResponse.SectionItem> sectionItems = sections.stream()
+                .map(section -> {
+                    List<CourseCurriculumResponse.LectureItem> lectureItems = lectures.stream()
+                            .filter(lecture -> lecture.getSection().getId().equals(section.getId()))
+                            .map(this::toAdminLectureItem)
+                            .toList();
+
+                    return CourseCurriculumResponse.SectionItem.builder()
+                            .id(section.getId())
+                            .title(section.getTitle())
+                            .description(section.getDescription())
+                            .displayOrder(section.getDisplayOrder())
+                            .durationMinutes(section.getDurationMinutes())
+                            .lectures(lectureItems)
+                            .build();
+                })
+                .toList();
+
+        int totalDuration = sectionItems.stream()
+                .mapToInt(section -> section.getDurationMinutes() == null ? 0 : section.getDurationMinutes())
+                .sum();
+
+        return CourseCurriculumResponse.builder()
+                .courseId(courseId)
+                .totalSections(sectionItems.size())
+                .totalLectures(lectures.size())
+                .totalDurationMinutes(totalDuration)
+                .sections(sectionItems)
+                .build();
+    }
+
+    private CourseCurriculumResponse.LectureItem toAdminLectureItem(Lecture lecture) {
+        Quiz quiz = lecture.getQuiz();
+
+        return CourseCurriculumResponse.LectureItem.builder()
+                .id(lecture.getId())
+                .title(lecture.getTitle())
+                .description(lecture.getDescription())
+                .contentType(lecture.getContentType())
+                .displayOrder(lecture.getDisplayOrder())
+                .durationMinutes(toMinutes(lecture.getVideoDurationSeconds()))
+                .videoDurationSeconds(lecture.getVideoDurationSeconds())
+                .preview(lecture.getIsPreview())
+                .downloadable(lecture.getIsDownloadable())
+                .completed(false)
+                .status(Boolean.TRUE.equals(lecture.getIsPublished()) ? "PUBLISHED" : "UNPUBLISHED")
+                .quiz(quiz == null ? null : CourseCurriculumResponse.QuizItem.builder()
+                        .id(quiz.getId())
+                        .title(quiz.getTitle())
+                        .description(quiz.getDescription())
+                        .timeLimitMinutes(quiz.getTimeLimitMinutes())
+                        .totalQuestions(quiz.getTotalQuestions())
+                        .completed(false)
+                        .status(Boolean.TRUE.equals(quiz.getIsPublished()) ? "PUBLISHED" : "UNPUBLISHED")
+                        .build())
+                .build();
+    }
+
+    private List<CourseReviewHistoryResponse> getCourseReviewHistory(UUID courseId) {
+        return courseReviewHistoryRepository.findByCourseIdOrderByCreatedAtDesc(courseId)
+                .stream()
+                .map(this::toReviewHistoryResponse)
+                .toList();
+    }
+
+    private CourseReviewHistoryResponse toReviewHistoryResponse(CourseReviewHistory history) {
+        return CourseReviewHistoryResponse.builder()
+                .id(history.getId())
+                .courseId(history.getCourse().getId())
+                .reviewer(userMapper.toResponse(history.getReviewer()))
+                .action(history.getAction())
+                .fromStatus(history.getFromStatus())
+                .toStatus(history.getToStatus())
+                .reason(history.getReason())
+                .createdAt(history.getCreatedAt())
+                .build();
+    }
+
+    private void saveReviewHistory(
+            Course course,
+            User reviewer,
+            CourseReviewAction action,
+            CourseStatus fromStatus,
+            CourseStatus toStatus,
+            String reason
+    ) {
+        courseReviewHistoryRepository.save(CourseReviewHistory.builder()
+                .course(course)
+                .reviewer(reviewer)
+                .action(action)
+                .fromStatus(fromStatus)
+                .toStatus(toStatus)
+                .reason(reason)
+                .build());
+    }
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private int toMinutes(Integer seconds) {
+        if (seconds == null || seconds <= 0) {
+            return 0;
+        }
+
+        return (int) Math.ceil(seconds / 60.0);
     }
 
     private Specification<Course> buildAdminCourseReviewSpecification(
