@@ -33,6 +33,19 @@ export const courseService = {
         },
       },
     ),
+  getAdminCourseReviewDetail: (courseId: string) =>
+    apiClient.get<ApiResponse<AdminCourseReviewDetailResponse>>(
+      `/admin/course-reviews/${courseId}`,
+    ),
+  approveCourseReview: (courseId: string) =>
+    apiClient.post<ApiResponse<CourseResponse>>(
+      `/admin/course-reviews/${courseId}/approve`,
+    ),
+  rejectCourseReview: (courseId: string, request: CourseRejectRequest) =>
+    apiClient.post<ApiResponse<CourseResponse>>(
+      `/admin/course-reviews/${courseId}/reject`,
+      request,
+    ),
   createCourse: (request: CourseCreationRequest) =>
     apiClient.post<ApiResponse<CourseResponse>>("/courses", request),
   updateCourse: (courseId: string, request: CourseUpdateRequest) =>

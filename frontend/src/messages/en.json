@@ -174,6 +174,76 @@
       "next": "Next"
     }
   },
+  "AdminCourseReviewDetailPage": {
+    "back": "Back to Course Reviews",
+    "unknown": "Unknown",
+    "yes": "Yes",
+    "no": "No",
+    "courseStats": "{sections} sections · {lectures} lectures · {duration}m",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in with an admin account to review this course.",
+      "adminOnlyTitle": "Admin access only",
+      "adminOnlySubtitle": "Course review details are available for admin accounts."
+    },
+    "actions": {
+      "openStudio": "Open Studio",
+      "approve": "Approve",
+      "approving": "Approving...",
+      "reject": "Reject",
+      "preview": "Preview"
+    },
+    "checklist": {
+      "title": "Publish checklist",
+      "subtitle": "{passed}/{total} checklist items passed.",
+      "ready": "Ready",
+      "notReady": "Needs work"
+    },
+    "info": {
+      "title": "Course info",
+      "level": "Level",
+      "language": "Language",
+      "price": "Price",
+      "free": "Free",
+      "quiz": "Has quiz"
+    },
+    "curriculum": {
+      "title": "Curriculum",
+      "section": "Section {order}",
+      "lectureCount": "{count} lectures",
+      "questions": "{count} questions"
+    },
+    "history": {
+      "title": "Review history",
+      "empty": "No review history yet.",
+      "actions": {
+        "SUBMITTED": "Submitted",
+        "RESUBMITTED": "Resubmitted",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      }
+    },
+    "rejectDialog": {
+      "title": "Reject course",
+      "description": "Tell the instructor what must be fixed before they can submit this course again.",
+      "placeholder": "Write a clear reason for rejection...",
+      "cancel": "Cancel",
+      "reject": "Reject course",
+      "rejecting": "Rejecting..."
+    },
+    "toast": {
+      "approved": "Course approved.",
+      "approveFailed": "Could not approve this course.",
+      "rejected": "Course rejected.",
+      "rejectFailed": "Could not reject this course.",
+      "reasonRequired": "Please enter a rejection reason."
+    },
+    "error": {
+      "title": "Failed to load review detail",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    }
+  },
   "InstructorCoursesPage": {
     "title": "My Courses",
     "subtitle": "View and manage the courses you own.",

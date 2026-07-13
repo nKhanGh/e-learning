@@ -346,7 +346,7 @@ const CourseReviewsPage = () => {
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button asChild size="sm" className="!text-white">
-                            <Link href={`/${locale}/instructor/studio/${course.id}`}>
+                            <Link href={`/${locale}/admin/course-reviews/${course.id}`}>
                               <Eye className="h-3.5 w-3.5" />
                               {t("actions.review")}
                             </Link>
@@ -403,7 +403,7 @@ const CourseReviewsPage = () => {
                       </p>
                     </div>
                     <Button asChild size="sm" className="mt-3 w-full !text-white">
-                      <Link href={`/${locale}/instructor/studio/${course.id}`}>
+                      <Link href={`/${locale}/admin/course-reviews/${course.id}`}>
                         <Eye className="h-3.5 w-3.5" />
                         {t("actions.review")}
                       </Link>

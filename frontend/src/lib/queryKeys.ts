@@ -27,6 +27,8 @@ export const queryKeys = {
     lists: ["admin", "course-reviews"] as const,
     list: (filters: AdminCourseReviewFilters) =>
       ["admin", "course-reviews", filters] as const,
+    detail: (courseId: string) =>
+      ["admin", "course-reviews", "detail", courseId] as const,
   },
   courseCategories: {
     all: ["course-categories"] as const,

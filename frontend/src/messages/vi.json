@@ -174,6 +174,76 @@
       "next": "Sau"
     }
   },
+  "AdminCourseReviewDetailPage": {
+    "back": "Quay lại danh sách duyệt",
+    "unknown": "Không rõ",
+    "yes": "Có",
+    "no": "Không",
+    "courseStats": "{sections} sections · {lectures} lectures · {duration}m",
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản admin để duyệt khóa học này.",
+      "adminOnlyTitle": "Chỉ dành cho admin",
+      "adminOnlySubtitle": "Chi tiết duyệt khóa học chỉ khả dụng với tài khoản admin."
+    },
+    "actions": {
+      "openStudio": "Mở Studio",
+      "approve": "Duyệt",
+      "approving": "Đang duyệt...",
+      "reject": "Từ chối",
+      "preview": "Xem trước"
+    },
+    "checklist": {
+      "title": "Publish checklist",
+      "subtitle": "{passed}/{total} mục checklist đã đạt.",
+      "ready": "Sẵn sàng",
+      "notReady": "Cần chỉnh"
+    },
+    "info": {
+      "title": "Thông tin khóa học",
+      "level": "Cấp độ",
+      "language": "Ngôn ngữ",
+      "price": "Giá",
+      "free": "Miễn phí",
+      "quiz": "Có quiz"
+    },
+    "curriculum": {
+      "title": "Curriculum",
+      "section": "Section {order}",
+      "lectureCount": "{count} lectures",
+      "questions": "{count} câu hỏi"
+    },
+    "history": {
+      "title": "Lịch sử duyệt",
+      "empty": "Chưa có lịch sử duyệt.",
+      "actions": {
+        "SUBMITTED": "Đã gửi",
+        "RESUBMITTED": "Gửi lại",
+        "APPROVED": "Đã duyệt",
+        "REJECTED": "Đã từ chối"
+      }
+    },
+    "rejectDialog": {
+      "title": "Từ chối khóa học",
+      "description": "Cho giảng viên biết họ cần sửa gì trước khi gửi duyệt lại.",
+      "placeholder": "Viết lý do từ chối rõ ràng...",
+      "cancel": "Hủy",
+      "reject": "Từ chối khóa học",
+      "rejecting": "Đang từ chối..."
+    },
+    "toast": {
+      "approved": "Đã duyệt khóa học.",
+      "approveFailed": "Không thể duyệt khóa học này.",
+      "rejected": "Đã từ chối khóa học.",
+      "rejectFailed": "Không thể từ chối khóa học này.",
+      "reasonRequired": "Vui lòng nhập lý do từ chối."
+    },
+    "error": {
+      "title": "Không tải được chi tiết duyệt",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    }
+  },
   "InstructorCoursesPage": {
     "title": "Khóa học của tôi",
     "subtitle": "Xem và quản lý các khóa học bạn sở hữu.",

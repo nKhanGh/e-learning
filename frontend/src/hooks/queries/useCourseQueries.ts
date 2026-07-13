@@ -158,6 +158,62 @@ export function useAdminCourseReviewsQuery(
   });
 }
 
+export function useAdminCourseReviewDetailQuery(
+  courseId: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.adminCourseReviews.detail(courseId),
+    queryFn: async () => {
+      const response = await courseService.getAdminCourseReviewDetail(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
+  });
+}
+
+const invalidateAdminCourseReview = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+) => {
+  queryClient.invalidateQueries({ queryKey: queryKeys.adminCourseReviews.lists });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.adminCourseReviews.detail(courseId),
+  });
+  queryClient.invalidateQueries({ queryKey: queryKeys.courses.detail(courseId) });
+  queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
+};
+
+export function useApproveCourseReviewMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.approveCourseReview(courseId);
+      return response.data.result;
+    },
+    onSuccess: (course) => {
+      queryClient.setQueryData(queryKeys.courses.detail(course.id), course);
+      invalidateAdminCourseReview(queryClient, courseId);
+    },
+  });
+}
+
+export function useRejectCourseReviewMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: CourseRejectRequest) => {
+      const response = await courseService.rejectCourseReview(courseId, request);
+      return response.data.result;
+    },
+    onSuccess: (course) => {
+      queryClient.setQueryData(queryKeys.courses.detail(course.id), course);
+      invalidateAdminCourseReview(queryClient, courseId);
+    },
+  });
+}
+
 export function useCreateCourseMutation() {
   const queryClient = useQueryClient();
 

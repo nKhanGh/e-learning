@@ -436,6 +436,8 @@ type AdminCourseReviewSortOption =
   | "TITLE_ASC"
   | "TITLE_DESC";
 
+type CourseReviewAction = "SUBMITTED" | "RESUBMITTED" | "APPROVED" | "REJECTED";
+
 interface AdminCourseReviewFilters {
   page: number;
   size: number;
@@ -460,6 +462,28 @@ interface AdminCourseReviewItemResponse {
   checklistTotal: number;
   submittedAt: string | null;
   updatedAt: string | null;
+}
+
+interface CourseReviewHistoryResponse {
+  id: string;
+  courseId: string;
+  reviewer: UserResponse | null;
+  action: CourseReviewAction;
+  fromStatus: CourseStatus | null;
+  toStatus: CourseStatus;
+  reason: string | null;
+  createdAt: string;
+}
+
+interface AdminCourseReviewDetailResponse {
+  course: CourseResponse;
+  checklist: CoursePublishChecklistResponse;
+  curriculum: CourseCurriculumResponse;
+  reviewHistory: CourseReviewHistoryResponse[];
+}
+
+interface CourseRejectRequest {
+  reason: string;
 }
 
 interface CourseUpdateRequest {
