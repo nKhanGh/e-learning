@@ -78,6 +78,7 @@
     "signup": "Đăng Ký",
     "logout": "Đăng Xuất",
     "dashboard": "Bảng Điều Khiển",
+    "myLearning": "Khóa học của tôi",
     "profile": "Hồ Sơ",
     "settings": "Cài Đặt",
     "search": "Tìm kiếm...",
@@ -91,6 +92,32 @@
     "REJECTED": "Bị từ chối",
     "UNPUBLISHED": "Chưa xuất bản",
     "ARCHIVED": "Đã lưu trữ"
+  },
+  "MyLearningPage": {
+    "eyebrow": "Không gian học viên",
+    "title": "Khóa học của tôi",
+    "subtitle": "Tiếp tục các khóa học bạn đã đăng ký.",
+    "progress": "Tiến độ",
+    "continue": "Tiếp tục",
+    "completedLectures": "bài đã hoàn thành",
+    "unknownInstructor": "Không rõ giảng viên",
+    "neverOpened": "Chưa mở",
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập để xem không gian học tập.",
+      "studentOnlyTitle": "Chỉ dành cho học viên",
+      "studentOnlySubtitle": "My Learning chỉ khả dụng với tài khoản học viên."
+    },
+    "empty": {
+      "title": "Chưa đăng ký khóa học nào",
+      "subtitle": "Duyệt các khóa học đã xuất bản và đăng ký khóa học miễn phí để bắt đầu.",
+      "browse": "Duyệt khóa học"
+    },
+    "error": {
+      "title": "Không tải được khóa học của bạn",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    }
   },
   "InstructorSidebar": {
     "items": {

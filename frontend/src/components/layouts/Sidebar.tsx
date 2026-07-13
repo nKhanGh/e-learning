@@ -6,6 +6,7 @@ import {
   faChartBar,
   faChevronRight,
   faGear,
+  faGraduationCap,
   faHome,
   faRightFromBracket,
   faUser,
@@ -46,6 +47,11 @@ const Sidebar = ({ open }: { open: boolean }) => {
     title: t('courses'),
     icon: faBook,
     link: "/courses",
+  },
+  {
+    title: t('myLearning'),
+    icon: faGraduationCap,
+    link: "/learning",
   },
   {
     title: t('profile'),

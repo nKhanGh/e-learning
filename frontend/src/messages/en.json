@@ -78,6 +78,7 @@
     "signup": "Sign Up",
     "logout": "Logout",
     "dashboard": "Dashboard",
+    "myLearning": "My Learning",
     "profile": "Profile",
     "settings": "Settings",
     "search": "Search...",
@@ -91,6 +92,32 @@
     "REJECTED": "Rejected",
     "UNPUBLISHED": "Unpublished",
     "ARCHIVED": "Archived"
+  },
+  "MyLearningPage": {
+    "eyebrow": "Student workspace",
+    "title": "My Learning",
+    "subtitle": "Continue the courses you are enrolled in.",
+    "progress": "Progress",
+    "continue": "Continue",
+    "completedLectures": "completed lectures",
+    "unknownInstructor": "Unknown instructor",
+    "neverOpened": "Not opened yet",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in to view your learning workspace.",
+      "studentOnlyTitle": "Student access only",
+      "studentOnlySubtitle": "My Learning is available for student accounts."
+    },
+    "empty": {
+      "title": "No enrolled courses yet",
+      "subtitle": "Browse published courses and enroll in a free course to start learning.",
+      "browse": "Browse courses"
+    },
+    "error": {
+      "title": "Failed to load your courses",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    }
   },
   "InstructorSidebar": {
     "items": {

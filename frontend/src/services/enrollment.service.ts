@@ -9,4 +9,6 @@ export const enrollmentService = {
     apiClient.get<ApiResponse<EnrollmentResponse>>(
       `/courses/${courseId}/enrollments/me`,
     ),
+  getMyLearning: () =>
+    apiClient.get<ApiResponse<EnrollmentResponse[]>>("/learning/my-courses"),
 };

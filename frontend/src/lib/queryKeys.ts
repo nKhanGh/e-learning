@@ -51,6 +51,7 @@ export const queryKeys = {
   },
   enrollments: {
     me: (courseId: string) => ["enrollments", "me", courseId] as const,
+    myCourses: ["enrollments", "my-courses"] as const,
   },
   conversations: {
     my: ["conversations", "my"] as const,
