@@ -119,6 +119,45 @@
       "retry": "Thử lại"
     }
   },
+  "StudentLecturePage": {
+    "backToLearning": "Quay lại Khóa học của tôi",
+    "learningMode": "Chế độ học",
+    "curriculum": "Chương trình học",
+    "lectures": "Bài học",
+    "emptyCurriculum": "Chưa có nội dung học.",
+    "collapseSidebar": "Thu gọn chương trình học",
+    "expandSidebar": "Mở rộng chương trình học",
+    "previous": "Bài trước",
+    "next": "Bài tiếp theo",
+    "resources": "Tài nguyên",
+    "openResource": "Mở tài nguyên",
+    "openExternal": "Mở liên kết",
+    "articleEmpty": "Bài viết này chưa có nội dung.",
+    "videoEmpty": "Video này chưa được thêm.",
+    "fileEmpty": "Chưa có tệp đính kèm.",
+    "externalEmpty": "Chưa có liên kết ngoài.",
+    "quizComingSoon": "Làm quiz sẽ được thêm sau khi có flow attempt.",
+    "auth": {
+      "signInTitle": "Cần đăng nhập",
+      "signInSubtitle": "Vui lòng đăng nhập để tiếp tục học.",
+      "studentOnlyTitle": "Chỉ dành cho học viên",
+      "studentOnlySubtitle": "Trang học này chỉ dành cho tài khoản học viên."
+    },
+    "locked": {
+      "title": "Bài học bị khóa",
+      "subtitle": "Hãy đăng ký khóa học này hoặc chọn một bài xem thử khả dụng.",
+      "viewCourse": "Xem khóa học"
+    },
+    "notFound": {
+      "title": "Không tìm thấy bài học",
+      "subtitle": "Bài học này không có trong chương trình học hiện tại."
+    },
+    "error": {
+      "title": "Không thể tải bài học",
+      "subtitle": "Vui lòng thử lại sau.",
+      "retry": "Thử lại"
+    }
+  },
   "InstructorSidebar": {
     "items": {
       "home": "Trang chủ",

@@ -119,6 +119,45 @@
       "retry": "Try again"
     }
   },
+  "StudentLecturePage": {
+    "backToLearning": "Back to My Learning",
+    "learningMode": "Learning mode",
+    "curriculum": "Curriculum",
+    "lectures": "Lectures",
+    "emptyCurriculum": "No curriculum items yet.",
+    "collapseSidebar": "Collapse curriculum",
+    "expandSidebar": "Expand curriculum",
+    "previous": "Previous",
+    "next": "Next",
+    "resources": "Resources",
+    "openResource": "Open resource",
+    "openExternal": "Open link",
+    "articleEmpty": "This article has no content yet.",
+    "videoEmpty": "This video has not been added yet.",
+    "fileEmpty": "No files have been attached yet.",
+    "externalEmpty": "No external link has been added yet.",
+    "quizComingSoon": "Quiz taking will be available after the attempt flow is added.",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in to continue learning.",
+      "studentOnlyTitle": "Student access only",
+      "studentOnlySubtitle": "This learning page is available for student accounts."
+    },
+    "locked": {
+      "title": "Lecture locked",
+      "subtitle": "Enroll in this course or choose an available preview lecture.",
+      "viewCourse": "View course"
+    },
+    "notFound": {
+      "title": "Lecture not found",
+      "subtitle": "This lecture is not available in the current curriculum."
+    },
+    "error": {
+      "title": "Could not load this lecture",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    }
+  },
   "InstructorSidebar": {
     "items": {
       "home": "Home",

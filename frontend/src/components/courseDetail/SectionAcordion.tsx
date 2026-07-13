@@ -9,6 +9,7 @@ import {
   faQuestionCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 import { useState } from "react";
 
 function formatDuration(minutes: number): string {
@@ -48,7 +49,18 @@ const getStatusClass = (status: LearningItemStatus) => {
   return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
 };
 
-const SectionAccordion = ({ section }: { section: CourseCurriculumSection }) => {
+const canOpenLecture = (status: LearningItemStatus) =>
+  status === "AVAILABLE" || status === "COMPLETED" || status === "FREE_PREVIEW";
+
+const SectionAccordion = ({
+  section,
+  courseId,
+  locale,
+}: {
+  section: CourseCurriculumSection;
+  courseId: string;
+  locale: string;
+}) => {
   const [open, setOpen] = useState(false);
   const lectureCount = section.lectures.length;
   const sectionDuration =
@@ -79,8 +91,9 @@ const SectionAccordion = ({ section }: { section: CourseCurriculumSection }) => 
       {open && (
         <div className="p-3.5 space-y-1.5">
           {section.lectures.length > 0 ? (
-            section.lectures.map((lecture) => (
-              <div key={lecture.id} className="space-y-1">
+            section.lectures.map((lecture) => {
+              const accessible = canOpenLecture(lecture.status);
+              const lectureRow = (
                 <div className="flex items-center gap-2.5 py-1.5 px-1.5 rounded-md hover:bg-gray-50 dark:hover:bg-surface group">
                   <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-border flex items-center justify-center flex-shrink-0 group-hover:bg-primary/10">
                     <FontAwesomeIcon
@@ -107,6 +120,20 @@ const SectionAccordion = ({ section }: { section: CourseCurriculumSection }) => 
                     {formatDuration(lecture.durationMinutes)}
                   </span>
                 </div>
+              );
+
+              return (
+                <div key={lecture.id} className="space-y-1">
+                  {accessible ? (
+                    <Link
+                      href={`/${locale}/learning/courses/${courseId}/lectures/${lecture.id}`}
+                      className="block"
+                    >
+                      {lectureRow}
+                    </Link>
+                  ) : (
+                    lectureRow
+                  )}
 
                 {lecture.quiz && (
                   <div className="ml-8 flex items-center gap-2 rounded-md px-2 py-1.5 text-xs text-gray-600 dark:text-muted">
@@ -121,7 +148,8 @@ const SectionAccordion = ({ section }: { section: CourseCurriculumSection }) => 
                   </div>
                 )}
               </div>
-            ))
+              );
+            })
           ) : (
             <p className="py-2 text-center text-xs text-gray-500 dark:text-muted">
               No published lectures yet.
