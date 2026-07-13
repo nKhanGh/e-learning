@@ -374,6 +374,27 @@ interface LectureResponse extends LectureUpdateRequest {
   quiz: QuizResponse | CourseCurriculumQuiz | null;
 }
 
+interface LectureProgressId {
+  userId: string;
+  lectureId: string;
+}
+
+interface LectureProgressResponse {
+  id: LectureProgressId;
+  user: UserResponse;
+  lecture: LectureResponse;
+  progressPercentage: number;
+  lastWatchedPositionSeconds: number | null;
+  totalWatchTimeSeconds: number | null;
+  completed: boolean;
+  completedAt: string | null;
+  firstWatchedAt: string | null;
+  lastWatchedAt: string | null;
+  viewCount: number;
+  bookmarked: boolean;
+  notes: string | null;
+}
+
 interface CourseCurriculumResponse {
   courseId: string;
   totalSections: number;

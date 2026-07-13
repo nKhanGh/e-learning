@@ -414,6 +414,67 @@ export function useLectureQuery(lectureId: string) {
   });
 }
 
+export function useCourseLectureProgressQuery(courseId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.lectures.progressByCourse(courseId),
+    queryFn: async () => {
+      const response = await courseService.getCourseLectureProgress(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
+  });
+}
+
+const invalidateLearningProgress = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+) => {
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.lectures.progressByCourse(courseId),
+  });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.curriculum(courseId),
+  });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.enrollmentStatus(courseId),
+  });
+  queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.myCourses });
+};
+
+export function useCreateLectureProgressMutation(
+  courseId: string,
+  lectureId: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.createLectureProgress(lectureId);
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateLearningProgress(queryClient, courseId);
+    },
+  });
+}
+
+export function useCompleteLectureMutation(
+  courseId: string,
+  lectureId: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.completeLecture(lectureId);
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateLearningProgress(queryClient, courseId);
+    },
+  });
+}
+
 const invalidateLectureStructure = (
   queryClient: ReturnType<typeof useQueryClient>,
   courseId: string,

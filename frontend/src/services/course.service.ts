@@ -88,6 +88,18 @@ export const courseService = {
     ),
   getLecture: (lectureId: string) =>
     apiClient.get<ApiResponse<LectureResponse>>(`/lectures/${lectureId}`),
+  createLectureProgress: (lectureId: string) =>
+    apiClient.post<ApiResponse<LectureProgressResponse>>(
+      `/lectures/${lectureId}/progress`,
+    ),
+  completeLecture: (lectureId: string) =>
+    apiClient.post<ApiResponse<LectureProgressResponse>>(
+      `/lectures/${lectureId}/progress/completion`,
+    ),
+  getCourseLectureProgress: (courseId: string) =>
+    apiClient.get<ApiResponse<LectureProgressResponse[]>>(
+      `/lectures/courses/${courseId}/progress`,
+    ),
   createLecture: (request: LectureRequest) =>
     apiClient.post<ApiResponse<LectureResponse>>("/lectures", request),
   updateLecture: (lectureId: string, request: LectureUpdateRequest) =>

@@ -5,15 +5,19 @@ import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
+  useCompleteLectureMutation,
   useCourseCurriculumQuery,
   useCourseEnrollmentStatusQuery,
   useCourseQuery,
+  useCourseLectureProgressQuery,
+  useCreateLectureProgressMutation,
   useLectureQuery,
 } from "@/hooks/queries/useCourseQueries";
 import { cn } from "@/lib/utils";
 import { UserRole } from "@/types/enums/UserRole.enum";
 import {
   ArrowLeft,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -25,7 +29,8 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const canOpenLecture = (
   lecture?: CourseCurriculumLecture,
@@ -75,8 +80,40 @@ const StudentLecturePage = () => {
   const enrollmentStatus = enrollmentStatusQuery.data;
   const allowed = canOpenLecture(currentItem?.lecture, enrollmentStatus);
   const lectureQuery = useLectureQuery(allowed ? lectureId : "");
+  const progressQuery = useCourseLectureProgressQuery(
+    courseId,
+    Boolean(enrollmentStatus?.enrolled),
+  );
+  const createProgressMutation = useCreateLectureProgressMutation(
+    courseId,
+    lectureId,
+  );
+  const completeLectureMutation = useCompleteLectureMutation(courseId, lectureId);
   const lecture = lectureQuery.data;
   const displayLecture = lecture ?? currentItem?.lecture;
+  const currentProgress = progressQuery.data?.find(
+    (progress) => progress.id.lectureId === lectureId,
+  );
+  const completed = Boolean(currentProgress?.completed || currentItem?.lecture.completed);
+
+  useEffect(() => {
+    if (!allowed || !enrollmentStatus?.enrolled) return;
+    if (progressQuery.isLoading || currentProgress) return;
+    if (createProgressMutation.isPending) return;
+
+    createProgressMutation.mutate(undefined, {
+      onError: () => {
+        toast.error(t("progress.openFailed"));
+      },
+    });
+  }, [
+    allowed,
+    createProgressMutation,
+    currentProgress,
+    enrollmentStatus?.enrolled,
+    progressQuery.isLoading,
+    t,
+  ]);
 
   if (!isLoggedIn) {
     return <LearningState title={t("auth.signInTitle")} subtitle={t("auth.signInSubtitle")} />;
@@ -95,6 +132,7 @@ const StudentLecturePage = () => {
     courseQuery.isLoading ||
     curriculumQuery.isLoading ||
     enrollmentStatusQuery.isLoading ||
+    (Boolean(enrollmentStatus?.enrolled) && progressQuery.isLoading) ||
     (allowed && lectureQuery.isLoading);
 
   if (loading) {
@@ -112,6 +150,7 @@ const StudentLecturePage = () => {
     courseQuery.isError ||
     curriculumQuery.isError ||
     enrollmentStatusQuery.isError ||
+    (Boolean(enrollmentStatus?.enrolled) && progressQuery.isError) ||
     (allowed && lectureQuery.isError)
   ) {
     return (
@@ -126,6 +165,7 @@ const StudentLecturePage = () => {
               courseQuery.refetch();
               curriculumQuery.refetch();
               enrollmentStatusQuery.refetch();
+              progressQuery.refetch();
               lectureQuery.refetch();
             }}
           >
@@ -172,6 +212,19 @@ const StudentLecturePage = () => {
 
   const course = courseQuery.data;
   const attachments = lecture?.attachments ?? [];
+  const handleMarkComplete = async () => {
+    if (!enrollmentStatus?.enrolled || completed) return;
+
+    try {
+      if (!currentProgress) {
+        await createProgressMutation.mutateAsync();
+      }
+      await completeLectureMutation.mutateAsync();
+      toast.success(t("progress.completedToast"));
+    } catch {
+      toast.error(t("progress.completeFailed"));
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 px-2 py-4 dark:bg-bg">
@@ -195,6 +248,27 @@ const StudentLecturePage = () => {
           <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary">
             {t("learningMode")}
           </div>
+          {enrollmentStatus?.enrolled ? (
+            <Button
+              type="button"
+              size="sm"
+              variant={completed ? "outline" : "default"}
+              disabled={
+                completed ||
+                createProgressMutation.isPending ||
+                completeLectureMutation.isPending
+              }
+              className={completed ? "" : "!text-white"}
+              onClick={handleMarkComplete}
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              {completed
+                ? t("progress.completed")
+                : completeLectureMutation.isPending
+                  ? t("progress.saving")
+                  : t("progress.markComplete")}
+            </Button>
+          ) : null}
         </div>
 
         <div

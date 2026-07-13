@@ -41,6 +41,8 @@ export const queryKeys = {
   lectures: {
     bySection: (sectionId: string) => ["lectures", "section", sectionId] as const,
     detail: (lectureId: string) => ["lectures", "detail", lectureId] as const,
+    progressByCourse: (courseId: string) =>
+      ["lectures", "progress", "course", courseId] as const,
   },
   quizzes: {
     byLecture: (lectureId: string) => ["quizzes", "lecture", lectureId] as const,

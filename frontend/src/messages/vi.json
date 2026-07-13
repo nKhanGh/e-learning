@@ -137,6 +137,14 @@
     "fileEmpty": "Chưa có tệp đính kèm.",
     "externalEmpty": "Chưa có liên kết ngoài.",
     "quizComingSoon": "Làm quiz sẽ được thêm sau khi có flow attempt.",
+    "progress": {
+      "markComplete": "Đánh dấu hoàn thành",
+      "completed": "Đã hoàn thành",
+      "saving": "Đang lưu...",
+      "completedToast": "Đã đánh dấu hoàn thành bài học.",
+      "completeFailed": "Không thể hoàn thành bài học này.",
+      "openFailed": "Không thể lưu tiến độ bài học."
+    },
     "auth": {
       "signInTitle": "Cần đăng nhập",
       "signInSubtitle": "Vui lòng đăng nhập để tiếp tục học.",
