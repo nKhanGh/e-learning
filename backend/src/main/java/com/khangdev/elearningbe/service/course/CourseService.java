@@ -10,8 +10,10 @@ import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewDetailRespo
 import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewItemResponse;
 import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseReviewHistoryResponse;
 import com.khangdev.elearningbe.enums.CourseStatus;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface CourseService {
@@ -35,5 +37,6 @@ public interface CourseService {
     CourseResponse approveCourseReview(UUID courseId);
     CourseResponse rejectCourseReview(UUID courseId, CourseRejectRequest request);
     CoursePublishChecklistResponse getPublishChecklist(UUID courseId);
+    List<CourseReviewHistoryResponse> getReviewHistory(UUID courseId);
     CourseResponse submitForReview(UUID courseId);
 }

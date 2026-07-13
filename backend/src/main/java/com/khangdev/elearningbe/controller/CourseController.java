@@ -10,6 +10,7 @@ import com.khangdev.elearningbe.dto.response.course.CourseCurriculumResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseEnrollmentStatusResponse;
 import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseReviewHistoryResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseSearchResponse;
 import com.khangdev.elearningbe.enums.CourseStatus;
 import com.khangdev.elearningbe.service.course.CourseIndex;
@@ -26,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -124,6 +126,13 @@ public class CourseController {
     ApiResponse<CoursePublishChecklistResponse> getPublishChecklist(@PathVariable UUID courseId){
         return ApiResponse.<CoursePublishChecklistResponse>builder()
                 .result(courseService.getPublishChecklist(courseId))
+                .build();
+    }
+
+    @GetMapping("/{courseId}/review-history")
+    ApiResponse<List<CourseReviewHistoryResponse>> getReviewHistory(@PathVariable UUID courseId){
+        return ApiResponse.<List<CourseReviewHistoryResponse>>builder()
+                .result(courseService.getReviewHistory(courseId))
                 .build();
     }
 

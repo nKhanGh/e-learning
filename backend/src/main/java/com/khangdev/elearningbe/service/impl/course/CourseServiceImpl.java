@@ -472,6 +472,14 @@ public class CourseServiceImpl implements CourseService {
         return buildPublishChecklist(course);
     }
 
+    @Override
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
+    @Transactional(readOnly = true)
+    public List<CourseReviewHistoryResponse> getReviewHistory(UUID courseId) {
+        getAuthorizedCourse(courseId);
+        return getCourseReviewHistory(courseId);
+    }
+
     private CoursePublishChecklistResponse buildPublishChecklist(Course course) {
         UUID courseId = course.getId();
         List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
