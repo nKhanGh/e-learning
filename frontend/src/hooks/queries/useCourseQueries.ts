@@ -260,6 +260,9 @@ const invalidateCourseStructure = (
   queryClient.invalidateQueries({
     queryKey: queryKeys.courses.publishChecklist(courseId),
   });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.reviewHistory(courseId),
+  });
   queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
 };
 
@@ -293,6 +296,17 @@ export function useCoursePublishChecklistQuery(courseId: string) {
       return response.data.result;
     },
     enabled: Boolean(courseId),
+  });
+}
+
+export function useCourseReviewHistoryQuery(courseId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.courses.reviewHistory(courseId),
+    queryFn: async () => {
+      const response = await courseService.getReviewHistory(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
   });
 }
 

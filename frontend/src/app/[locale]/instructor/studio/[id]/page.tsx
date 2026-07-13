@@ -7,12 +7,14 @@ import {
   useCourseCurriculumQuery,
   useCoursePublishChecklistQuery,
   useCourseQuery,
+  useCourseReviewHistoryQuery,
   useCourseSectionsQuery,
   useSubmitCourseForReviewMutation,
 } from "@/hooks/queries/useCourseQueries";
 import { UserRole } from "@/types/enums/UserRole.enum";
 import {
   ArrowLeft,
+  AlertTriangle,
   BookOpen,
   FileQuestion,
   FileText,
@@ -70,6 +72,14 @@ const CourseStudioPage = () => {
   const canEdit =
     user?.role === UserRole.ADMIN ||
     (user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id);
+  const reviewHistoryQuery = useCourseReviewHistoryQuery(
+    courseId,
+    Boolean(canEdit && course?.status === "REJECTED"),
+  );
+  const latestRejectedReview = useMemo(
+    () => reviewHistoryQuery.data?.find((item) => item.action === "REJECTED"),
+    [reviewHistoryQuery.data],
+  );
 
   const checklistItems =
     publishChecklist?.groups.flatMap((group) => group.items) ?? [];
@@ -207,6 +217,30 @@ const CourseStudioPage = () => {
             {completedChecklist}/{totalChecklist}
           </StudioMetric>
         </div>
+
+        {course.status === "REJECTED" && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div className="flex gap-3">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+                <div>
+                  <h2 className="text-sm font-bold">
+                    {t("reviewFeedback.title")}
+                  </h2>
+                  <p className="mt-1 text-sm">
+                    {latestRejectedReview?.reason ||
+                      t("reviewFeedback.noReason")}
+                  </p>
+                </div>
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/${locale}/instructor/courses/${course.id}/edit`}>
+                  {t("reviewFeedback.editCourse")}
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
 
         <Tabs
           defaultValue="sections"

@@ -395,6 +395,11 @@
     "submitReview": "Gửi duyệt",
     "submittedForReview": "Đã gửi duyệt",
     "publishedStatus": "Đã xuất bản",
+    "reviewFeedback": {
+      "title": "Khóa học này đã bị từ chối",
+      "noReason": "Admin chưa cung cấp lý do từ chối.",
+      "editCourse": "Sửa khóa học"
+    },
     "auth": {
       "signInTitle": "Cần đăng nhập",
       "signInSubtitle": "Vui lòng đăng nhập bằng tài khoản giảng viên để mở Course Studio.",

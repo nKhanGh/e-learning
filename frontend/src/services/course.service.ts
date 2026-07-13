@@ -62,6 +62,10 @@ export const courseService = {
     apiClient.get<ApiResponse<CoursePublishChecklistResponse>>(
       `/courses/${courseId}/publish-checklist`,
     ),
+  getReviewHistory: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseReviewHistoryResponse[]>>(
+      `/courses/${courseId}/review-history`,
+    ),
   submitForReview: (courseId: string) =>
     apiClient.post<ApiResponse<CourseResponse>>(
       `/courses/${courseId}/submit-review`,

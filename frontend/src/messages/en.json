@@ -406,6 +406,11 @@
       "subtitle": "Please try again in a moment.",
       "retry": "Try again"
     },
+    "reviewFeedback": {
+      "title": "This course was rejected",
+      "noReason": "No rejection reason was provided.",
+      "editCourse": "Edit course"
+    },
     "metrics": {
       "sections": "Sections",
       "lectures": "Lectures",
