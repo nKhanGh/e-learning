@@ -40,12 +40,23 @@ public class LectureProgressServiceImpl implements LectureProgressService {
     @Transactional
     public LectureProgressResponse createLectureProgress(UUID lectureId) {
         UUID userId = userService.getMyInfo().getId();
+        LectureProgress existingProgress = lectureProgressRepository.findByUserIdAndLectureId(userId, lectureId)
+                .orElse(null);
+
+        if (existingProgress != null) {
+            existingProgress.setLastWatchedAt(Instant.now());
+            existingProgress.setViewCount((existingProgress.getViewCount() == null ? 0 : existingProgress.getViewCount()) + 1);
+            lectureProgressRepository.save(existingProgress);
+            return lectureProgressMapper.toResponse(existingProgress);
+        }
+
         LectureProgress lectureProgress = LectureProgress.builder()
                 .id(LectureProgressId.builder()
                         .userId(userId)
                         .lectureId(lectureId)
                         .build())
                 .lastWatchedAt(Instant.now())
+                .viewCount(1)
                 .user(userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)))
                 .lecture(lectureRepository.findById(lectureId).orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND)))
                 .build();
@@ -71,10 +82,21 @@ public class LectureProgressServiceImpl implements LectureProgressService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        enrollment.setLastAccessedAt(Instant.now());
+        Instant now = Instant.now();
+        boolean wasCompleted = Boolean.TRUE.equals(lectureProgress.getCompleted());
+        enrollment.setLastAccessedAt(now);
+
+        if (!wasCompleted) {
+            lectureProgress.setCompleted(true);
+            lectureProgress.setCompletedAt(now);
+        }
+        lectureProgressRepository.save(lectureProgress);
+
         Long totalLectures = lectureRepository.countByCourseId(courseId);
         Long completedLectures = lectureProgressRepository
                 .countCompletedByUserIdAndCourseId(userId, courseId);
+
+        enrollment.setCompletedLectures(completedLectures.intValue());
 
         if (totalLectures > 0) {
             BigDecimal progressPercentage = BigDecimal.valueOf(completedLectures)
@@ -83,11 +105,13 @@ public class LectureProgressServiceImpl implements LectureProgressService {
 
             enrollment.setProgressPercentage(progressPercentage);
         }
-        enrollmentRepository.save(enrollment);
 
-        lectureProgress.setCompleted(true);
-        lectureProgress.setCompletedAt(Instant.now());
-        lectureProgressRepository.save(lectureProgress);
+        if (totalLectures > 0 && completedLectures.equals(totalLectures)) {
+            enrollment.setStatus(com.khangdev.elearningbe.enums.EnrollmentStatus.COMPLETED);
+            enrollment.setCompletedAt(now);
+        }
+
+        enrollmentRepository.save(enrollment);
         return lectureProgressMapper.toResponse(lectureProgress);
     }
 
