@@ -49,6 +49,8 @@ public enum     ErrorCode {
     COURSE_ALREADY_PUBLISHED(400, "Course has already been published", HttpStatus.BAD_REQUEST),
     COURSE_REVIEW_INVALID_STATUS(400, "Course review status is invalid", HttpStatus.BAD_REQUEST),
     REVIEW_REASON_REQUIRED(400, "Review reason is required", HttpStatus.BAD_REQUEST),
+    COURSE_NOT_PUBLISHED(400, "Course is not published", HttpStatus.BAD_REQUEST),
+    COURSE_PAYMENT_REQUIRED(400, "Course requires payment", HttpStatus.BAD_REQUEST),
 
     LECTURE_NOT_FOUND(400, "Lecture not found", HttpStatus.BAD_REQUEST),
     LECTURE_PROGRESS_NOT_FOUND(400, "Lecture progress not found", HttpStatus.BAD_REQUEST),

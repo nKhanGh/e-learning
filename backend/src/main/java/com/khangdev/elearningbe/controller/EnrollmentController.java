@@ -59,6 +59,13 @@ public class EnrollmentController {
                 .build();
     }
 
+    @GetMapping("/learning/my-courses")
+    public ApiResponse<List<EnrollmentResponse>> getMyLearning(){
+        return ApiResponse.<List<EnrollmentResponse>>builder()
+                .result(enrollmentService.getMyLearning())
+                .build();
+    }
+
     @PutMapping("/courses/{courseId}/access")
     public ApiResponse<EnrollmentResponse> access(@PathVariable UUID courseId){
         return ApiResponse.<EnrollmentResponse>builder()
