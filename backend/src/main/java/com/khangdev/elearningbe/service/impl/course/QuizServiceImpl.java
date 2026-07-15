@@ -5,6 +5,7 @@ import com.khangdev.elearningbe.dto.request.course.QuizUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.QuizResponse;
 import com.khangdev.elearningbe.entity.course.Lecture;
 import com.khangdev.elearningbe.entity.course.Quiz;
+import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.QuizMapper;
@@ -36,6 +37,12 @@ public class QuizServiceImpl implements QuizService {
         }
     }
 
+    private void authorizeRead(UUID courseUserId) {
+        var user = userService.getMyInfo();
+        if (user.getRole() != UserRole.ADMIN && !courseUserId.equals(user.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+    }
 
     @Override
     @PreAuthorize("hasAuthority('INSTRUCTOR')")
@@ -71,19 +78,19 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('INSTRUCTOR')")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     public QuizResponse getByLectureId(UUID lectureId) {
         Quiz quiz = quizRepository.findByLectureId(lectureId)
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
-        authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
+        authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
         return quizMapper.toQuizResponse(quiz);
     }
 
     @Override
-    @PreAuthorize("hasAuthority('INSTRUCTOR')")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     public QuizResponse getByQuizId(UUID quizId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
-        authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
+        authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
         return quizMapper.toQuizResponse(quiz);
     }
 
@@ -110,7 +117,7 @@ public class QuizServiceImpl implements QuizService {
     public QuizResponse getPublicQuizByLectureId(UUID lectureId) {
         Quiz quiz = quizRepository.findByLectureId(lectureId).orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         if(!quiz.getIsPublished()){
-            authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
+            authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
         }
         return quizMapper.toQuizResponse(quiz);
     }
@@ -119,7 +126,7 @@ public class QuizServiceImpl implements QuizService {
     public QuizResponse getPublicQuizByQuizId(UUID quizId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         if(!quiz.getIsPublished()){
-            authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
+            authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
         }
         return quizMapper.toQuizResponse(quiz);
     }

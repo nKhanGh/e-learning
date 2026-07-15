@@ -37,6 +37,7 @@ import type { StudioSection } from "./types";
 type ResourcesTabProps = {
   courseId: string;
   sections: StudioSection[];
+  readOnly?: boolean;
 };
 
 const toLectureUpdateRequest = (
@@ -74,7 +75,11 @@ const getResourceName = (url: string) => {
   return name || url;
 };
 
-export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
+export const ResourcesTab = ({
+  courseId,
+  sections,
+  readOnly = false,
+}: ResourcesTabProps) => {
   const t = useTranslations("InstructorCourseStudioPage");
   const [selectedSectionId, setSelectedSectionId] = useState("");
   const selectedSection = sections.find(
@@ -355,16 +360,18 @@ export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
                   {t("resources.subtitle")}
                 </p>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={isEditingResource || updateLectureMutation.isPending}
-                onClick={openAddResourceForm}
-              >
-                <Plus className="h-3.5 w-3.5" />
-                {t("resources.add")}
-              </Button>
+              {!readOnly ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isEditingResource || updateLectureMutation.isPending}
+                  onClick={openAddResourceForm}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {t("resources.add")}
+                </Button>
+              ) : null}
             </div>
 
             {isAddingResource ? (
@@ -400,6 +407,7 @@ export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
                       onEdit={() => openEditResourceForm(index)}
                       onRemove={() => setDeletingResourceIndex(index)}
                       isSaving={updateLectureMutation.isPending}
+                      readOnly={readOnly}
                     />
                   ),
                 )}
@@ -415,28 +423,32 @@ export const ResourcesTab = ({ courseId, sections }: ResourcesTabProps) => {
                 <p className="mx-auto mt-1 max-w-md text-xs text-gray-500 dark:text-muted">
                   {t("resources.emptySubtitle")}
                 </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={openAddResourceForm}
-                  disabled={updateLectureMutation.isPending}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  {t("resources.add")}
-                </Button>
+                {!readOnly ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={openAddResourceForm}
+                    disabled={updateLectureMutation.isPending}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    {t("resources.add")}
+                  </Button>
+                ) : null}
               </div>
             )}
 
-            <ToggleRow
-              label={t("resources.downloadable")}
-              hint={t("resources.downloadableHint")}
-              checked={downloadable}
-              onCheckedChange={setDownloadable}
-            />
+            {!readOnly ? (
+              <ToggleRow
+                label={t("resources.downloadable")}
+                hint={t("resources.downloadableHint")}
+                checked={downloadable}
+                onCheckedChange={setDownloadable}
+              />
+            ) : null}
 
-            {hasDirtyChanges ? (
+            {!readOnly && hasDirtyChanges ? (
               <div className="flex flex-col gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs font-semibold text-primary">
                   {t("resources.unsavedChanges")}
@@ -584,11 +596,13 @@ const ResourceItem = ({
   onEdit,
   onRemove,
   isSaving,
+  readOnly,
 }: {
   resource: string;
   onEdit: () => void;
   onRemove: () => void;
   isSaving: boolean;
+  readOnly?: boolean;
 }) => {
   const t = useTranslations("InstructorCourseStudioPage");
   const canOpen = isExternalUrl(resource);
@@ -629,27 +643,31 @@ const ResourceItem = ({
             </span>
           )}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={onEdit}
-          disabled={isSaving}
-        >
-          <Pencil className="h-3.5 w-3.5" />
-          {t("resources.edit")}
-        </Button>
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          className="text-white!"
-          onClick={onRemove}
-          disabled={isSaving}
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          {t("resources.remove")}
-        </Button>
+        {!readOnly ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onEdit}
+              disabled={isSaving}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              {t("resources.edit")}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="text-white!"
+              onClick={onRemove}
+              disabled={isSaving}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              {t("resources.remove")}
+            </Button>
+          </>
+        ) : null}
       </div>
     </div>
   );

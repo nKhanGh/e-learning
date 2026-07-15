@@ -261,7 +261,7 @@ const AdminCourseReviewDetailPage = () => {
 
             <div className="flex flex-wrap gap-2">
               <Button asChild variant="outline" size="sm">
-                <Link href={`/${locale}/instructor/studio/${course.id}`}>
+                <Link href={`/${locale}/admin/studio/${course.id}`}>
                   <Eye className="h-4 w-4" />
                   {t("actions.openStudio")}
                 </Link>
@@ -451,7 +451,7 @@ const AdminCourseReviewDetailPage = () => {
                       </div>
                       <Button asChild variant="outline" size="sm">
                         <Link
-                          href={`/${locale}/instructor/studio/${course.id}/preview/lectures/${lecture.id}`}
+                          href={`/${locale}/admin/studio/${course.id}/preview/lectures/${lecture.id}`}
                         >
                           <Eye className="h-3.5 w-3.5" />
                           {t("actions.preview")}

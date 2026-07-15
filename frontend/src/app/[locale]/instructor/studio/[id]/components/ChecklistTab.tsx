@@ -18,6 +18,8 @@ type ChecklistTabProps = {
   checklist: CoursePublishChecklistResponse | undefined;
   isLoading: boolean;
   isSubmitting: boolean;
+  readOnly?: boolean;
+  studioBasePath?: string;
   onRetry: () => void;
   onSubmit: () => void;
 };
@@ -57,6 +59,8 @@ export const ChecklistTab = ({
   checklist,
   isLoading,
   isSubmitting,
+  readOnly = false,
+  studioBasePath,
   onRetry,
   onSubmit,
 }: ChecklistTabProps) => {
@@ -131,7 +135,7 @@ export const ChecklistTab = ({
             {subtitle}
           </p>
         </div>
-        {!isReviewLocked ? (
+        {!readOnly && !isReviewLocked ? (
           <Button
             type="button"
             className="!text-white"
@@ -160,6 +164,8 @@ export const ChecklistTab = ({
                   item={item}
                   courseId={courseId}
                   locale={locale}
+                  readOnly={readOnly}
+                  studioBasePath={studioBasePath}
                 />
               ))}
             </div>
@@ -174,15 +180,21 @@ const ChecklistRow = ({
   item,
   courseId,
   locale,
+  readOnly,
+  studioBasePath,
 }: {
   item: CoursePublishChecklistItem;
   courseId: string;
   locale: string;
+  readOnly?: boolean;
+  studioBasePath?: string;
 }) => {
   const t = useTranslations("InstructorCourseStudioPage");
   const statusStyle = statusStyles[item.status];
   const StatusIcon = statusStyle.icon;
-  const fixHref = getFixHref(locale, courseId, item);
+  const fixHref = readOnly
+    ? null
+    : getFixHref(locale, courseId, item, studioBasePath);
 
   return (
     <div
@@ -213,13 +225,14 @@ const getFixHref = (
   locale: string,
   courseId: string,
   item: CoursePublishChecklistItem,
+  studioBasePath?: string,
 ) => {
   if (item.targetType === "COURSE_BASIC_INFO") {
     return `/${locale}/instructor/courses/${courseId}/edit`;
   }
 
   if (item.targetType === "LECTURE_PREVIEW") {
-    return `/${locale}/instructor/studio/${courseId}/preview/lectures/${item.targetId}`;
+    return `${studioBasePath ?? `/${locale}/instructor/studio/${courseId}`}/preview/lectures/${item.targetId}`;
   }
 
   if (
@@ -229,7 +242,7 @@ const getFixHref = (
     item.targetType === "LECTURE" ||
     item.targetType === "QUIZ"
   ) {
-    return `/${locale}/instructor/studio/${courseId}`;
+    return studioBasePath ?? `/${locale}/instructor/studio/${courseId}`;
   }
 
   return null;

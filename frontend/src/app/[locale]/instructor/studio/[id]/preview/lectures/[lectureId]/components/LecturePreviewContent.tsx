@@ -14,6 +14,7 @@ type LecturePreviewContentProps = {
   contentType: LectureContentType;
   quiz: QuizResponse | CourseCurriculumQuiz | null;
   attachments: string[];
+  readOnly?: boolean;
 };
 
 export function LecturePreviewContent({
@@ -24,6 +25,7 @@ export function LecturePreviewContent({
   contentType,
   quiz,
   attachments,
+  readOnly = false,
 }: LecturePreviewContentProps) {
   const t = useTranslations("InstructorCourseStudioPage");
 
@@ -114,6 +116,7 @@ export function LecturePreviewContent({
       lectureId={lecture?.id ?? ""}
       lectureTitle={lectureTitle ?? lecture?.title ?? ""}
       fallbackQuiz={quiz}
+      readOnly={readOnly}
     />
   );
 }

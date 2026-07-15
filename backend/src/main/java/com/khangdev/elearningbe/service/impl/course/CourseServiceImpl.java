@@ -133,12 +133,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('INSTRUCTOR')")
     public CourseResponse updateCourse(UUID courseId, CourseUpdateRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user =  userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         CourseStatus lastStatus = course.getStatus();
-        if(user.getRole() != UserRole.ADMIN && !user.getId().equals(course.getInstructor().getId()))
+        if(!user.getId().equals(course.getInstructor().getId()))
             throw new AppException(ErrorCode.UNAUTHORIZED);
 
         courseMapper.updateCourse(course, request);

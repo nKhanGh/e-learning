@@ -8,6 +8,7 @@ import com.khangdev.elearningbe.dto.response.course.QuizQuestionImportResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizQuestionResponse;
 import com.khangdev.elearningbe.entity.course.Quiz;
 import com.khangdev.elearningbe.entity.course.QuizQuestion;
+import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.QuizQuestionMapper;
@@ -39,6 +40,13 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
     private void authorize(UUID courseUserId){
         UUID userId = userService.getMyInfo().getId();
         if(!courseUserId.equals(userId)){
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
+    private void authorizeRead(UUID courseUserId) {
+        var user = userService.getMyInfo();
+        if (user.getRole() != UserRole.ADMIN && !courseUserId.equals(user.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
     }
@@ -142,7 +150,7 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         if(!quiz.getIsPublished()){
-            authorize(quiz.getLecture().getSection().getCourse().getInstructor().getId());
+            authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
         }
         return quizQuestionRepository.findByQuizIdOrderByDisplayOrderAsc(quizId)
                 .stream().map(quizQuestionMapper::toQuizQuestionResponse).toList();

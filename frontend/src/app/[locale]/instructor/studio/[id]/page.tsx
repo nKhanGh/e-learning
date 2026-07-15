@@ -35,7 +35,13 @@ import { SectionsTab } from "./components/SectionsTab";
 import { getErrorMessage } from "./components/studioUtils";
 import { type StudioSection } from "./components/types";
 
-const CourseStudioPage = () => {
+type CourseStudioMode = "instructor" | "admin";
+
+export const CourseStudioContent = ({
+  mode = "instructor",
+}: {
+  mode?: CourseStudioMode;
+}) => {
   const locale = useLocale();
   const params = useParams<{ id: string }>();
   const courseId = params.id;
@@ -69,12 +75,14 @@ const CourseStudioPage = () => {
       };
     });
   }, [courseSectionsQuery.data, curriculumSections]);
-  const canEdit =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id);
+  const isAdminMode = mode === "admin";
+  const studioBasePath = `/${locale}/${isAdminMode ? "admin" : "instructor"}/studio/${courseId}`;
+  const canAccess = isAdminMode
+    ? user?.role === UserRole.ADMIN
+    : user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id;
   const reviewHistoryQuery = useCourseReviewHistoryQuery(
     courseId,
-    Boolean(canEdit && course?.status === "REJECTED"),
+    Boolean(canAccess && !isAdminMode && course?.status === "REJECTED"),
   );
   const latestRejectedReview = useMemo(
     () => reviewHistoryQuery.data?.find((item) => item.action === "REJECTED"),
@@ -149,7 +157,7 @@ const CourseStudioPage = () => {
     );
   }
 
-  if (!canEdit) {
+  if (!canAccess) {
     return (
       <div className="min-h-[70vh] rounded-lg border border-gray-200 bg-white p-8 text-center dark:border-border dark:bg-surface">
         <h1 className="text-xl font-bold text-gray-900 dark:text-text">
@@ -168,7 +176,11 @@ const CourseStudioPage = () => {
         <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <Link
-              href={`/${locale}/instructor/courses`}
+              href={
+                isAdminMode
+                  ? `/${locale}/admin/course-reviews/${courseId}`
+                  : `/${locale}/instructor/courses`
+              }
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-primary dark:text-muted"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
@@ -182,24 +194,28 @@ const CourseStudioPage = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline">
-              <Link href={`/${locale}/instructor/courses/${course.id}/edit`}>
-                <Settings2 className="h-4 w-4" />
-                {t("quickEdit")}
-              </Link>
-            </Button>
-            <Button
-              className="!text-white"
-              disabled={
-                isReviewLocked ||
-                !publishChecklist?.ready ||
-                submitForReviewMutation.isPending
-              }
-              onClick={handleSubmitForReview}
-            >
-              <ListChecks className="h-4 w-4" />
-              {submitReviewLabel}
-            </Button>
+            {!isAdminMode ? (
+              <>
+                <Button asChild variant="outline">
+                  <Link href={`/${locale}/instructor/courses/${course.id}/edit`}>
+                    <Settings2 className="h-4 w-4" />
+                    {t("quickEdit")}
+                  </Link>
+                </Button>
+                <Button
+                  className="!text-white"
+                  disabled={
+                    isReviewLocked ||
+                    !publishChecklist?.ready ||
+                    submitForReviewMutation.isPending
+                  }
+                  onClick={handleSubmitForReview}
+                >
+                  <ListChecks className="h-4 w-4" />
+                  {submitReviewLabel}
+                </Button>
+              </>
+            ) : null}
           </div>
         </div>
 
@@ -274,16 +290,30 @@ const CourseStudioPage = () => {
               courseId={courseId}
               sections={sections}
               isLoading={courseSectionsQuery.isLoading || curriculumQuery.isLoading}
+              readOnly={isAdminMode}
             />
           </TabsContent>
           <TabsContent value="lectures">
-            <LecturesTab courseId={courseId} sections={sections} />
+            <LecturesTab
+              courseId={courseId}
+              sections={sections}
+              readOnly={isAdminMode}
+              previewBasePath={studioBasePath}
+            />
           </TabsContent>
           <TabsContent value="quiz">
-            <QuizTab courseId={courseId} sections={sections} />
+            <QuizTab
+              courseId={courseId}
+              sections={sections}
+              previewBasePath={studioBasePath}
+            />
           </TabsContent>
           <TabsContent value="resources">
-            <ResourcesTab courseId={courseId} sections={sections} />
+            <ResourcesTab
+              courseId={courseId}
+              sections={sections}
+              readOnly={isAdminMode}
+            />
           </TabsContent>
           <TabsContent value="checklist">
             <ChecklistTab
@@ -292,6 +322,8 @@ const CourseStudioPage = () => {
               checklist={publishChecklist}
               isLoading={publishChecklistQuery.isLoading}
               isSubmitting={submitForReviewMutation.isPending}
+              readOnly={isAdminMode}
+              studioBasePath={studioBasePath}
               onRetry={() => publishChecklistQuery.refetch()}
               onSubmit={handleSubmitForReview}
             />
@@ -301,6 +333,8 @@ const CourseStudioPage = () => {
     </div>
   );
 };
+
+const CourseStudioPage = () => <CourseStudioContent mode="instructor" />;
 
 const StudioMetric = ({
   label,
