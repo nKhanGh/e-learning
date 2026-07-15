@@ -295,6 +295,7 @@ const StudentLecturePage = () => {
               {displayLecture.contentType === "QUIZ" ? (
                 <StudentQuizContent
                   lectureId={lectureId}
+                  lectureTitle={displayLecture.title}
                   fallbackQuiz={lecture?.quiz ?? currentItem.lecture.quiz ?? null}
                   canAttempt={Boolean(enrollmentStatus?.enrolled)}
                 />

@@ -735,6 +735,42 @@ export function useMyQuizAttemptsQuery(quizId: string, enabled = true) {
   });
 }
 
+export function useQuizAttemptAnswersQuery(
+  quizId: string,
+  attemptNumber: number | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.quizAttempts.answers(quizId, attemptNumber ?? 0),
+    queryFn: async () => {
+      const response = await courseService.getQuizAttemptAnswers(
+        quizId,
+        attemptNumber as number,
+      );
+      return response.data.result;
+    },
+    enabled: enabled && Boolean(quizId) && Boolean(attemptNumber),
+  });
+}
+
+export function useQuizAttemptReviewQuery(
+  quizId: string,
+  attemptNumber: number | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.quizAttempts.review(quizId, attemptNumber ?? 0),
+    queryFn: async () => {
+      const response = await courseService.getQuizAttemptReview(
+        quizId,
+        attemptNumber as number,
+      );
+      return response.data.result;
+    },
+    enabled: enabled && Boolean(quizId) && Boolean(attemptNumber),
+  });
+}
+
 export function useStartQuizAttemptMutation(quizId: string) {
   const queryClient = useQueryClient();
 
@@ -742,6 +778,21 @@ export function useStartQuizAttemptMutation(quizId: string) {
     mutationFn: async () => {
       const response = await courseService.startQuizAttempt(quizId);
       return response.data.result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.quizAttempts.byQuiz(quizId),
+      });
+    },
+  });
+}
+
+export function useSaveQuizAttemptAnswersMutation(quizId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: QuizSubmitRequest) => {
+      await courseService.saveQuizAttemptAnswers(quizId, request);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

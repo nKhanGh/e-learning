@@ -20,6 +20,8 @@ public class QuizAttemptResponse {
 
     private Integer attemptNumber;
 
+    private Instant startedAt;
+
     private QuizResponse quiz;
 
     private UserResponse user;

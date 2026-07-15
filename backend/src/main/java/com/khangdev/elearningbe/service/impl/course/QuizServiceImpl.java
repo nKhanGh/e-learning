@@ -131,7 +131,7 @@ public class QuizServiceImpl implements QuizService {
         if(!quiz.getIsPublished()){
             authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
         }
-        return quizMapper.toQuizResponse(quiz);
+        return toPublicQuizResponse(quiz);
     }
 
     @Override

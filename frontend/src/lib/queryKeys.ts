@@ -53,6 +53,10 @@ export const queryKeys = {
   },
   quizAttempts: {
     byQuiz: (quizId: string) => ["quiz-attempts", "quiz", quizId] as const,
+    answers: (quizId: string, attemptNumber: number) =>
+      ["quiz-attempts", "quiz", quizId, "attempt", attemptNumber, "answers"] as const,
+    review: (quizId: string, attemptNumber: number) =>
+      ["quiz-attempts", "quiz", quizId, "attempt", attemptNumber, "review"] as const,
   },
   enrollments: {
     me: (courseId: string) => ["enrollments", "me", courseId] as const,

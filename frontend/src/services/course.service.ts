@@ -133,9 +133,22 @@ export const courseService = {
     apiClient.get<ApiResponse<QuizAttemptResponse[]>>(
       `/quizzes/${quizId}/attempts`,
     ),
+  getQuizAttemptAnswers: (quizId: string, attemptNumber: number) =>
+    apiClient.get<ApiResponse<QuizAttemptAnswerResponse[]>>(
+      `/quizzes/${quizId}/attempts/${attemptNumber}/answers`,
+    ),
+  getQuizAttemptReview: (quizId: string, attemptNumber: number) =>
+    apiClient.get<ApiResponse<QuizAttemptReviewResponse>>(
+      `/quizzes/${quizId}/attempts/${attemptNumber}/review`,
+    ),
   startQuizAttempt: (quizId: string) =>
     apiClient.post<ApiResponse<QuizAttemptResponse>>(
       `/quizzes/${quizId}/attempts`,
+    ),
+  saveQuizAttemptAnswers: (quizId: string, request: QuizSubmitRequest) =>
+    apiClient.put<ApiResponse<void>>(
+      `/quizzes/${quizId}/attempts/answers`,
+      request,
     ),
   submitQuiz: (quizId: string, request: QuizSubmitRequest) =>
     apiClient.put<ApiResponse<QuizAttemptResponse>>(

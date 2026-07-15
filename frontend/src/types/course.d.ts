@@ -307,6 +307,7 @@ interface QuizAttemptId {
 interface QuizAttemptResponse {
   id: QuizAttemptId;
   attemptNumber: number;
+  startedAt: string;
   quiz: QuizResponse;
   user: UserResponse;
   submittedAt: string | null;
@@ -315,6 +316,30 @@ interface QuizAttemptResponse {
   percentage: number | null;
   passed: boolean | null;
   status: QuizAttemptStatus;
+}
+
+interface QuizAttemptAnswerResponse {
+  questionId: string;
+  answers: string[];
+}
+
+interface QuizAttemptQuestionReviewResponse {
+  questionId: string;
+  questionText: string;
+  points: number;
+  displayOrder: number;
+  options: string[];
+  selectedAnswers: string[];
+  score: number;
+  correct: boolean | null;
+  correctAnswers: string[];
+  explanation: string | null;
+}
+
+interface QuizAttemptReviewResponse {
+  attempt: QuizAttemptResponse;
+  showCorrectAnswers: boolean;
+  questions: QuizAttemptQuestionReviewResponse[];
 }
 
 interface CourseCurriculumLecture {

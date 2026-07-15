@@ -63,6 +63,10 @@ public enum     ErrorCode {
     ENROLLMENT_EXISTED(400,  "Enrollment already existed", HttpStatus.BAD_REQUEST),
     QUIZ_ATTEMPT_NOT_FOUND(400, "Quiz attempt not found", HttpStatus.BAD_REQUEST),
 
+    QUIZ_ATTEMPT_LIMIT_REACHED(400, "No quiz attempts remaining", HttpStatus.BAD_REQUEST),
+
+    QUIZ_REVIEW_UNAVAILABLE(400, "Quiz answer review is not available", HttpStatus.BAD_REQUEST),
+
     QUIZ_ATTEMPT_INVALID(400, "You must complete the quiz you previously participated in.", HttpStatus.BAD_REQUEST),
 
     FILE_EMPTY(400, "File is empty", HttpStatus.BAD_REQUEST),

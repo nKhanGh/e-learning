@@ -286,13 +286,20 @@ public class QuizQuestionServiceImpl implements QuizQuestionService {
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_QUESTION_NOT_FOUND));
 
         int correctCount = quizQuestion.getCorrectAnswers().size();
+        if (correctCount == 0 || request.getAnswers() == null) {
+            return BigDecimal.ZERO;
+        }
 
-        BigDecimal scorePerAnswer = BigDecimal.ONE
+        BigDecimal scorePerAnswer = normalizePoints(quizQuestion.getPoints())
                 .divide(BigDecimal.valueOf(correctCount), 2, RoundingMode.HALF_UP);
 
         long correctSelected = request.getAnswers().stream()
                 .filter(quizQuestion.getCorrectAnswers()::contains)
                 .count();
+
+        if (correctSelected == correctCount) {
+            return normalizePoints(quizQuestion.getPoints());
+        }
 
         return scorePerAnswer.multiply(BigDecimal.valueOf(correctSelected));
     }

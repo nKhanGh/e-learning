@@ -8,5 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface QuizAttemptMapper {
     @Mapping(target = "attemptNumber", source = "id.attemptNumber")
+    @Mapping(target = "startedAt", source = "createdAt")
     QuizAttemptResponse toResponse(QuizAttempt quizAttempt);
 }
