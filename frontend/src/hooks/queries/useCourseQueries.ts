@@ -143,6 +143,77 @@ export function useMyCoursesQuery(
   });
 }
 
+export function useAdminCourseReviewsQuery(
+  filters: AdminCourseReviewFilters,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.adminCourseReviews.list(filters),
+    queryFn: async () => {
+      const response = await courseService.getAdminCourseReviews(filters);
+      return response.data.result;
+    },
+    enabled,
+    placeholderData: (previousData) => previousData,
+  });
+}
+
+export function useAdminCourseReviewDetailQuery(
+  courseId: string,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.adminCourseReviews.detail(courseId),
+    queryFn: async () => {
+      const response = await courseService.getAdminCourseReviewDetail(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
+  });
+}
+
+const invalidateAdminCourseReview = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+) => {
+  queryClient.invalidateQueries({ queryKey: queryKeys.adminCourseReviews.lists });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.adminCourseReviews.detail(courseId),
+  });
+  queryClient.invalidateQueries({ queryKey: queryKeys.courses.detail(courseId) });
+  queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
+};
+
+export function useApproveCourseReviewMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.approveCourseReview(courseId);
+      return response.data.result;
+    },
+    onSuccess: (course) => {
+      queryClient.setQueryData(queryKeys.courses.detail(course.id), course);
+      invalidateAdminCourseReview(queryClient, courseId);
+    },
+  });
+}
+
+export function useRejectCourseReviewMutation(courseId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: CourseRejectRequest) => {
+      const response = await courseService.rejectCourseReview(courseId, request);
+      return response.data.result;
+    },
+    onSuccess: (course) => {
+      queryClient.setQueryData(queryKeys.courses.detail(course.id), course);
+      invalidateAdminCourseReview(queryClient, courseId);
+    },
+  });
+}
+
 export function useCreateCourseMutation() {
   const queryClient = useQueryClient();
 
@@ -189,6 +260,9 @@ const invalidateCourseStructure = (
   queryClient.invalidateQueries({
     queryKey: queryKeys.courses.publishChecklist(courseId),
   });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.reviewHistory(courseId),
+  });
   queryClient.invalidateQueries({ queryKey: queryKeys.courses.lists });
 };
 
@@ -222,6 +296,17 @@ export function useCoursePublishChecklistQuery(courseId: string) {
       return response.data.result;
     },
     enabled: Boolean(courseId),
+  });
+}
+
+export function useCourseReviewHistoryQuery(courseId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.courses.reviewHistory(courseId),
+    queryFn: async () => {
+      const response = await courseService.getReviewHistory(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
   });
 }
 
@@ -329,6 +414,78 @@ export function useLectureQuery(lectureId: string) {
   });
 }
 
+export function usePublicLectureQuery(lectureId: string) {
+  return useQuery({
+    queryKey: [...queryKeys.lectures.detail(lectureId), "public"] as const,
+    queryFn: async () => {
+      const response = await courseService.getPublicLecture(lectureId);
+      return response.data.result;
+    },
+    enabled: Boolean(lectureId),
+  });
+}
+
+export function useCourseLectureProgressQuery(courseId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.lectures.progressByCourse(courseId),
+    queryFn: async () => {
+      const response = await courseService.getCourseLectureProgress(courseId);
+      return response.data.result;
+    },
+    enabled: Boolean(courseId) && enabled,
+  });
+}
+
+const invalidateLearningProgress = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+) => {
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.lectures.progressByCourse(courseId),
+  });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.curriculum(courseId),
+  });
+  queryClient.invalidateQueries({
+    queryKey: queryKeys.courses.enrollmentStatus(courseId),
+  });
+  queryClient.invalidateQueries({ queryKey: queryKeys.enrollments.myCourses });
+};
+
+export function useCreateLectureProgressMutation(
+  courseId: string,
+  lectureId: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.createLectureProgress(lectureId);
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateLearningProgress(queryClient, courseId);
+    },
+  });
+}
+
+export function useCompleteLectureMutation(
+  courseId: string,
+  lectureId: string,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.completeLecture(lectureId);
+      return response.data.result;
+    },
+    onSuccess: () => {
+      invalidateLearningProgress(queryClient, courseId);
+    },
+  });
+}
+
 const invalidateLectureStructure = (
   queryClient: ReturnType<typeof useQueryClient>,
   courseId: string,
@@ -414,6 +571,26 @@ export function useQuizByLectureQuery(lectureId: string) {
     queryFn: async () => {
       try {
         const response = await courseService.getQuizByLecture(lectureId);
+        return response.data.result;
+      } catch (error) {
+        if (isQuizNotFoundError(error)) {
+          return null;
+        }
+
+        throw error;
+      }
+    },
+    enabled: Boolean(lectureId),
+    retry: false,
+  });
+}
+
+export function usePublicQuizByLectureQuery(lectureId: string) {
+  return useQuery({
+    queryKey: [...queryKeys.quizzes.byLecture(lectureId), "public"] as const,
+    queryFn: async () => {
+      try {
+        const response = await courseService.getPublicQuizByLecture(lectureId);
         return response.data.result;
       } catch (error) {
         if (isQuizNotFoundError(error)) {
@@ -536,14 +713,108 @@ export function useDeleteQuizMutation(
   });
 }
 
-export function useQuizQuestionsQuery(quizId: string) {
+export function useQuizQuestionsQuery(quizId: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.quizQuestions.byQuiz(quizId),
     queryFn: async () => {
       const response = await courseService.getQuizQuestions(quizId);
       return response.data.result;
     },
-    enabled: Boolean(quizId),
+    enabled: enabled && Boolean(quizId),
+  });
+}
+
+export function useMyQuizAttemptsQuery(quizId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.quizAttempts.byQuiz(quizId),
+    queryFn: async () => {
+      const response = await courseService.getMyQuizAttempts(quizId);
+      return response.data.result;
+    },
+    enabled: enabled && Boolean(quizId),
+  });
+}
+
+export function useQuizAttemptAnswersQuery(
+  quizId: string,
+  attemptNumber: number | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.quizAttempts.answers(quizId, attemptNumber ?? 0),
+    queryFn: async () => {
+      const response = await courseService.getQuizAttemptAnswers(
+        quizId,
+        attemptNumber as number,
+      );
+      return response.data.result;
+    },
+    enabled: enabled && Boolean(quizId) && Boolean(attemptNumber),
+  });
+}
+
+export function useQuizAttemptReviewQuery(
+  quizId: string,
+  attemptNumber: number | undefined,
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: queryKeys.quizAttempts.review(quizId, attemptNumber ?? 0),
+    queryFn: async () => {
+      const response = await courseService.getQuizAttemptReview(
+        quizId,
+        attemptNumber as number,
+      );
+      return response.data.result;
+    },
+    enabled: enabled && Boolean(quizId) && Boolean(attemptNumber),
+  });
+}
+
+export function useStartQuizAttemptMutation(quizId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await courseService.startQuizAttempt(quizId);
+      return response.data.result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.quizAttempts.byQuiz(quizId),
+      });
+    },
+  });
+}
+
+export function useSaveQuizAttemptAnswersMutation(quizId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: QuizSubmitRequest) => {
+      await courseService.saveQuizAttemptAnswers(quizId, request);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.quizAttempts.byQuiz(quizId),
+      });
+    },
+  });
+}
+
+export function useSubmitQuizMutation(quizId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: QuizSubmitRequest) => {
+      const response = await courseService.submitQuiz(quizId, request);
+      return response.data.result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.quizAttempts.byQuiz(quizId),
+      });
+    },
   });
 }
 

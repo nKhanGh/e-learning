@@ -29,14 +29,16 @@ import type { StudioSection } from "./types";
 type QuizTabProps = {
   courseId: string;
   sections: StudioSection[];
+  previewBasePath?: string;
 };
 
 type QuizOverviewCardProps = {
   courseId: string;
   lecture: CourseCurriculumLecture | LectureResponse;
+  previewBasePath?: string;
 };
 
-export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
+export const QuizTab = ({ courseId, sections, previewBasePath }: QuizTabProps) => {
   const t = useTranslations("InstructorCourseStudioPage");
   const [selectedSectionId, setSelectedSectionId] = useState("");
   const selectedSection = sections.find(
@@ -126,6 +128,7 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
               key={lecture.id}
               courseId={courseId}
               lecture={lecture}
+              previewBasePath={previewBasePath}
             />
           ))}
         </div>
@@ -140,7 +143,11 @@ export const QuizTab = ({ courseId, sections }: QuizTabProps) => {
   );
 };
 
-const QuizOverviewCard = ({ courseId, lecture }: QuizOverviewCardProps) => {
+const QuizOverviewCard = ({
+  courseId,
+  lecture,
+  previewBasePath,
+}: QuizOverviewCardProps) => {
   const t = useTranslations("InstructorCourseStudioPage");
   const locale = useLocale();
   const quizQuery = useQuizByLectureQuery(lecture.id);
@@ -149,7 +156,7 @@ const QuizOverviewCard = ({ courseId, lecture }: QuizOverviewCardProps) => {
   const quizId = quiz?.id ?? "";
   const questionsQuery = useQuizQuestionsQuery(quizId);
   const questions = questionsQuery.data ?? [];
-  const previewHref = `/${locale}/instructor/studio/${courseId}/preview/lectures/${lecture.id}`;
+  const previewHref = `${previewBasePath ?? `/${locale}/instructor/studio/${courseId}`}/preview/lectures/${lecture.id}`;
   const questionCount =
     questions.length || ("totalQuestions" in (quiz ?? {}) ? quiz?.totalQuestions ?? 0 : 0);
   const totalPoints =

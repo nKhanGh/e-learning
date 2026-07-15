@@ -260,8 +260,7 @@ const CourseEditPage = () => {
   const selectedCategoryName =
     resolvedCategory?.name || form.categoryName || getCourseCategoryName(course);
   const canEdit =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id);
+    user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id;
 
   useEffect(() => {
     if (courseQuery.data) {

@@ -78,6 +78,7 @@
     "signup": "Sign Up",
     "logout": "Logout",
     "dashboard": "Dashboard",
+    "myLearning": "My Learning",
     "profile": "Profile",
     "settings": "Settings",
     "search": "Search...",
@@ -92,6 +93,149 @@
     "UNPUBLISHED": "Unpublished",
     "ARCHIVED": "Archived"
   },
+  "MyLearningPage": {
+    "eyebrow": "Student workspace",
+    "title": "My Learning",
+    "subtitle": "Continue the courses you are enrolled in.",
+    "progress": "Progress",
+    "continue": "Continue",
+    "completedLectures": "completed lectures",
+    "unknownInstructor": "Unknown instructor",
+    "neverOpened": "Not opened yet",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in to view your learning workspace.",
+      "studentOnlyTitle": "Student access only",
+      "studentOnlySubtitle": "My Learning is available for student accounts."
+    },
+    "empty": {
+      "title": "No enrolled courses yet",
+      "subtitle": "Browse published courses and enroll in a free course to start learning.",
+      "browse": "Browse courses"
+    },
+    "error": {
+      "title": "Failed to load your courses",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    }
+  },
+  "StudentLecturePage": {
+    "backToLearning": "Back to My Learning",
+    "learningMode": "Learning mode",
+    "curriculum": "Curriculum",
+    "lectures": "Lectures",
+    "emptyCurriculum": "No curriculum items yet.",
+    "collapseSidebar": "Collapse curriculum",
+    "expandSidebar": "Expand curriculum",
+    "previous": "Previous",
+    "next": "Next",
+    "resources": "Resources",
+    "openResource": "Open resource",
+    "openExternal": "Open link",
+    "articleEmpty": "This article has no content yet.",
+    "videoEmpty": "This video has not been added yet.",
+    "fileEmpty": "No files have been attached yet.",
+    "externalEmpty": "No external link has been added yet.",
+    "quizComingSoon": "Quiz taking will be available after the attempt flow is added.",
+    "quiz": {
+      "empty": "This quiz is not available yet.",
+      "enrollRequired": "Enroll in this course to take the quiz.",
+      "readyTitle": "Ready to take this quiz?",
+      "readySubtitle": "Start an attempt, choose your answers, then submit for grading.",
+      "start": "Start quiz",
+      "started": "Quiz attempt started.",
+      "startFailed": "Could not start this quiz attempt.",
+      "submit": "Submit quiz",
+      "submitted": "Quiz submitted.",
+      "submitFailed": "Could not submit this quiz.",
+      "answerAll": "Please answer every question before submitting.",
+      "noQuestions": "This quiz has no questions yet.",
+      "questions": "Questions",
+      "points": "Points",
+      "passingScore": "Passing score",
+      "timeLimit": "Time limit",
+      "minutes": "{count} minutes",
+      "unlimited": "Unlimited",
+      "passed": "Passed",
+      "failed": "Failed",
+      "score": "Score {score} · {percentage}%",
+      "questionOrder": "Question {order}",
+      "pointCount": "{count} points",
+      "selectAnswers": "Select answer(s)",
+      "attempts": "Attempts",
+      "attemptProgress": "{used} of {max} used",
+      "attemptUnlimited": "{used} used - unlimited attempts",
+      "attemptNumber": "Attempt #{number}",
+      "resume": "Resume quiz",
+      "retry": "Try again",
+      "history": "Attempt history",
+      "reviewAnswers": "Review answers",
+      "resultTitle": "Quiz result",
+      "resultSubtitle": "Your attempt has been graded.",
+      "bestScore": "Best score",
+      "latestScore": "Latest score",
+      "timeTaken": "Time taken",
+      "noDuration": "Not recorded",
+      "remainingAttempts": "{count} attempt(s) remaining",
+      "noAttemptsRemaining": "No attempts remaining",
+      "saveStatus": "Saved",
+      "savingAnswers": "Saving answers...",
+      "saveAnswersFailed": "Could not save your answers. Keep this page open and submit again.",
+      "timeRemaining": "Time remaining",
+      "timeExpired": "Time is up. Your quiz is being submitted.",
+      "questionNavigator": "Questions",
+      "unanswered": "Unanswered",
+      "submitConfirmTitle": "Submit quiz?",
+      "submitConfirmDescription": "You still have {count} unanswered question(s). You can return to finish them or submit now.",
+      "submitAnyway": "Submit anyway",
+      "cancel": "Continue quiz",
+      "historyTitle": "Attempt history",
+      "historySubtitle": "Review your previous quiz attempts.",
+      "noAttempts": "You have not completed any attempts yet.",
+      "submittedAt": "Submitted",
+      "backToResult": "Back to result",
+      "backToHistory": "Back to history",
+      "reviewTitle": "Attempt review",
+      "reviewHidden": "This quiz does not allow answer review after submission.",
+      "yourAnswer": "Your answer",
+      "correctAnswer": "Correct answer",
+      "explanation": "Explanation",
+      "questionScore": "{score} / {points} points",
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "loadingReview": "Loading attempt review...",
+      "reviewFailed": "Could not load this attempt review.",
+      "close": "Close"
+    },
+    "progress": {
+      "markComplete": "Mark complete",
+      "completed": "Completed",
+      "saving": "Saving...",
+      "completedToast": "Lecture marked as completed.",
+      "completeFailed": "Could not complete this lecture.",
+      "openFailed": "Could not save lecture progress."
+    },
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in to continue learning.",
+      "studentOnlyTitle": "Student access only",
+      "studentOnlySubtitle": "This learning page is available for student accounts."
+    },
+    "locked": {
+      "title": "Lecture locked",
+      "subtitle": "Enroll in this course or choose an available preview lecture.",
+      "viewCourse": "View course"
+    },
+    "notFound": {
+      "title": "Lecture not found",
+      "subtitle": "This lecture is not available in the current curriculum."
+    },
+    "error": {
+      "title": "Could not load this lecture",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    }
+  },
   "InstructorSidebar": {
     "items": {
       "home": "Home",
@@ -104,6 +248,185 @@
       "revenue": "Revenue",
       "messages": "Messages",
       "profile": "Profile"
+    }
+  },
+  "InstructorStudentsPage": {
+    "eyebrow": "Instructor workspace",
+    "title": "Students",
+    "subtitle": "Track enrolled students and course progress.",
+    "course": "Course",
+    "selectCourse": "Select a course",
+    "students": "Students",
+    "listSubtitle": "Review learner status for the selected course.",
+    "openStudio": "Open Studio",
+    "unknownStudent": "Unknown student",
+    "noEmail": "No email",
+    "progress": "Progress",
+    "completedLectures": "completed lectures",
+    "metrics": {
+      "students": "Students",
+      "completed": "Completed",
+      "active": "Active",
+      "avgProgress": "Avg progress"
+    },
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in with an instructor account.",
+      "instructorOnlyTitle": "Instructor access only",
+      "instructorOnlySubtitle": "Student progress is available for instructor accounts."
+    },
+    "emptyCourses": {
+      "title": "No courses yet",
+      "subtitle": "Create a course before tracking student progress.",
+      "create": "Create course"
+    },
+    "emptyStudents": {
+      "title": "No students enrolled",
+      "subtitle": "Students will appear here after enrolling in this course."
+    },
+    "error": {
+      "coursesTitle": "Failed to load courses",
+      "studentsTitle": "Failed to load students",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    }
+  },
+  "AdminSidebar": {
+    "items": {
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "courseReviews": "Course Reviews",
+      "courses": "Courses",
+      "users": "Users",
+      "instructors": "Instructors",
+      "reports": "Reports",
+      "categories": "Categories"
+    }
+  },
+  "AdminCourseReviewsPage": {
+    "eyebrow": "Admin moderation",
+    "title": "Course Reviews",
+    "subtitle": "Triage submitted courses before opening the detail review.",
+    "unknown": "Unknown",
+    "contentCounts": "{sections} sections · {lectures} lectures · {quizzes} quizzes",
+    "checklistRatio": "Checklist {passed}/{total}",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in with an admin account to review courses.",
+      "adminOnlyTitle": "Admin access only",
+      "adminOnlySubtitle": "Course review moderation is available for admin accounts."
+    },
+    "filters": {
+      "keyword": "Search course title...",
+      "instructor": "Instructor name or email...",
+      "category": "Category",
+      "allCategories": "All categories",
+      "sort": "Sort"
+    },
+    "sort": {
+      "SUBMITTED_DESC": "Submitted newest",
+      "SUBMITTED_ASC": "Submitted oldest",
+      "UPDATED_DESC": "Updated newest",
+      "UPDATED_ASC": "Updated oldest",
+      "TITLE_ASC": "Title A-Z",
+      "TITLE_DESC": "Title Z-A"
+    },
+    "columns": {
+      "course": "Course",
+      "instructor": "Instructor",
+      "category": "Category",
+      "status": "Status",
+      "content": "Sections / Lectures / Quizzes",
+      "date": "Submitted / Updated",
+      "checklist": "Checklist",
+      "actions": "Actions"
+    },
+    "actions": {
+      "review": "Review"
+    },
+    "empty": {
+      "title": "No courses match these filters",
+      "subtitle": "Try another status, instructor, category, or sort option."
+    },
+    "error": {
+      "title": "Failed to load course reviews",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
+    },
+    "pagination": {
+      "summary": "{total} courses · page {page}/{totalPages}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "AdminCourseReviewDetailPage": {
+    "back": "Back to Course Reviews",
+    "unknown": "Unknown",
+    "yes": "Yes",
+    "no": "No",
+    "courseStats": "{sections} sections · {lectures} lectures · {duration}m",
+    "auth": {
+      "signInTitle": "Sign in required",
+      "signInSubtitle": "Please sign in with an admin account to review this course.",
+      "adminOnlyTitle": "Admin access only",
+      "adminOnlySubtitle": "Course review details are available for admin accounts."
+    },
+    "actions": {
+      "openStudio": "Open Studio",
+      "approve": "Approve",
+      "approving": "Approving...",
+      "reject": "Reject",
+      "preview": "Preview"
+    },
+    "checklist": {
+      "title": "Publish checklist",
+      "subtitle": "{passed}/{total} checklist items passed.",
+      "ready": "Ready",
+      "notReady": "Needs work"
+    },
+    "info": {
+      "title": "Course info",
+      "level": "Level",
+      "language": "Language",
+      "price": "Price",
+      "free": "Free",
+      "quiz": "Has quiz"
+    },
+    "curriculum": {
+      "title": "Curriculum",
+      "section": "Section {order}",
+      "lectureCount": "{count} lectures",
+      "questions": "{count} questions"
+    },
+    "history": {
+      "title": "Review history",
+      "empty": "No review history yet.",
+      "actions": {
+        "SUBMITTED": "Submitted",
+        "RESUBMITTED": "Resubmitted",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected"
+      }
+    },
+    "rejectDialog": {
+      "title": "Reject course",
+      "description": "Tell the instructor what must be fixed before they can submit this course again.",
+      "placeholder": "Write a clear reason for rejection...",
+      "cancel": "Cancel",
+      "reject": "Reject course",
+      "rejecting": "Rejecting..."
+    },
+    "toast": {
+      "approved": "Course approved.",
+      "approveFailed": "Could not approve this course.",
+      "rejected": "Course rejected.",
+      "rejectFailed": "Could not reject this course.",
+      "reasonRequired": "Please enter a rejection reason."
+    },
+    "error": {
+      "title": "Failed to load review detail",
+      "subtitle": "Please try again in a moment.",
+      "retry": "Try again"
     }
   },
   "InstructorCoursesPage": {
@@ -267,6 +590,11 @@
       "title": "Failed to load studio",
       "subtitle": "Please try again in a moment.",
       "retry": "Try again"
+    },
+    "reviewFeedback": {
+      "title": "This course was rejected",
+      "noReason": "No rejection reason was provided.",
+      "editCourse": "Edit course"
     },
     "metrics": {
       "sections": "Sections",

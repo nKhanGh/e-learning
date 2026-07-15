@@ -5,6 +5,7 @@ import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.entity.enrollment.Enrollment;
 import com.khangdev.elearningbe.entity.id.EnrollmentId;
 import com.khangdev.elearningbe.entity.user.User;
+import com.khangdev.elearningbe.enums.CourseStatus;
 import com.khangdev.elearningbe.enums.EnrollmentStatus;
 import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.exception.AppException;
@@ -36,7 +37,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     private final UserService userService;
 
-    KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
 
     @Override
@@ -49,6 +50,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         if(!user.getRole().equals(UserRole.STUDENT))
             throw new AppException(ErrorCode.UNAUTHORIZED);
+
+        if (course.getStatus() != CourseStatus.PUBLISHED) {
+            throw new AppException(ErrorCode.COURSE_NOT_PUBLISHED);
+        }
+
+        BigDecimal price = course.getPrice() == null ? BigDecimal.ZERO : course.getPrice();
+        if (!Boolean.TRUE.equals(course.getIsFree()) && price.compareTo(BigDecimal.ZERO) > 0) {
+            throw new AppException(ErrorCode.COURSE_PAYMENT_REQUIRED);
+        }
 
         EnrollmentId enrollmentId = EnrollmentId.builder()
                 .userId(userId)
@@ -65,7 +75,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .enrolledAt(Instant.now())
                 .lastAccessedAt(Instant.now())
                 .status(EnrollmentStatus.ACTIVE)
-                .paymentAmount(course.getPrice())
+                .paymentAmount(BigDecimal.ZERO)
                 .build();
         enrollmentRepository.save(enrollment);
         course.setTotalEnrollments(course.getTotalEnrollments() + 1);
@@ -203,5 +213,22 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .userId(userId)
                 .courseId(courseId)
                 .build());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<EnrollmentResponse> getMyLearning() {
+        UUID userId = userService.getMyInfo().getId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.getRole().equals(UserRole.STUDENT)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        return enrollmentRepository.findByUserId(userId)
+                .stream()
+                .map(enrollmentMapper::toResponse)
+                .toList();
     }
 }

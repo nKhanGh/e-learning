@@ -18,6 +18,34 @@ export const courseService = {
       "/courses/my-course",
       { params: { page, size, keyword: keyword || undefined, status } },
     ),
+  getAdminCourseReviews: (filters: AdminCourseReviewFilters) =>
+    apiClient.get<ApiResponse<PageResponse<AdminCourseReviewItemResponse>>>(
+      "/admin/course-reviews",
+      {
+        params: {
+          page: filters.page,
+          size: filters.size,
+          keyword: filters.keyword || undefined,
+          status: filters.status,
+          categoryId: filters.categoryId || undefined,
+          instructor: filters.instructor || undefined,
+          sortBy: filters.sortBy,
+        },
+      },
+    ),
+  getAdminCourseReviewDetail: (courseId: string) =>
+    apiClient.get<ApiResponse<AdminCourseReviewDetailResponse>>(
+      `/admin/course-reviews/${courseId}`,
+    ),
+  approveCourseReview: (courseId: string) =>
+    apiClient.post<ApiResponse<CourseResponse>>(
+      `/admin/course-reviews/${courseId}/approve`,
+    ),
+  rejectCourseReview: (courseId: string, request: CourseRejectRequest) =>
+    apiClient.post<ApiResponse<CourseResponse>>(
+      `/admin/course-reviews/${courseId}/reject`,
+      request,
+    ),
   createCourse: (request: CourseCreationRequest) =>
     apiClient.post<ApiResponse<CourseResponse>>("/courses", request),
   updateCourse: (courseId: string, request: CourseUpdateRequest) =>
@@ -33,6 +61,10 @@ export const courseService = {
   getPublishChecklist: (courseId: string) =>
     apiClient.get<ApiResponse<CoursePublishChecklistResponse>>(
       `/courses/${courseId}/publish-checklist`,
+    ),
+  getReviewHistory: (courseId: string) =>
+    apiClient.get<ApiResponse<CourseReviewHistoryResponse[]>>(
+      `/courses/${courseId}/review-history`,
     ),
   submitForReview: (courseId: string) =>
     apiClient.post<ApiResponse<CourseResponse>>(
@@ -56,6 +88,20 @@ export const courseService = {
     ),
   getLecture: (lectureId: string) =>
     apiClient.get<ApiResponse<LectureResponse>>(`/lectures/${lectureId}`),
+  getPublicLecture: (lectureId: string) =>
+    apiClient.get<ApiResponse<LectureResponse>>(`/lectures/public/${lectureId}`),
+  createLectureProgress: (lectureId: string) =>
+    apiClient.post<ApiResponse<LectureProgressResponse>>(
+      `/lectures/${lectureId}/progress`,
+    ),
+  completeLecture: (lectureId: string) =>
+    apiClient.post<ApiResponse<LectureProgressResponse>>(
+      `/lectures/${lectureId}/progress/completion`,
+    ),
+  getCourseLectureProgress: (courseId: string) =>
+    apiClient.get<ApiResponse<LectureProgressResponse[]>>(
+      `/lectures/courses/${courseId}/progress`,
+    ),
   createLecture: (request: LectureRequest) =>
     apiClient.post<ApiResponse<LectureResponse>>("/lectures", request),
   updateLecture: (lectureId: string, request: LectureUpdateRequest) =>
@@ -67,6 +113,10 @@ export const courseService = {
     apiClient.delete<ApiResponse<void>>(`/lectures/${lectureId}`),
   getQuizByLecture: (lectureId: string) =>
     apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/lecture/${lectureId}`),
+  getPublicQuizByLecture: (lectureId: string) =>
+    apiClient.get<ApiResponse<QuizResponse>>(
+      `/quizzes/public/lecture/${lectureId}`,
+    ),
   getQuiz: (quizId: string) =>
     apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/${quizId}`),
   createQuiz: (request: QuizRequest) =>
@@ -78,6 +128,32 @@ export const courseService = {
   getQuizQuestions: (quizId: string) =>
     apiClient.get<ApiResponse<QuizQuestionResponse[]>>(
       `/quiz-questions/${quizId}`,
+    ),
+  getMyQuizAttempts: (quizId: string) =>
+    apiClient.get<ApiResponse<QuizAttemptResponse[]>>(
+      `/quizzes/${quizId}/attempts`,
+    ),
+  getQuizAttemptAnswers: (quizId: string, attemptNumber: number) =>
+    apiClient.get<ApiResponse<QuizAttemptAnswerResponse[]>>(
+      `/quizzes/${quizId}/attempts/${attemptNumber}/answers`,
+    ),
+  getQuizAttemptReview: (quizId: string, attemptNumber: number) =>
+    apiClient.get<ApiResponse<QuizAttemptReviewResponse>>(
+      `/quizzes/${quizId}/attempts/${attemptNumber}/review`,
+    ),
+  startQuizAttempt: (quizId: string) =>
+    apiClient.post<ApiResponse<QuizAttemptResponse>>(
+      `/quizzes/${quizId}/attempts`,
+    ),
+  saveQuizAttemptAnswers: (quizId: string, request: QuizSubmitRequest) =>
+    apiClient.put<ApiResponse<void>>(
+      `/quizzes/${quizId}/attempts/answers`,
+      request,
+    ),
+  submitQuiz: (quizId: string, request: QuizSubmitRequest) =>
+    apiClient.put<ApiResponse<QuizAttemptResponse>>(
+      `/quizzes/${quizId}/submission`,
+      request,
     ),
   createQuizQuestion: (request: QuizQuestionRequest) =>
     apiClient.post<ApiResponse<QuizQuestionResponse>>(

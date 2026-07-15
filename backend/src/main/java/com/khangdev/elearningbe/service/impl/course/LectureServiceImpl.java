@@ -6,6 +6,7 @@ import com.khangdev.elearningbe.dto.response.course.LectureResponse;
 import com.khangdev.elearningbe.dto.response.course.PublicLectureResponse;
 import com.khangdev.elearningbe.entity.course.CourseSection;
 import com.khangdev.elearningbe.entity.course.Lecture;
+import com.khangdev.elearningbe.enums.UserRole;
 import com.khangdev.elearningbe.exception.AppException;
 import com.khangdev.elearningbe.exception.ErrorCode;
 import com.khangdev.elearningbe.mapper.LectureMapper;
@@ -29,15 +30,19 @@ public class LectureServiceImpl implements LectureService {
     private final UserService userService;
     private final LectureMapper lectureMapper;
 
+    private void authorizeRead(UUID instructorId) {
+        var user = userService.getMyInfo();
+        if (user.getRole() != UserRole.ADMIN && !instructorId.equals(user.getId())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
     @Override
-    @PreAuthorize("hasAuthority('INSTRUCTOR')")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     public List<LectureResponse> getLecturesBySectionId(UUID sectionId) {
         CourseSection courseSection = courseSectionRepository.findById(sectionId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_SECTION_NOT_FOUND));
-        UUID userId = userService.getMyInfo().getId();
-        if(!courseSection.getCourse().getInstructor().getId().equals(userId)){
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
+        authorizeRead(courseSection.getCourse().getInstructor().getId());
         return lectureRepository.findBySectionIdOrderByDisplayOrderAsc(sectionId).stream()
                 .map(lectureMapper::toLectureResponse).toList();
     }
@@ -66,11 +71,12 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    @PreAuthorize("hasAuthority('INSTRUCTOR')")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     public LectureResponse getByLectureId(UUID lectureId) {
-        return lectureMapper.toLectureResponse(lectureRepository.findById(lectureId)
-                .orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND))
-        );
+        Lecture lecture = lectureRepository.findById(lectureId)
+                .orElseThrow(() -> new AppException(ErrorCode.LECTURE_NOT_FOUND));
+        authorizeRead(lecture.getSection().getCourse().getInstructor().getId());
+        return lectureMapper.toLectureResponse(lecture);
     }
 
     @Override

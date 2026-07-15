@@ -37,9 +37,16 @@ import type { StudioSection } from "./types";
 type LecturesTabProps = {
   courseId: string;
   sections: StudioSection[];
+  readOnly?: boolean;
+  previewBasePath?: string;
 };
 
-export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
+export const LecturesTab = ({
+  courseId,
+  sections,
+  readOnly = false,
+  previewBasePath,
+}: LecturesTabProps) => {
   const locale = useLocale();
   const t = useTranslations("InstructorCourseStudioPage");
   const [selectedSectionId, setSelectedSectionId] = useState("");
@@ -196,16 +203,18 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
               </SelectContent>
             </Select>
           </div>
-          <Button
-            type="button"
-            size="sm"
-            className="text-white!"
-            disabled={!selectedSectionId}
-            onClick={openCreateLectureDialog}
-          >
-            <Plus className="h-4 w-4" />
-            {t("lectures.add")}
-          </Button>
+          {!readOnly ? (
+            <Button
+              type="button"
+              size="sm"
+              className="text-white!"
+              disabled={!selectedSectionId}
+              onClick={openCreateLectureDialog}
+            >
+              <Plus className="h-4 w-4" />
+              {t("lectures.add")}
+            </Button>
+          ) : null}
         </div>
 
         {sections.length ? lecturesQuery.isLoading ? (
@@ -269,32 +278,36 @@ export const LecturesTab = ({ courseId, sections }: LecturesTabProps) => {
                   <div className="flex shrink-0 flex-wrap gap-2">
                     <Button type="button" variant="outline" size="sm" asChild>
                       <Link
-                        href={`/${locale}/instructor/studio/${courseId}/preview/lectures/${lecture.id}`}
+                        href={`${previewBasePath ?? `/${locale}/instructor/studio/${courseId}`}/preview/lectures/${lecture.id}`}
                       >
                         <Eye className="h-3.5 w-3.5" />
                         {t("lectures.previewAction")}
                       </Link>
                     </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openEditLectureDialog(lecture)}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      {t("lectures.edit")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="text-white!"
-                      disabled={deleteLectureMutation.isPending}
-                      onClick={() => setDeletingLecture(lecture)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      {t("lectures.delete")}
-                    </Button>
+                    {!readOnly ? (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditLectureDialog(lecture)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          {t("lectures.edit")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="text-white!"
+                          disabled={deleteLectureMutation.isPending}
+                          onClick={() => setDeletingLecture(lecture)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          {t("lectures.delete")}
+                        </Button>
+                      </>
+                    ) : null}
                   </div>
                 </div>
               </div>

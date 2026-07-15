@@ -1,6 +1,7 @@
 "use client";
 
 import { useOpenAuth } from "@/contexts/OpenAuthContext";
+import { DEFAULT_COURSE_THUMBNAIL, getCourseThumbnailSrc } from "@/lib/courseThumbnail";
 import {
   faBookOpen,
   faCertificate,
@@ -78,14 +79,23 @@ const PurchaseCard = ({
 
   return (
     <div className="bg-white dark:bg-surface rounded-xl shadow-2xl border border-gray-200 dark:border-border overflow-hidden">
-      <div className="relative h-40 bg-linear-to-br from-primary/30 to-secondary/30 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform">
+      <div className="relative flex h-40 items-center justify-center overflow-hidden bg-gray-100 dark:bg-border">
+        <img
+          src={getCourseThumbnailSrc(course.thumbnailUrl)}
+          alt={course.title}
+          className="absolute inset-0 h-full w-full object-cover"
+          onError={(event) => {
+            event.currentTarget.src = DEFAULT_COURSE_THUMBNAIL;
+          }}
+        />
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="relative z-10 w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 transition-transform">
           <FontAwesomeIcon
             icon={locked ? faLock : faPlay}
             className="w-4 h-4 text-primary ml-1"
           />
         </div>
-        <span className="absolute bottom-2.5 text-white/80 text-xs">
+        <span className="absolute bottom-2.5 z-10 text-white/90 text-xs">
           {locked ? "Locked preview" : t("previewVideo")}
         </span>
       </div>

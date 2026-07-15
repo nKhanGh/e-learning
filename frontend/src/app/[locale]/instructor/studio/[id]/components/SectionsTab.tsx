@@ -39,6 +39,7 @@ type SectionsTabProps = {
   courseId: string;
   sections: StudioSection[];
   isLoading: boolean;
+  readOnly?: boolean;
 };
 
 const initialSectionForm: SectionForm = {
@@ -73,6 +74,7 @@ export const SectionsTab = ({
   courseId,
   sections,
   isLoading,
+  readOnly = false,
 }: SectionsTabProps) => {
   const t = useTranslations("InstructorCourseStudioPage");
   const createSectionMutation = useCreateCourseSectionMutation(courseId);
@@ -164,15 +166,17 @@ export const SectionsTab = ({
           <h2 className="text-base font-bold text-gray-950 dark:text-text">
             {t("sections.title")}
           </h2>
-          <Button
-            type="button"
-            size="sm"
-            className="!text-white"
-            onClick={openCreateSectionDialog}
-          >
-            <Plus className="h-4 w-4" />
-            {t("sections.add")}
-          </Button>
+          {!readOnly ? (
+            <Button
+              type="button"
+              size="sm"
+              className="!text-white"
+              onClick={openCreateSectionDialog}
+            >
+              <Plus className="h-4 w-4" />
+              {t("sections.add")}
+            </Button>
+          ) : null}
         </div>
 
         {isLoading ? (
@@ -225,28 +229,30 @@ export const SectionsTab = ({
                       {section.durationMinutes ?? 0}m
                     </p>
                   </div>
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => openEditSectionDialog(section)}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      {t("sections.edit")}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="!text-white"
-                      disabled={deleteSectionMutation.isPending}
-                      onClick={() => setDeletingSection(section)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      {t("sections.delete")}
-                    </Button>
-                  </div>
+                  {!readOnly ? (
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openEditSectionDialog(section)}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        {t("sections.edit")}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="!text-white"
+                        disabled={deleteSectionMutation.isPending}
+                        onClick={() => setDeletingSection(section)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        {t("sections.delete")}
+                      </Button>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}

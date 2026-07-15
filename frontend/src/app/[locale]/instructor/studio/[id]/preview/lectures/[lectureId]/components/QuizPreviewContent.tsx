@@ -5,6 +5,7 @@ import {
   useCreateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
   useImportQuizQuestionsMutation,
+  usePublicQuizByLectureQuery,
   useQuizByLectureQuery,
   useQuizQuestionsQuery,
   useUpdateQuizMutation,
@@ -31,6 +32,8 @@ type QuizPreviewContentProps = {
   lectureId: string;
   lectureTitle: string;
   fallbackQuiz: QuizResponse | CourseCurriculumQuiz | null;
+  readOnly?: boolean;
+  publicAccess?: boolean;
 };
 
 export function QuizPreviewContent({
@@ -39,12 +42,16 @@ export function QuizPreviewContent({
   lectureId,
   lectureTitle,
   fallbackQuiz,
+  readOnly = false,
+  publicAccess = false,
 }: QuizPreviewContentProps) {
   const t = useTranslations("InstructorCourseStudioPage");
-  const quizQuery = useQuizByLectureQuery(lectureId);
+  const privateQuizQuery = useQuizByLectureQuery(publicAccess ? "" : lectureId);
+  const publicQuizQuery = usePublicQuizByLectureQuery(publicAccess ? lectureId : "");
+  const quizQuery = publicAccess ? publicQuizQuery : privateQuizQuery;
   const quiz = quizQuery.data ?? fallbackQuiz;
   const quizId = quiz?.id ?? "";
-  const questionsQuery = useQuizQuestionsQuery(quizId);
+  const questionsQuery = useQuizQuestionsQuery(quizId, !publicAccess);
   const fallbackQuestions =
     isFullQuizResponse(quiz) && Array.isArray(quiz.questions)
       ? quiz.questions
@@ -191,20 +198,22 @@ export function QuizPreviewContent({
           <h3 className="text-sm font-bold text-gray-950 dark:text-text">
             {t("preview.quizTitle")}
           </h3>
-          <Button
-            type="button"
-            variant={quiz ? "outline" : "default"}
-            size="sm"
-            className={quiz ? undefined : "text-white!"}
-            onClick={() => setQuizConfigDialogOpen(true)}
-          >
-            {quiz ? (
-              <Pencil className="h-3.5 w-3.5" />
-            ) : (
-              <Settings2 className="h-3.5 w-3.5" />
-            )}
-            {quiz ? t("quiz.edit") : t("quiz.setup")}
-          </Button>
+          {!readOnly ? (
+            <Button
+              type="button"
+              variant={quiz ? "outline" : "default"}
+              size="sm"
+              className={quiz ? undefined : "text-white!"}
+              onClick={() => setQuizConfigDialogOpen(true)}
+            >
+              {quiz ? (
+                <Pencil className="h-3.5 w-3.5" />
+              ) : (
+                <Settings2 className="h-3.5 w-3.5" />
+              )}
+              {quiz ? t("quiz.edit") : t("quiz.setup")}
+            </Button>
+          ) : null}
         </div>
         {quiz ? (
           <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-border dark:bg-bg">
@@ -305,29 +314,31 @@ export function QuizPreviewContent({
               {t("preview.loadingQuestions")}
             </span>
           ) : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              className="text-white!"
-              onClick={openCreateQuestionDialog}
-            >
-              <Plus className="h-4 w-4" />
-              {t("quiz.questions.add")}
-            </Button>
-            <span className="text-xs text-gray-400">
-              {t("quiz.questions.or")}
-            </span>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setImportDialogOpen(true)}
-            >
-              <FileJson className="h-4 w-4" />
-              {t("quiz.questions.importJson")}
-            </Button>
-          </div>
+          {!readOnly ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                className="text-white!"
+                onClick={openCreateQuestionDialog}
+              >
+                <Plus className="h-4 w-4" />
+                {t("quiz.questions.add")}
+              </Button>
+              <span className="text-xs text-gray-400">
+                {t("quiz.questions.or")}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setImportDialogOpen(true)}
+              >
+                <FileJson className="h-4 w-4" />
+                {t("quiz.questions.importJson")}
+              </Button>
+            </div>
+          ) : null}
         </div>
 
         {questionsQuery.isLoading ? (
@@ -351,6 +362,7 @@ export function QuizPreviewContent({
                   isDeleting={deleteQuestionMutation.isPending}
                   onEdit={() => openEditQuestionDialog(question)}
                   onDelete={() => setDeletingQuestion(question)}
+                  readOnly={readOnly}
                 />
               ))}
           </div>
@@ -409,11 +421,13 @@ const QuizQuestionPreview = ({
   isDeleting,
   onEdit,
   onDelete,
+  readOnly,
 }: {
   question: QuizQuestionResponse;
   isDeleting: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  readOnly?: boolean;
 }) => {
   const t = useTranslations("InstructorCourseStudioPage");
 
@@ -436,21 +450,25 @@ const QuizQuestionPreview = ({
           <span className="w-fit rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
             {(question.correctAnswers ?? []).length} {t("quiz.questions.correct")}
           </span>
-          <Button type="button" variant="outline" size="sm" onClick={onEdit}>
-            <Pencil className="h-3.5 w-3.5" />
-            {t("quiz.questions.edit")}
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="text-white!"
-            disabled={isDeleting}
-            onClick={onDelete}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            {t("quiz.questions.delete")}
-          </Button>
+          {!readOnly ? (
+            <>
+              <Button type="button" variant="outline" size="sm" onClick={onEdit}>
+                <Pencil className="h-3.5 w-3.5" />
+                {t("quiz.questions.edit")}
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="text-white!"
+                disabled={isDeleting}
+                onClick={onDelete}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {t("quiz.questions.delete")}
+              </Button>
+            </>
+          ) : null}
         </div>
       </div>
 

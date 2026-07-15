@@ -8,6 +8,7 @@ Thu muc nay la bo tai lieu chung cua repo `e-learning`, duoc tong hop tu code ba
 - [Kien truc va luong chay](architecture.md)
 - [Backend](backend.md)
 - [Frontend](frontend.md)
+- [Course remaining implementation plan](course-remaining-plan.md)
 - [API endpoints backend](backend/api-endpoints.md)
 - [Luu y tich hop FE/BE](integration-notes.md)
 - [PR description hien tai](PR_DESCRIPTION.md)

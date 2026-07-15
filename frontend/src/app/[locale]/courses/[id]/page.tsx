@@ -359,7 +359,12 @@ const CourseDetailPage = () => {
               ) : curriculum?.sections.length ? (
                 <div className="space-y-1.5">
                   {curriculum.sections.map((section) => (
-                    <SectionAccordion key={section.id} section={section} />
+                    <SectionAccordion
+                      key={section.id}
+                      section={section}
+                      courseId={id}
+                      locale={locale}
+                    />
                   ))}
                 </div>
               ) : (

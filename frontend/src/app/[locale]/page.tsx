@@ -16,6 +16,7 @@ import {
 import { getLocale, getTranslations } from "next-intl/server";
 import GetStatedButton from "@/components/home/GetStatedButton";
 import { getServerApiBaseUrl } from "@/lib/apiClient";
+import { getCourseThumbnailSrc } from "@/lib/courseThumbnail";
 import { defaultCourseSearchRequest } from "@/lib/courseSearch";
 
 export default async function HomePage() {
@@ -280,7 +281,11 @@ export default async function HomePage() {
               >
                 {/* Course Image */}
                 <div className="relative h-44 bg-linear-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-5xl">
-                  <img src={course.thumbnailUrl ?? './default-course-background.png'} alt={course.title} className="w-full h-full object-cover" />
+                  <img
+                    src={getCourseThumbnailSrc(course.thumbnailUrl)}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                  />
                   {(course.isBestseller || course.isFeatured || course.isFree) && (
                     <div className="absolute top-3.5 left-3.5 px-2.5 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
                       {course.isBestseller && "Bestseller"}

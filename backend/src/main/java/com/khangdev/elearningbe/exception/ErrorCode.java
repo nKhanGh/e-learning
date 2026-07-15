@@ -47,6 +47,10 @@ public enum     ErrorCode {
     COURSE_NOT_FULLY_COMPLETED(400, "Course not fully completed", HttpStatus.BAD_REQUEST),
     COURSE_ALREADY_SUBMITTED(400, "Course has already been submitted for review", HttpStatus.BAD_REQUEST),
     COURSE_ALREADY_PUBLISHED(400, "Course has already been published", HttpStatus.BAD_REQUEST),
+    COURSE_REVIEW_INVALID_STATUS(400, "Course review status is invalid", HttpStatus.BAD_REQUEST),
+    REVIEW_REASON_REQUIRED(400, "Review reason is required", HttpStatus.BAD_REQUEST),
+    COURSE_NOT_PUBLISHED(400, "Course is not published", HttpStatus.BAD_REQUEST),
+    COURSE_PAYMENT_REQUIRED(400, "Course requires payment", HttpStatus.BAD_REQUEST),
 
     LECTURE_NOT_FOUND(400, "Lecture not found", HttpStatus.BAD_REQUEST),
     LECTURE_PROGRESS_NOT_FOUND(400, "Lecture progress not found", HttpStatus.BAD_REQUEST),
@@ -58,6 +62,10 @@ public enum     ErrorCode {
     ENROLLMENT_INACTIVE(400, "Enrollment inactive", HttpStatus.BAD_REQUEST),
     ENROLLMENT_EXISTED(400,  "Enrollment already existed", HttpStatus.BAD_REQUEST),
     QUIZ_ATTEMPT_NOT_FOUND(400, "Quiz attempt not found", HttpStatus.BAD_REQUEST),
+
+    QUIZ_ATTEMPT_LIMIT_REACHED(400, "No quiz attempts remaining", HttpStatus.BAD_REQUEST),
+
+    QUIZ_REVIEW_UNAVAILABLE(400, "Quiz answer review is not available", HttpStatus.BAD_REQUEST),
 
     QUIZ_ATTEMPT_INVALID(400, "You must complete the quiz you previously participated in.", HttpStatus.BAD_REQUEST),
 

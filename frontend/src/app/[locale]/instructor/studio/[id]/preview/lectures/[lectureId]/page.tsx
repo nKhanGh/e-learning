@@ -27,7 +27,13 @@ import { PreviewState } from "./components/PreviewState";
 import { ResourceList } from "./components/ResourceList";
 import type { CurriculumLectureItem } from "./components/lecturePreviewUtils";
 
-const InstructorLecturePreviewPage = () => {
+type LecturePreviewMode = "instructor" | "admin";
+
+export const LecturePreviewPageContent = ({
+  mode = "instructor",
+}: {
+  mode?: LecturePreviewMode;
+}) => {
   const locale = useLocale();
   const params = useParams<{ id: string; lectureId: string }>();
   const courseId = params.id;
@@ -103,9 +109,11 @@ const InstructorLecturePreviewPage = () => {
   const attachments = lecture?.attachments ?? [];
   const quiz = lecture?.quiz ?? navigationLecture?.quiz ?? null;
   const updateLectureMutation = useUpdateLectureMutation(courseId, section?.id ?? "");
-  const canPreview =
-    user?.role === UserRole.ADMIN ||
-    (user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id);
+  const isAdminMode = mode === "admin";
+  const studioBasePath = `/${locale}/${isAdminMode ? "admin" : "instructor"}/studio/${courseId}`;
+  const canPreview = isAdminMode
+    ? user?.role === UserRole.ADMIN
+    : user?.role === UserRole.INSTRUCTOR && course?.instructor?.id === user.id;
 
   if (!isLoggedIn) {
     return (
@@ -185,7 +193,7 @@ const InstructorLecturePreviewPage = () => {
         subtitle={t("preview.notFoundSubtitle")}
         action={
           <Button asChild variant="outline" className="mx-auto mt-4">
-            <Link href={`/${locale}/instructor/studio/${courseId}`}>
+            <Link href={studioBasePath}>
               <ArrowLeft className="h-4 w-4" />
               {t("preview.backToStudio")}
             </Link>
@@ -201,7 +209,7 @@ const InstructorLecturePreviewPage = () => {
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <Link
-              href={`/${locale}/instructor/studio/${courseId}`}
+              href={studioBasePath}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-primary dark:text-muted"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
@@ -215,16 +223,18 @@ const InstructorLecturePreviewPage = () => {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!lecture}
-              onClick={() => setEditDialogOpen(true)}
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              {t("lectures.edit")}
-            </Button>
+            {!isAdminMode ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!lecture}
+                onClick={() => setEditDialogOpen(true)}
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                {t("lectures.edit")}
+              </Button>
+            ) : null}
             <div className="rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary">
               {t("preview.teacherPreview")}
             </div>
@@ -255,6 +265,7 @@ const InstructorLecturePreviewPage = () => {
                 contentType={contentType}
                 quiz={quiz}
                 attachments={attachments}
+                readOnly={isAdminMode}
               />
             </section>
 
@@ -272,7 +283,7 @@ const InstructorLecturePreviewPage = () => {
                 <Link
                   href={
                     previousItem
-                      ? `/${locale}/instructor/studio/${courseId}/preview/lectures/${previousItem.lecture.id}`
+                      ? `${studioBasePath}/preview/lectures/${previousItem.lecture.id}`
                       : "#"
                   }
                 >
@@ -284,7 +295,7 @@ const InstructorLecturePreviewPage = () => {
                 <Link
                   href={
                     nextItem
-                      ? `/${locale}/instructor/studio/${courseId}/preview/lectures/${nextItem.lecture.id}`
+                      ? `${studioBasePath}/preview/lectures/${nextItem.lecture.id}`
                       : "#"
                   }
                 >
@@ -308,7 +319,7 @@ const InstructorLecturePreviewPage = () => {
               expand: t("preview.expandSidebar"),
             }}
             buildLectureHref={(targetLectureId) =>
-              `/${locale}/instructor/studio/${courseId}/preview/lectures/${targetLectureId}`
+              `${studioBasePath}/preview/lectures/${targetLectureId}`
             }
             onCollapsedChange={setSidebarCollapsed}
           />
@@ -339,6 +350,10 @@ const InstructorLecturePreviewPage = () => {
     </div>
   );
 };
+
+const InstructorLecturePreviewPage = () => (
+  <LecturePreviewPageContent mode="instructor" />
+);
 
 const toCurriculumLecture = (
   lecture: LectureResponse,

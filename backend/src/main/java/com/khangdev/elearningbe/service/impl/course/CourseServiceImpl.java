@@ -5,18 +5,25 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.khangdev.elearningbe.dto.PageResponse;
 import com.khangdev.elearningbe.dto.request.course.CourseCreationRequest;
+import com.khangdev.elearningbe.dto.request.course.CourseRejectRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseSearchRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseTagRequest;
 import com.khangdev.elearningbe.dto.request.course.CourseUpdateRequest;
+import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewDetailResponse;
+import com.khangdev.elearningbe.dto.response.course.AdminCourseReviewItemResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseCurriculumResponse;
 import com.khangdev.elearningbe.dto.response.course.CoursePublishChecklistResponse;
 import com.khangdev.elearningbe.dto.response.course.CourseResponse;
+import com.khangdev.elearningbe.dto.response.course.CourseReviewHistoryResponse;
 import com.khangdev.elearningbe.entity.course.Course;
 import com.khangdev.elearningbe.entity.course.CourseCategory;
+import com.khangdev.elearningbe.entity.course.CourseReviewHistory;
 import com.khangdev.elearningbe.entity.course.CourseSection;
 import com.khangdev.elearningbe.entity.course.Lecture;
 import com.khangdev.elearningbe.entity.course.Quiz;
 import com.khangdev.elearningbe.entity.course.CourseTag;
 import com.khangdev.elearningbe.enums.ContentType;
+import com.khangdev.elearningbe.enums.CourseReviewAction;
 import com.khangdev.elearningbe.entity.user.Instructor;
 import com.khangdev.elearningbe.entity.user.User;
 import com.khangdev.elearningbe.enums.CourseStatus;
@@ -27,6 +34,7 @@ import com.khangdev.elearningbe.mapper.CourseMapper;
 import com.khangdev.elearningbe.mapper.UserMapper;
 import com.khangdev.elearningbe.repository.CourseCategoryRepository;
 import com.khangdev.elearningbe.repository.CourseRepository;
+import com.khangdev.elearningbe.repository.CourseReviewHistoryRepository;
 import com.khangdev.elearningbe.repository.CourseSectionRepository;
 import com.khangdev.elearningbe.repository.CourseTagRepository;
 import com.khangdev.elearningbe.repository.LectureRepository;
@@ -66,6 +74,7 @@ import java.util.concurrent.TimeUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CourseServiceImpl implements CourseService {
     CourseRepository courseRepository;
+    CourseReviewHistoryRepository courseReviewHistoryRepository;
     CourseSectionRepository courseSectionRepository;
     LectureRepository lectureRepository;
     CourseMapper courseMapper;
@@ -124,12 +133,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('INSTRUCTOR')")
     public CourseResponse updateCourse(UUID courseId, CourseUpdateRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user =  userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
         CourseStatus lastStatus = course.getStatus();
-        if(user.getRole() != UserRole.ADMIN && !user.getId().equals(course.getInstructor().getId()))
+        if(!user.getId().equals(course.getInstructor().getId()))
             throw new AppException(ErrorCode.UNAUTHORIZED);
 
         courseMapper.updateCourse(course, request);
@@ -337,10 +347,142 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional(readOnly = true)
+    public PageResponse<AdminCourseReviewItemResponse> getAdminCourseReviews(
+            int page,
+            int size,
+            String keyword,
+            CourseStatus status,
+            UUID categoryId,
+            String instructor,
+            String sortBy
+    ) {
+        Specification<Course> baseSpecification = buildAdminCourseReviewSpecification(
+                keyword,
+                categoryId,
+                instructor
+        );
+        Specification<Course> specification = status == null
+                ? baseSpecification
+                : baseSpecification.and((root, query, cb) -> cb.equal(root.get("status"), status));
+
+        Pageable pageable = PageRequest.of(page, size, resolveAdminCourseReviewSort(sortBy));
+        Page<Course> coursePage = courseRepository.findAll(specification, pageable);
+
+        Map<String, Long> statusCounts = new LinkedHashMap<>();
+        statusCounts.put("ALL", courseRepository.count(baseSpecification));
+        List<CourseStatus> reviewStatuses = List.of(
+                CourseStatus.PENDING_REVIEW,
+                CourseStatus.PUBLISHED,
+                CourseStatus.REJECTED
+        );
+        reviewStatuses.forEach(courseStatus -> statusCounts.put(
+                courseStatus.name(),
+                courseRepository.count(baseSpecification.and(
+                        (root, query, cb) -> cb.equal(root.get("status"), courseStatus)
+                ))
+        ));
+
+        return PageResponse.<AdminCourseReviewItemResponse>builder()
+                .items(coursePage.getContent().stream().map(this::toAdminCourseReviewItem).toList())
+                .page(page)
+                .size(size)
+                .totalPages(coursePage.getTotalPages())
+                .totalElements(coursePage.getTotalElements())
+                .statusCounts(statusCounts)
+                .build();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional(readOnly = true)
+    public AdminCourseReviewDetailResponse getAdminCourseReviewDetail(UUID courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        return AdminCourseReviewDetailResponse.builder()
+                .course(courseMapper.toResponse(course))
+                .checklist(buildPublishChecklist(course))
+                .curriculum(buildAdminCurriculum(course))
+                .reviewHistory(getCourseReviewHistory(courseId))
+                .build();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
+    public CourseResponse approveCourseReview(UUID courseId) {
+        User reviewer = getCurrentUser();
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
+            throw new AppException(ErrorCode.COURSE_REVIEW_INVALID_STATUS);
+        }
+
+        CoursePublishChecklistResponse checklist = buildPublishChecklist(course);
+        if (!Boolean.TRUE.equals(checklist.getReady())) {
+            throw new AppException(ErrorCode.COURSE_NOT_FULLY_COMPLETED);
+        }
+
+        CourseStatus fromStatus = course.getStatus();
+        course.setStatus(CourseStatus.PUBLISHED);
+        if (course.getPublishedAt() == null) {
+            course.setPublishedAt(Instant.now());
+        }
+        course.setLastUpdatedContent(Instant.now());
+
+        saveReviewHistory(course, reviewer, CourseReviewAction.APPROVED, fromStatus, CourseStatus.PUBLISHED, null);
+        kafkaTemplate.send("course.published", course.getId().toString());
+
+        return courseMapper.toResponse(course);
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Transactional
+    public CourseResponse rejectCourseReview(UUID courseId, CourseRejectRequest request) {
+        User reviewer = getCurrentUser();
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+        String reason = request == null ? null : request.getReason();
+
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
+            throw new AppException(ErrorCode.COURSE_REVIEW_INVALID_STATUS);
+        }
+
+        if (isBlank(reason)) {
+            throw new AppException(ErrorCode.REVIEW_REASON_REQUIRED);
+        }
+
+        CourseStatus fromStatus = course.getStatus();
+        course.setStatus(CourseStatus.REJECTED);
+        course.setLastUpdatedContent(Instant.now());
+
+        saveReviewHistory(course, reviewer, CourseReviewAction.REJECTED, fromStatus, CourseStatus.REJECTED, reason.trim());
+
+        return courseMapper.toResponse(course);
+    }
+
+    @Override
     @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     @Transactional(readOnly = true)
     public CoursePublishChecklistResponse getPublishChecklist(UUID courseId) {
         Course course = getAuthorizedCourse(courseId);
+        return buildPublishChecklist(course);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
+    @Transactional(readOnly = true)
+    public List<CourseReviewHistoryResponse> getReviewHistory(UUID courseId) {
+        getAuthorizedCourse(courseId);
+        return getCourseReviewHistory(courseId);
+    }
+
+    private CoursePublishChecklistResponse buildPublishChecklist(Course course) {
+        UUID courseId = course.getId();
         List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
         List<Lecture> lectures = lectureRepository.findByCourseIdOrderBySectionAndDisplayOrder(courseId);
         List<CoursePublishChecklistResponse.Group> groups = new ArrayList<>();
@@ -365,8 +507,10 @@ public class CourseServiceImpl implements CourseService {
     @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     @Transactional
     public CourseResponse submitForReview(UUID courseId) {
+        User reviewer = getCurrentUser();
         Course course = getAuthorizedCourse(courseId);
         CoursePublishChecklistResponse checklist = getPublishChecklist(courseId);
+        CourseStatus fromStatus = course.getStatus();
 
         if (course.getStatus() == CourseStatus.PENDING_REVIEW) {
             throw new AppException(ErrorCode.COURSE_ALREADY_SUBMITTED);
@@ -382,6 +526,14 @@ public class CourseServiceImpl implements CourseService {
 
         course.setStatus(CourseStatus.PENDING_REVIEW);
         course.setLastUpdatedContent(Instant.now());
+        saveReviewHistory(
+                course,
+                reviewer,
+                fromStatus == CourseStatus.REJECTED ? CourseReviewAction.RESUBMITTED : CourseReviewAction.SUBMITTED,
+                fromStatus,
+                CourseStatus.PENDING_REVIEW,
+                null
+        );
 
         return courseMapper.toResponse(course);
     }
@@ -620,5 +772,203 @@ public class CourseServiceImpl implements CourseService {
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+
+    private CourseCurriculumResponse buildAdminCurriculum(Course course) {
+        UUID courseId = course.getId();
+        List<CourseSection> sections = courseSectionRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
+        List<Lecture> lectures = lectureRepository.findByCourseIdOrderBySectionAndDisplayOrder(courseId);
+
+        List<CourseCurriculumResponse.SectionItem> sectionItems = sections.stream()
+                .map(section -> {
+                    List<CourseCurriculumResponse.LectureItem> lectureItems = lectures.stream()
+                            .filter(lecture -> lecture.getSection().getId().equals(section.getId()))
+                            .map(this::toAdminLectureItem)
+                            .toList();
+
+                    return CourseCurriculumResponse.SectionItem.builder()
+                            .id(section.getId())
+                            .title(section.getTitle())
+                            .description(section.getDescription())
+                            .displayOrder(section.getDisplayOrder())
+                            .durationMinutes(section.getDurationMinutes())
+                            .lectures(lectureItems)
+                            .build();
+                })
+                .toList();
+
+        int totalDuration = sectionItems.stream()
+                .mapToInt(section -> section.getDurationMinutes() == null ? 0 : section.getDurationMinutes())
+                .sum();
+
+        return CourseCurriculumResponse.builder()
+                .courseId(courseId)
+                .totalSections(sectionItems.size())
+                .totalLectures(lectures.size())
+                .totalDurationMinutes(totalDuration)
+                .sections(sectionItems)
+                .build();
+    }
+
+    private CourseCurriculumResponse.LectureItem toAdminLectureItem(Lecture lecture) {
+        Quiz quiz = lecture.getQuiz();
+
+        return CourseCurriculumResponse.LectureItem.builder()
+                .id(lecture.getId())
+                .title(lecture.getTitle())
+                .description(lecture.getDescription())
+                .contentType(lecture.getContentType())
+                .displayOrder(lecture.getDisplayOrder())
+                .durationMinutes(toMinutes(lecture.getVideoDurationSeconds()))
+                .videoDurationSeconds(lecture.getVideoDurationSeconds())
+                .preview(lecture.getIsPreview())
+                .downloadable(lecture.getIsDownloadable())
+                .completed(false)
+                .status(Boolean.TRUE.equals(lecture.getIsPublished()) ? "PUBLISHED" : "UNPUBLISHED")
+                .quiz(quiz == null ? null : CourseCurriculumResponse.QuizItem.builder()
+                        .id(quiz.getId())
+                        .title(quiz.getTitle())
+                        .description(quiz.getDescription())
+                        .timeLimitMinutes(quiz.getTimeLimitMinutes())
+                        .totalQuestions(quiz.getTotalQuestions())
+                        .completed(false)
+                        .status(Boolean.TRUE.equals(quiz.getIsPublished()) ? "PUBLISHED" : "UNPUBLISHED")
+                        .build())
+                .build();
+    }
+
+    private List<CourseReviewHistoryResponse> getCourseReviewHistory(UUID courseId) {
+        return courseReviewHistoryRepository.findByCourseIdOrderByCreatedAtDesc(courseId)
+                .stream()
+                .map(this::toReviewHistoryResponse)
+                .toList();
+    }
+
+    private CourseReviewHistoryResponse toReviewHistoryResponse(CourseReviewHistory history) {
+        return CourseReviewHistoryResponse.builder()
+                .id(history.getId())
+                .courseId(history.getCourse().getId())
+                .reviewer(userMapper.toResponse(history.getReviewer()))
+                .action(history.getAction())
+                .fromStatus(history.getFromStatus())
+                .toStatus(history.getToStatus())
+                .reason(history.getReason())
+                .createdAt(history.getCreatedAt())
+                .build();
+    }
+
+    private void saveReviewHistory(
+            Course course,
+            User reviewer,
+            CourseReviewAction action,
+            CourseStatus fromStatus,
+            CourseStatus toStatus,
+            String reason
+    ) {
+        courseReviewHistoryRepository.save(CourseReviewHistory.builder()
+                .course(course)
+                .reviewer(reviewer)
+                .action(action)
+                .fromStatus(fromStatus)
+                .toStatus(toStatus)
+                .reason(reason)
+                .build());
+    }
+
+    private User getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private int toMinutes(Integer seconds) {
+        if (seconds == null || seconds <= 0) {
+            return 0;
+        }
+
+        return (int) Math.ceil(seconds / 60.0);
+    }
+
+    private Specification<Course> buildAdminCourseReviewSpecification(
+            String keyword,
+            UUID categoryId,
+            String instructor
+    ) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (keyword != null && !keyword.isBlank()) {
+                String pattern = "%" + keyword.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
+                ));
+            }
+
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+
+            if (instructor != null && !instructor.isBlank()) {
+                String pattern = "%" + instructor.trim().toLowerCase() + "%";
+                Join<Course, Instructor> instructorJoin = root.join("instructor", JoinType.LEFT);
+                Join<Instructor, User> userJoin = instructorJoin.join("user", JoinType.LEFT);
+
+                predicates.add(cb.or(
+                        cb.like(cb.lower(userJoin.get("firstName")), pattern),
+                        cb.like(cb.lower(userJoin.get("lastName")), pattern),
+                        cb.like(cb.lower(userJoin.get("email")), pattern)
+                ));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    private Sort resolveAdminCourseReviewSort(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return Sort.by(Sort.Direction.DESC, "lastUpdatedContent");
+        }
+
+        return switch (sortBy) {
+            case "SUBMITTED_ASC" -> Sort.by(Sort.Direction.ASC, "lastUpdatedContent");
+            case "UPDATED_DESC" -> Sort.by(Sort.Direction.DESC, "updatedAt");
+            case "UPDATED_ASC" -> Sort.by(Sort.Direction.ASC, "updatedAt");
+            case "TITLE_ASC" -> Sort.by(Sort.Direction.ASC, "title");
+            case "TITLE_DESC" -> Sort.by(Sort.Direction.DESC, "title");
+            default -> Sort.by(Sort.Direction.DESC, "lastUpdatedContent");
+        };
+    }
+
+    private AdminCourseReviewItemResponse toAdminCourseReviewItem(Course course) {
+        CourseResponse courseResponse = courseMapper.toResponse(course);
+        CoursePublishChecklistResponse checklist = buildPublishChecklist(course);
+        int totalChecklistItems = checklist.getGroups().stream()
+                .mapToInt(group -> group.getItems().size())
+                .sum();
+        int passedChecklistItems = checklist.getGroups().stream()
+                .flatMap(group -> group.getItems().stream())
+                .mapToInt(item -> PASSED.equals(item.getStatus()) ? 1 : 0)
+                .sum();
+
+        return AdminCourseReviewItemResponse.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .instructor(courseResponse.getInstructor())
+                .category(courseResponse.getCategory())
+                .status(course.getStatus())
+                .totalSections(toInt(courseSectionRepository.countByCourseId(course.getId())))
+                .totalLectures(toInt(lectureRepository.countByCourseId(course.getId())))
+                .totalQuizzes(toInt(lectureRepository.countByCourseIdAndContentType(course.getId(), ContentType.QUIZ)))
+                .checklistReady(checklist.getReady())
+                .checklistPassed(passedChecklistItems)
+                .checklistTotal(totalChecklistItems)
+                .submittedAt(course.getLastUpdatedContent())
+                .updatedAt(course.getUpdatedAt())
+                .build();
+    }
+
+    private int toInt(Long value) {
+        return value == null ? 0 : value.intValue();
     }
 }

@@ -1,6 +1,7 @@
 package com.khangdev.elearningbe.repository;
 
 import com.khangdev.elearningbe.entity.course.Lecture;
+import com.khangdev.elearningbe.enums.ContentType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,6 +29,16 @@ public interface LectureRepository extends JpaRepository<Lecture, UUID> {
         where l.section.course.id = :courseId
     """)
     Long countByCourseId(@Param("courseId") UUID courseId);
+
+    @Query("""
+        select count(l) from Lecture l
+        where l.section.course.id = :courseId
+        and l.contentType = :contentType
+    """)
+    Long countByCourseIdAndContentType(
+            @Param("courseId") UUID courseId,
+            @Param("contentType") ContentType contentType
+    );
 
     @Query("SELECT MAX(l.displayOrder) FROM Lecture l WHERE l.section.id = :sectionId")
     Integer findMaxDisplayOrderBySectionId(UUID sectionId);

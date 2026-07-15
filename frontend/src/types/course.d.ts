@@ -287,6 +287,61 @@ interface QuizResponse extends QuizUpdateRequest {
   questions: QuizQuestionResponse[];
 }
 
+interface QuizAnswerRequest {
+  questionId: string;
+  answers: string[];
+}
+
+interface QuizSubmitRequest {
+  answers: QuizAnswerRequest[];
+}
+
+type QuizAttemptStatus = "IN_PROGRESS" | "SUBMITTED" | "GRADED";
+
+interface QuizAttemptId {
+  userId: string;
+  quizId: string;
+  attemptNumber: number;
+}
+
+interface QuizAttemptResponse {
+  id: QuizAttemptId;
+  attemptNumber: number;
+  startedAt: string;
+  quiz: QuizResponse;
+  user: UserResponse;
+  submittedAt: string | null;
+  timeTakenSeconds: number | null;
+  score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  status: QuizAttemptStatus;
+}
+
+interface QuizAttemptAnswerResponse {
+  questionId: string;
+  answers: string[];
+}
+
+interface QuizAttemptQuestionReviewResponse {
+  questionId: string;
+  questionText: string;
+  points: number;
+  displayOrder: number;
+  options: string[];
+  selectedAnswers: string[];
+  score: number;
+  correct: boolean | null;
+  correctAnswers: string[];
+  explanation: string | null;
+}
+
+interface QuizAttemptReviewResponse {
+  attempt: QuizAttemptResponse;
+  showCorrectAnswers: boolean;
+  questions: QuizAttemptQuestionReviewResponse[];
+}
+
 interface CourseCurriculumLecture {
   id: string;
   title: string;
@@ -374,6 +429,27 @@ interface LectureResponse extends LectureUpdateRequest {
   quiz: QuizResponse | CourseCurriculumQuiz | null;
 }
 
+interface LectureProgressId {
+  userId: string;
+  lectureId: string;
+}
+
+interface LectureProgressResponse {
+  id: LectureProgressId;
+  user: UserResponse;
+  lecture: LectureResponse;
+  progressPercentage: number;
+  lastWatchedPositionSeconds: number | null;
+  totalWatchTimeSeconds: number | null;
+  completed: boolean;
+  completedAt: string | null;
+  firstWatchedAt: string | null;
+  lastWatchedAt: string | null;
+  viewCount: number;
+  bookmarked: boolean;
+  notes: string | null;
+}
+
 interface CourseCurriculumResponse {
   courseId: string;
   totalSections: number;
@@ -426,6 +502,64 @@ interface CoursePublishChecklistResponse {
   courseId: string;
   ready: boolean;
   groups: CoursePublishChecklistGroup[];
+}
+
+type AdminCourseReviewSortOption =
+  | "SUBMITTED_DESC"
+  | "SUBMITTED_ASC"
+  | "UPDATED_DESC"
+  | "UPDATED_ASC"
+  | "TITLE_ASC"
+  | "TITLE_DESC";
+
+type CourseReviewAction = "SUBMITTED" | "RESUBMITTED" | "APPROVED" | "REJECTED";
+
+interface AdminCourseReviewFilters {
+  page: number;
+  size: number;
+  keyword: string;
+  status: "PENDING_REVIEW" | "PUBLISHED" | "REJECTED";
+  categoryId: string;
+  instructor: string;
+  sortBy: AdminCourseReviewSortOption;
+}
+
+interface AdminCourseReviewItemResponse {
+  id: string;
+  title: string;
+  instructor: UserResponse | null;
+  category: CourseCategoryResponse | null;
+  status: CourseStatus;
+  totalSections: number;
+  totalLectures: number;
+  totalQuizzes: number;
+  checklistReady: boolean;
+  checklistPassed: number;
+  checklistTotal: number;
+  submittedAt: string | null;
+  updatedAt: string | null;
+}
+
+interface CourseReviewHistoryResponse {
+  id: string;
+  courseId: string;
+  reviewer: UserResponse | null;
+  action: CourseReviewAction;
+  fromStatus: CourseStatus | null;
+  toStatus: CourseStatus;
+  reason: string | null;
+  createdAt: string;
+}
+
+interface AdminCourseReviewDetailResponse {
+  course: CourseResponse;
+  checklist: CoursePublishChecklistResponse;
+  curriculum: CourseCurriculumResponse;
+  reviewHistory: CourseReviewHistoryResponse[];
+}
+
+interface CourseRejectRequest {
+  reason: string;
 }
 
 interface CourseUpdateRequest {

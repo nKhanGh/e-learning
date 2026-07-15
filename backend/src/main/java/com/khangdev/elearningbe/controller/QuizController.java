@@ -5,6 +5,8 @@ import com.khangdev.elearningbe.dto.request.course.QuizRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizSubmitRequest;
 import com.khangdev.elearningbe.dto.request.course.QuizUpdateRequest;
 import com.khangdev.elearningbe.dto.response.course.QuizAttemptResponse;
+import com.khangdev.elearningbe.dto.response.course.QuizAttemptAnswerResponse;
+import com.khangdev.elearningbe.dto.response.course.QuizAttemptReviewResponse;
 import com.khangdev.elearningbe.dto.response.course.QuizResponse;
 import com.khangdev.elearningbe.service.course.QuizAttemptService;
 import com.khangdev.elearningbe.service.course.QuizService;
@@ -81,10 +83,39 @@ public class QuizController {
                 .build();
     }
 
+    @PutMapping("/{quizId}/attempts/answers")
+    ApiResponse<Void> saveAnswers(
+            @PathVariable UUID quizId,
+            @RequestBody QuizSubmitRequest request
+    ) {
+        quizAttemptService.saveQuizAnswers(quizId, request);
+        return ApiResponse.<Void>builder().message("Quiz answers saved").build();
+    }
+
     @PutMapping("/{quizId}/submission")
     ApiResponse<QuizAttemptResponse> submit(@PathVariable UUID quizId, @RequestBody QuizSubmitRequest request){
         return ApiResponse.<QuizAttemptResponse>builder()
                 .result(quizAttemptService.submitQuiz(quizId, request))
+                .build();
+    }
+
+    @GetMapping("/{quizId}/attempts/{attemptNumber}/answers")
+    ApiResponse<List<QuizAttemptAnswerResponse>> getMyAttemptAnswers(
+            @PathVariable UUID quizId,
+            @PathVariable Integer attemptNumber
+    ) {
+        return ApiResponse.<List<QuizAttemptAnswerResponse>>builder()
+                .result(quizAttemptService.getMyAttemptAnswers(quizId, attemptNumber))
+                .build();
+    }
+
+    @GetMapping("/{quizId}/attempts/{attemptNumber}/review")
+    ApiResponse<QuizAttemptReviewResponse> getMyAttemptReview(
+            @PathVariable UUID quizId,
+            @PathVariable Integer attemptNumber
+    ) {
+        return ApiResponse.<QuizAttemptReviewResponse>builder()
+                .result(quizAttemptService.getMyAttemptReview(quizId, attemptNumber))
                 .build();
     }
 
@@ -99,7 +130,7 @@ public class QuizController {
                 .build();
     }
 
-    @GetMapping("/quizzes/{quizId}/attempts/{attemptNumber}")
+    @GetMapping("/{quizId}/attempts/{attemptNumber}")
     ApiResponse<QuizAttemptResponse> getMyAttempt(
             @PathVariable UUID quizId,
             @PathVariable Integer attemptNumber) {
