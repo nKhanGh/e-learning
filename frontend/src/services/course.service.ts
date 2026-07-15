@@ -88,6 +88,8 @@ export const courseService = {
     ),
   getLecture: (lectureId: string) =>
     apiClient.get<ApiResponse<LectureResponse>>(`/lectures/${lectureId}`),
+  getPublicLecture: (lectureId: string) =>
+    apiClient.get<ApiResponse<LectureResponse>>(`/lectures/public/${lectureId}`),
   createLectureProgress: (lectureId: string) =>
     apiClient.post<ApiResponse<LectureProgressResponse>>(
       `/lectures/${lectureId}/progress`,
@@ -111,6 +113,10 @@ export const courseService = {
     apiClient.delete<ApiResponse<void>>(`/lectures/${lectureId}`),
   getQuizByLecture: (lectureId: string) =>
     apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/lecture/${lectureId}`),
+  getPublicQuizByLecture: (lectureId: string) =>
+    apiClient.get<ApiResponse<QuizResponse>>(
+      `/quizzes/public/lecture/${lectureId}`,
+    ),
   getQuiz: (quizId: string) =>
     apiClient.get<ApiResponse<QuizResponse>>(`/quizzes/${quizId}`),
   createQuiz: (request: QuizRequest) =>
@@ -122,6 +128,19 @@ export const courseService = {
   getQuizQuestions: (quizId: string) =>
     apiClient.get<ApiResponse<QuizQuestionResponse[]>>(
       `/quiz-questions/${quizId}`,
+    ),
+  getMyQuizAttempts: (quizId: string) =>
+    apiClient.get<ApiResponse<QuizAttemptResponse[]>>(
+      `/quizzes/${quizId}/attempts`,
+    ),
+  startQuizAttempt: (quizId: string) =>
+    apiClient.post<ApiResponse<QuizAttemptResponse>>(
+      `/quizzes/${quizId}/attempts`,
+    ),
+  submitQuiz: (quizId: string, request: QuizSubmitRequest) =>
+    apiClient.put<ApiResponse<QuizAttemptResponse>>(
+      `/quizzes/${quizId}/submission`,
+      request,
     ),
   createQuizQuestion: (request: QuizQuestionRequest) =>
     apiClient.post<ApiResponse<QuizQuestionResponse>>(

@@ -20,6 +20,7 @@ import { useLocale } from "next-intl";
 import Link from "next/link";
 import { useMessageQueryClient } from "@/hooks/queries/useMessageQueries";
 import { useMutation } from "@tanstack/react-query";
+import { DEFAULT_COURSE_THUMBNAIL, getCourseThumbnailSrc } from "@/lib/courseThumbnail";
 
 interface ChatMainProps {
   selectedChat: ConversationResponse | null;
@@ -611,12 +612,12 @@ const ChatMain = ({
                               >
                                 <div className="relative w-full h-24 overflow-hidden">
                                   <img
-                                    src={
-                                      course.thumbnailUrl ||
-                                      "/default-course-background.png"
-                                    }
+                                    src={getCourseThumbnailSrc(course.thumbnailUrl)}
                                     alt={course.title}
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    onError={(event) => {
+                                      event.currentTarget.src = DEFAULT_COURSE_THUMBNAIL;
+                                    }}
                                   />
                                   <div className="absolute top-1.5 right-1.5 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-1.5 py-1 rounded-full">
                                     ✦{" "}

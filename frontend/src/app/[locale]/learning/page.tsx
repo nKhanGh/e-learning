@@ -3,12 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyLearningQuery } from "@/hooks/queries/useEnrollmentQueries";
+import { DEFAULT_COURSE_THUMBNAIL, getCourseThumbnailSrc } from "@/lib/courseThumbnail";
 import { UserRole } from "@/types/enums/UserRole.enum";
 import { BookOpen, CalendarClock, GraduationCap, PlayCircle } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
-
-const DEFAULT_COURSE_THUMBNAIL = "/default-course-background.png";
 
 const formatDate = (
   value: Date | string | null | undefined,
@@ -114,7 +113,7 @@ const MyLearningPage = () => {
                 >
                   <div className="h-40 bg-gray-100 dark:bg-border">
                     <img
-                      src={course.thumbnailUrl || DEFAULT_COURSE_THUMBNAIL}
+                      src={getCourseThumbnailSrc(course.thumbnailUrl)}
                       alt={course.title}
                       className="h-full w-full object-cover"
                       onError={(event) => {

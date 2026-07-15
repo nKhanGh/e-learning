@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyCoursesQuery } from "@/hooks/queries/useCourseQueries";
 import { useDebounce } from "@/hooks/useDebounce";
+import { DEFAULT_COURSE_THUMBNAIL, getCourseThumbnailSrc } from "@/lib/courseThumbnail";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserRole } from "@/types/enums/UserRole.enum";
@@ -70,24 +71,6 @@ const formatPrice = (course: CourseResponse, locale: string, freeLabel: string) 
     currency: course.currency || "USD",
     maximumFractionDigits: 0,
   }).format(course.price ?? 0);
-};
-
-const DEFAULT_COURSE_THUMBNAIL = "/default-course-background.png";
-
-const getCourseThumbnailSrc = (thumbnailUrl: string | null | undefined) => {
-  if (!thumbnailUrl) return DEFAULT_COURSE_THUMBNAIL;
-
-  try {
-    const url = new URL(thumbnailUrl);
-
-    if (url.hostname === "www.google.com" && url.pathname.includes("/imgres")) {
-      return url.searchParams.get("imgurl") || DEFAULT_COURSE_THUMBNAIL;
-    }
-
-    return thumbnailUrl;
-  } catch {
-    return DEFAULT_COURSE_THUMBNAIL;
-  }
 };
 
 const MyCoursesPage = () => {

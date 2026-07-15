@@ -16,6 +16,7 @@ import {
   useApproveCourseReviewMutation,
   useRejectCourseReviewMutation,
 } from "@/hooks/queries/useCourseQueries";
+import { DEFAULT_COURSE_THUMBNAIL, getCourseThumbnailSrc } from "@/lib/courseThumbnail";
 import { UserRole } from "@/types/enums/UserRole.enum";
 import {
   ArrowLeft,
@@ -357,11 +358,11 @@ const AdminCourseReviewDetailPage = () => {
             </h2>
             <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-border dark:bg-bg">
               <img
-                src={course.thumbnailUrl || "/default-course-background.png"}
+                src={getCourseThumbnailSrc(course.thumbnailUrl)}
                 alt={course.title}
                 className="h-44 w-full object-cover"
                 onError={(event) => {
-                  event.currentTarget.src = "/default-course-background.png";
+                  event.currentTarget.src = DEFAULT_COURSE_THUMBNAIL;
                 }}
               />
               <div className="grid grid-cols-2 gap-3 p-3 text-sm">

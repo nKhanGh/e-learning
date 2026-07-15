@@ -5,6 +5,7 @@ import {
   useCreateQuizQuestionMutation,
   useDeleteQuizQuestionMutation,
   useImportQuizQuestionsMutation,
+  usePublicQuizByLectureQuery,
   useQuizByLectureQuery,
   useQuizQuestionsQuery,
   useUpdateQuizMutation,
@@ -32,6 +33,7 @@ type QuizPreviewContentProps = {
   lectureTitle: string;
   fallbackQuiz: QuizResponse | CourseCurriculumQuiz | null;
   readOnly?: boolean;
+  publicAccess?: boolean;
 };
 
 export function QuizPreviewContent({
@@ -41,12 +43,15 @@ export function QuizPreviewContent({
   lectureTitle,
   fallbackQuiz,
   readOnly = false,
+  publicAccess = false,
 }: QuizPreviewContentProps) {
   const t = useTranslations("InstructorCourseStudioPage");
-  const quizQuery = useQuizByLectureQuery(lectureId);
+  const privateQuizQuery = useQuizByLectureQuery(publicAccess ? "" : lectureId);
+  const publicQuizQuery = usePublicQuizByLectureQuery(publicAccess ? lectureId : "");
+  const quizQuery = publicAccess ? publicQuizQuery : privateQuizQuery;
   const quiz = quizQuery.data ?? fallbackQuiz;
   const quizId = quiz?.id ?? "";
-  const questionsQuery = useQuizQuestionsQuery(quizId);
+  const questionsQuery = useQuizQuestionsQuery(quizId, !publicAccess);
   const fallbackQuestions =
     isFullQuizResponse(quiz) && Array.isArray(quiz.questions)
       ? quiz.questions

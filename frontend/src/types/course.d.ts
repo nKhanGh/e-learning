@@ -287,6 +287,36 @@ interface QuizResponse extends QuizUpdateRequest {
   questions: QuizQuestionResponse[];
 }
 
+interface QuizAnswerRequest {
+  questionId: string;
+  answers: string[];
+}
+
+interface QuizSubmitRequest {
+  answers: QuizAnswerRequest[];
+}
+
+type QuizAttemptStatus = "IN_PROGRESS" | "SUBMITTED" | "GRADED";
+
+interface QuizAttemptId {
+  userId: string;
+  quizId: string;
+  attemptNumber: number;
+}
+
+interface QuizAttemptResponse {
+  id: QuizAttemptId;
+  attemptNumber: number;
+  quiz: QuizResponse;
+  user: UserResponse;
+  submittedAt: string | null;
+  timeTakenSeconds: number | null;
+  score: number | null;
+  percentage: number | null;
+  passed: boolean | null;
+  status: QuizAttemptStatus;
+}
+
 interface CourseCurriculumLecture {
   id: string;
   title: string;

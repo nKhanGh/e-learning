@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,6 +43,17 @@ public class QuizServiceImpl implements QuizService {
         if (user.getRole() != UserRole.ADMIN && !courseUserId.equals(user.getId())) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
+    }
+
+    private QuizResponse toPublicQuizResponse(Quiz quiz) {
+        QuizResponse response = quizMapper.toQuizResponse(quiz);
+        if (response.getQuestions() != null) {
+            response.getQuestions().forEach(question -> {
+                question.setCorrectAnswers(List.of());
+                question.setExplanation(null);
+            });
+        }
+        return response;
     }
 
     @Override
@@ -83,7 +95,7 @@ public class QuizServiceImpl implements QuizService {
         Quiz quiz = quizRepository.findByLectureId(lectureId)
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
-        return quizMapper.toQuizResponse(quiz);
+        return toPublicQuizResponse(quiz);
     }
 
     @Override
@@ -128,6 +140,6 @@ public class QuizServiceImpl implements QuizService {
         if(!quiz.getIsPublished()){
             authorizeRead(quiz.getLecture().getSection().getCourse().getInstructor().getId());
         }
-        return quizMapper.toQuizResponse(quiz);
+        return toPublicQuizResponse(quiz);
     }
 }

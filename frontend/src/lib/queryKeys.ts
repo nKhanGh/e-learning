@@ -51,6 +51,9 @@ export const queryKeys = {
   quizQuestions: {
     byQuiz: (quizId: string) => ["quiz-questions", "quiz", quizId] as const,
   },
+  quizAttempts: {
+    byQuiz: (quizId: string) => ["quiz-attempts", "quiz", quizId] as const,
+  },
   enrollments: {
     me: (courseId: string) => ["enrollments", "me", courseId] as const,
     byCourse: (courseId: string) => ["enrollments", "course", courseId] as const,

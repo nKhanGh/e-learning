@@ -1,7 +1,6 @@
 "use client";
 
 import { CourseLectureSidebar } from "@/components/courseDetail/CourseLectureSidebar";
-import { MarkdownRenderer } from "@/components/markdown/MarkdownRenderer";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -11,7 +10,7 @@ import {
   useCourseQuery,
   useCourseLectureProgressQuery,
   useCreateLectureProgressMutation,
-  useLectureQuery,
+  usePublicLectureQuery,
 } from "@/hooks/queries/useCourseQueries";
 import { cn } from "@/lib/utils";
 import { UserRole } from "@/types/enums/UserRole.enum";
@@ -20,17 +19,17 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  ExternalLink,
-  FileText,
   Lock,
-  PlayCircle,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { LecturePreviewContent } from "../../../../../instructor/studio/[id]/preview/lectures/[lectureId]/components/LecturePreviewContent";
+import { ResourceList } from "../../../../../instructor/studio/[id]/preview/lectures/[lectureId]/components/ResourceList";
+import { StudentQuizContent } from "./components/StudentQuizContent";
 
 const canOpenLecture = (
   lecture?: CourseCurriculumLecture,
@@ -49,6 +48,7 @@ const StudentLecturePage = () => {
   const lectureId = params.lectureId;
   const { isLoggedIn, user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const openedProgressLecturesRef = useRef<Set<string>>(new Set());
   const courseQuery = useCourseQuery(courseId);
   const curriculumQuery = useCourseCurriculumQuery(courseId);
   const enrollmentStatusQuery = useCourseEnrollmentStatusQuery(courseId, isLoggedIn);
@@ -79,7 +79,7 @@ const StudentLecturePage = () => {
   const nextItem = findNavigableItem(flatLectures, currentIndex, 1);
   const enrollmentStatus = enrollmentStatusQuery.data;
   const allowed = canOpenLecture(currentItem?.lecture, enrollmentStatus);
-  const lectureQuery = useLectureQuery(allowed ? lectureId : "");
+  const lectureQuery = usePublicLectureQuery(allowed ? lectureId : "");
   const progressQuery = useCourseLectureProgressQuery(
     courseId,
     Boolean(enrollmentStatus?.enrolled),
@@ -100,7 +100,9 @@ const StudentLecturePage = () => {
     if (!allowed || !enrollmentStatus?.enrolled) return;
     if (progressQuery.isLoading || currentProgress) return;
     if (createProgressMutation.isPending) return;
+    if (openedProgressLecturesRef.current.has(lectureId)) return;
 
+    openedProgressLecturesRef.current.add(lectureId);
     createProgressMutation.mutate(undefined, {
       onError: () => {
         toast.error(t("progress.openFailed"));
@@ -111,6 +113,7 @@ const StudentLecturePage = () => {
     createProgressMutation,
     currentProgress,
     enrollmentStatus?.enrolled,
+    lectureId,
     progressQuery.isLoading,
     t,
   ]);
@@ -289,15 +292,32 @@ const StudentLecturePage = () => {
                   {displayLecture.contentType.replace("_", " ")}
                 </span>
               </div>
-              <LectureContent lecture={lecture} fallbackLecture={displayLecture} />
+              {displayLecture.contentType === "QUIZ" ? (
+                <StudentQuizContent
+                  lectureId={lectureId}
+                  fallbackQuiz={lecture?.quiz ?? currentItem.lecture.quiz ?? null}
+                  canAttempt={Boolean(enrollmentStatus?.enrolled)}
+                />
+              ) : (
+                <LecturePreviewContent
+                  courseId={courseId}
+                  sectionId={currentItem.section.id}
+                  lectureTitle={displayLecture.title}
+                  lecture={lecture}
+                  contentType={displayLecture.contentType}
+                  quiz={lecture?.quiz ?? currentItem.lecture.quiz ?? null}
+                  attachments={attachments}
+                  readOnly
+                  publicAccess
+                />
+              )}
             </section>
-
             {attachments.length > 0 && displayLecture.contentType !== "FILE" ? (
               <section className="rounded-lg border border-gray-200 bg-white p-4 dark:border-border dark:bg-surface">
-                <h2 className="text-sm font-bold text-gray-950 dark:text-text">
+                <h2 className="text-lg font-bold text-gray-950 dark:text-text">
                   {t("resources")}
                 </h2>
-                <ResourceLinks attachments={attachments} />
+                <ResourceList attachments={attachments} />
               </section>
             ) : null}
 
@@ -352,108 +372,6 @@ const StudentLecturePage = () => {
   );
 };
 
-const LectureContent = ({
-  lecture,
-  fallbackLecture,
-}: {
-  lecture?: LectureResponse;
-  fallbackLecture: LectureResponse | CourseCurriculumLecture;
-}) => {
-  const t = useTranslations("StudentLecturePage");
-  const contentType = fallbackLecture.contentType;
-
-  if (contentType === "ARTICLE") {
-    return (
-      <MarkdownRenderer
-        content={lecture?.textContent}
-        emptyText={t("articleEmpty")}
-      />
-    );
-  }
-
-  if (contentType === "VIDEO") {
-    if (!lecture?.videoUrl) return <EmptyMessage message={t("videoEmpty")} />;
-
-    return (
-      <video
-        className="aspect-video w-full rounded-lg bg-gray-950"
-        controls
-        poster={lecture.videoThumbnailUrl || undefined}
-        src={lecture.videoUrl}
-      />
-    );
-  }
-
-  if (contentType === "FILE") {
-    const attachments = lecture?.attachments ?? [];
-    return attachments.length ? (
-      <ResourceLinks attachments={attachments} />
-    ) : (
-      <EmptyMessage message={t("fileEmpty")} />
-    );
-  }
-
-  if (contentType === "EXTERNAL_LINK") {
-    return lecture?.externalUrl ? (
-      <a
-        href={lecture.externalUrl}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
-      >
-        {t("openExternal")}
-        <ExternalLink className="h-4 w-4" />
-      </a>
-    ) : (
-      <EmptyMessage message={t("externalEmpty")} />
-    );
-  }
-
-  return (
-    <div className="rounded-lg border border-dashed border-gray-200 p-6 text-center dark:border-border">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <FileText className="h-5 w-5" />
-      </div>
-      <h2 className="mt-3 text-lg font-bold text-gray-950 dark:text-text">
-        {lecture?.quiz?.title ?? fallbackLecture.title}
-      </h2>
-      <p className="mt-2 text-sm text-gray-500 dark:text-muted">
-        {t("quizComingSoon")}
-      </p>
-    </div>
-  );
-};
-
-const ResourceLinks = ({ attachments }: { attachments: string[] }) => {
-  const t = useTranslations("StudentLecturePage");
-
-  return (
-    <div className="mt-3 space-y-2">
-      {attachments.map((attachment) => (
-        <a
-          key={attachment}
-          href={attachment}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-between gap-3 rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:border-primary hover:text-primary dark:border-border dark:text-muted"
-        >
-          <span className="min-w-0 truncate">{getResourceName(attachment)}</span>
-          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold">
-            {t("openResource")}
-            <ExternalLink className="h-3.5 w-3.5" />
-          </span>
-        </a>
-      ))}
-    </div>
-  );
-};
-
-const EmptyMessage = ({ message }: { message: string }) => (
-  <div className="rounded-lg border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500 dark:border-border dark:text-muted">
-    {message}
-  </div>
-);
-
 const LearningState = ({
   title,
   subtitle,
@@ -488,16 +406,6 @@ const findNavigableItem = (
   }
 
   return undefined;
-};
-
-const getResourceName = (value: string) => {
-  try {
-    const url = new URL(value);
-    const lastSegment = url.pathname.split("/").filter(Boolean).at(-1);
-    return decodeURIComponent(lastSegment || url.hostname);
-  } catch {
-    return value;
-  }
 };
 
 const sortByDisplayOrder = <T extends { displayOrder?: number | null }>(

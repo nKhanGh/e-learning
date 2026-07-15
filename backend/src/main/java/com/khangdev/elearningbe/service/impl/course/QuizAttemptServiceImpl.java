@@ -49,7 +49,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         UUID userId = userService.getMyInfo().getId();
-        if(enrollmentRepository.existsByUserIdAndCourseId(userId, quiz.getLecture().getSection().getCourse().getId())){
+        if(!enrollmentRepository.existsByUserIdAndCourseId(userId, quiz.getLecture().getSection().getCourse().getId())){
             throw new AppException(ErrorCode.ENROLLMENT_NOT_FOUND);
         }
 
@@ -87,7 +87,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
         Quiz quiz;
         quiz = quizRepository.findById(quizId).orElseThrow(()-> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         UUID userId = userService.getMyInfo().getId();
-        if(enrollmentRepository.existsByUserIdAndCourseId(userId, quiz.getLecture().getSection().getCourse().getId())){
+        if(!enrollmentRepository.existsByUserIdAndCourseId(userId, quiz.getLecture().getSection().getCourse().getId())){
             throw new AppException(ErrorCode.ENROLLMENT_NOT_FOUND);
         }
         Integer attemptNumber = quizAttemptRepository.findMaxAttemptNumber(quizId, userId);
@@ -130,7 +130,7 @@ public class QuizAttemptServiceImpl implements QuizAttemptService {
                         .multiply(BigDecimal.valueOf(100));
         quizAttempt.setPercentage(percentage);
 
-        quizAttempt.setPassed(quizAttempt.getScore().compareTo(quiz.getPassingScore()) >= 0);
+        quizAttempt.setPassed(quizAttempt.getPercentage().compareTo(quiz.getPassingScore()) >= 0);
         quizAttempt.setStatus(AttemptStatus.GRADED);
         quizAttemptRepository.save(quizAttempt);
 
